@@ -1,0 +1,32 @@
+
+<!ELEMENT trial (input)+>
+
+<!ELEMENT trial (input)+>
+<!ATTLIST trial id ID #REQUIRED>
+
+<!ELEMENT input (param)*>
+<!ATTLIST input type CDATA #REQUIRED>
+
+<!ELEMENT population (param)*>
+<!ATTLIST population id ID #REQUIRED>
+<!ATTLIST population type CDATA #REQUIRED>
+
+<!ELEMENT range EMPTY>
+<!ATTLIST range name CDATA #REQUIRED>
+<!ATTLIST range start CDATA #REQUIRED>
+<!ATTLIST range end CDATA #REQUIRED>
+<!ATTLIST range step CDATA "1">
+
+
+<!ELEMENT param (#PCDATA | range)>
+<!ATTLIST param name CDATA #REQUIRED>
+<!ATTLIST param sigma CDATA "0">
+
+<!ELEMENT connection EMPTY>
+<!ATTLIST connection from IDREF #REQUIRED>
+<!ATTLIST connection to IDREF #REQUIRED>
+<!ATTLIST connection weight CDATA #REQUIRED>
+<!ATTLIST connection sigma CDATA "0">
+<!ATTLIST connection density CDATA "1">
+<!ATTLIST connection direction CDATA "oneway">
+
