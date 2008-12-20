@@ -14,4 +14,4 @@ $(EXECUTABLE): $(OBJECTS)
 	${CXX} $< -o $@
 
 clean:
-	rm -f dtnet *.o *.out lib/tinyxml/*.o
+	rm -f dtnet src/*.o src/lib/tinyxml/*.o
