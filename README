@@ -2,3 +2,8 @@ Requirements
 ============
 - Boost 1.37+
 - Gri
+
+Installation
+============
+1) Type "make" in the same folder as the file "Makefile"
+2) This produces the binary "dtnet".  Place this somewhere in your PATH environment variable.
