@@ -10,8 +10,6 @@
 #include <time.h>
 #include <boost/random.hpp>
 
-using namespace std;
-
 struct NeuronParams {
 	
 	// Model Selection
@@ -74,8 +72,8 @@ class Neuron {
 		
 	public:
 		// Recording Variables
-        vector<float> voltage;
-		vector<float> spikes;
+        std::vector<float> voltage;
+        std::vector<float> spikes;
 		
 		// Methods
 		Neuron(NeuronParams params);

@@ -8,11 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-using namespace std;
-
-int parseargs(int argc, char* argv[], bool& verbose, string& script, int& procs);
+int parseargs(int argc, char* argv[], bool& verbose, std::string& script, int& procs);
 void outputHelp();
-
 
 #endif
 

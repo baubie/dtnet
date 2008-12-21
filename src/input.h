@@ -13,7 +13,6 @@
 
 class Input {
 	
-	
 	private:
         std::vector< std::vector<double> > signals;
         void generateSignals(double T, double dt, double delay);

@@ -6,16 +6,14 @@
 #include <vector>
 #include "neuron.h"
 
-using namespace std;
-
 class Population {
 
     public:
 		// Parameters
-		string name;
+        std::string name;
 		
 		// Methods
-		vector<Neuron> neurons;
-		Population(string name, int size, NeuronParams params);
+        std::vector<Neuron> neurons;
+		Population(std::string name, int size, NeuronParams params);
 };
 #endif

@@ -15,8 +15,6 @@
 #include "population.h"
 #include "lib/tinyxml/tinyxml.h"
 
-using namespace std;
-
 class Net {
 
     private:
@@ -30,23 +28,23 @@ class Net {
 		double alphaTauE;
         double alphaTauI;
 		
-		vector<Population> populations;
-        vector< vector<double> > delays;
-        vector< vector<double> > weights;
+        std::vector<Population> populations;
+        std::vector< std::vector<double> > delays;
+        std::vector< std::vector<double> > weights;
 
-		vector< vector<double> > inputs;
-        vector<double> alphaE;
-        vector<double> alphaI;
+        std::vector< std::vector<double> > inputs;
+        std::vector<double> alphaE;
+        std::vector<double> alphaI;
 
-        int createPopulation(string name, int size, NeuronParams params);
+        int createPopulation(std::string name, int size, NeuronParams params);
         int numPopulations();
-        void initAlpha(float q, float tau, vector<double> &vals);
-		double alpha(float t, vector<float> &spikes, double delay, double weight);
+        void initAlpha(float q, float tau, std::vector<double> &vals);
+		double alpha(float t, std::vector<float> &spikes, double delay, double weight);
 		void initSimulation();
 		void finalizePopulations();
 		void connectPopulations(int from, int to, double weight, double delay);
-		void connectInput(int to, vector<double> input);
-		void geninput(vector<double>* input, float duration, float mu, double delay);		
+		void connectInput(int to, std::vector<double> input);
+		void geninput(std::vector<double>* input, float duration, float mu, double delay);		
 		void runSimulation();
 
     public:
@@ -54,7 +52,7 @@ class Net {
         bool verbose;
 
 	
-		void saveVoltages(string filename);
-		void loadNetwork(string filename);		
+		void saveVoltages(std::string filename);
+		void loadNetwork(std::string filename);		
 };
 #endif
