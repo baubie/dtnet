@@ -1,5 +1,7 @@
 #include "trial.h"
 
+using namespace std;
+
 Trial::Trial(double T, double dt, double delay)
 {
     this->T = T;

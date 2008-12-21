@@ -1,6 +1,8 @@
 
 #include "population.h"
 
+using namespace std;
+
 Population::Population(string name, int size, NeuronParams params) {
     this->name = name;
 	

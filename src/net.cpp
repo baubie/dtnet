@@ -1,6 +1,8 @@
 
 #include "net.h"
 
+using namespace std;
+
 Net::Net() {
 
     unsigned int seed = time(NULL);

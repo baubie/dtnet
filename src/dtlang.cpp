@@ -1,17 +1,16 @@
 
 #include "dtlang.h"
 
-
 struct strCmp {
-    bool operator()( const string s1, const string s2 ) const {
+    bool operator()( const std::string &s1, const std::string &s2 ) const {
         return strcmp( s1.c_str(), s2.c_str() ) < 0;
     }
 };
 
 namespace dtlang {
-    map<string, function_def> functions;
-    map<string, variable_def> vars;
-    map<int, string> type_names;
+    map<std::string, function_def> functions;
+    map<std::string, variable_def> vars;
+    map<int, std::string> type_names;
 }
 
 
@@ -309,6 +308,10 @@ void dtlang::initialize_functions()
     p.help = "A trial variable from an already loaded trial.";
     p.optional = false;
     f.params["trial"] = p;
+    p.type = dtlang::TYPE_STRING;
+    p.help = "Filename to save the generated postscript file to.";
+    p.optional = true;
+    p.def = "inputs.ps";
     dtlang::functions["graphinputs"] = f;
 
     // external()
@@ -364,7 +367,11 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	} 
 
 	if (name == "graphinputs") {
-        return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), verbose);
+        if (params.size() == 1) {
+            return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), "inputs.ps", verbose);
+        } else if (params.size() == 2) {
+            return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), verbose);
+        }
 	} 
 
 	if (name == "vars") {
@@ -657,7 +664,7 @@ bool dtlang::f_loadtrial(const string filename, Trial *trial, bool verbose) {
     return true;
 }
 
-bool dtlang::f_graphinputs(Trial &trial, bool verbose) {
+bool dtlang::f_graphinputs(Trial &trial, string const &filename, bool verbose) {
     vector<vector<double> >* signals = trial.signals();
     vector<double>* timesteps = trial.timeSteps();
 
@@ -669,6 +676,6 @@ bool dtlang::f_graphinputs(Trial &trial, bool verbose) {
     start.b = 0.5;
     plotProperties.first = start;
     gri.plot(*timesteps, *signals, plotProperties);
-    gri.draw("inputs.ps");
+    gri.draw(filename);
     return true;
 }

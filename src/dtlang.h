@@ -108,7 +108,7 @@ namespace dtlang
     bool f_quit(boost::threadpool::pool &tp, bool verbose);
     bool f_benchmark(boost::threadpool::pool &tp, double mult);
     bool f_runsimulation(string name, Input input, Net net, bool verbose);
-    bool f_graphinputs(Trial &trial, bool verbose);
+    bool f_graphinputs(Trial &trial, string const &filename, bool verbose);
     bool f_loadtrial(const string filename, Trial *trial, bool verbose);
     bool f_external(string filename, boost::threadpool::pool &tp, bool verbose, bool &end_input);
 
@@ -201,15 +201,15 @@ namespace dtlang
 
 BOOST_FUSION_ADAPT_STRUCT(
     dtlang::function_call,
-    (string, name)
-    (string, first_param)
+    (std::string, name)
+    (std::string, first_param)
     (dtlang::parameters, params)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
     dtlang::variable_assign,
-    (string, name)
-    (string, value)
+    (std::string, name)
+    (std::string, value)
 )
 
 #endif
