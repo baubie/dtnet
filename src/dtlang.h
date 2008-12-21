@@ -36,7 +36,6 @@ namespace dtlang
     static const int TYPE_TRIAL = 5;
     static const int TYPE_NET = 6;
 
-
     using namespace boost::spirit;
     using namespace boost::spirit::ascii;
     using namespace boost::spirit::qi;

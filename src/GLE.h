@@ -7,6 +7,7 @@
 #define GLE_H
 
 #include <vector>
+#include <map>
 #include <cstdio>
 #include <string>
 #include <fstream>
@@ -49,11 +50,11 @@ class GLE
             bool auto_layout;
 
             CanvasProperties() :
-                width(4),
-                height(5),
+                width(8.5),
+                height(8.5),
                 columns(1),
-                margin_top(1.5),
-                margin_left(1.5),
+                margin_top(0.25),
+                margin_left(0.25),
                 auto_layout(true)
             {}
         };
@@ -114,6 +115,7 @@ class GLE
             std::vector<std::vector<double> > y;
             std::vector<double> x;
             PlotProperties properties;
+            std::string data_file;
         };
 
         struct Panel {
@@ -124,8 +126,8 @@ class GLE
         std::vector<Panel> panels;
 
         bool verifyData(Plot &plot);
-        std::string data_to_file();
-        std::string gle_script_to_file(std::string const &data_file, std::string const &output_file);
+        bool data_to_file();
+        std::string gle_script_to_file();
 };
 
 #endif

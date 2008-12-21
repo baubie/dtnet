@@ -1,9 +1,7 @@
 Requirements
 ============
 - Boost 1.37+
-- Graphing Tools:
-- - Gri
-- - GLE
+- GLE (For graphing)
 
 Installation
 ============
