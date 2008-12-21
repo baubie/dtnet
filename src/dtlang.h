@@ -13,7 +13,7 @@
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "lib/threadpool/threadpool.hpp"
-#include "gri++.h"
+#include "GLE.h"
 #include "net.h"
 #include "trial.h"
 #include <string>

@@ -312,6 +312,7 @@ void dtlang::initialize_functions()
     p.help = "Filename to save the generated postscript file to.";
     p.optional = true;
     p.def = "inputs.ps";
+    f.params["filename"] = p;
     dtlang::functions["graphinputs"] = f;
 
     // external()
@@ -344,7 +345,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         if (iter_param->second.optional == true)  ++opt;
     }
     if (params.size() < req || params.size() > req+opt) {
-        cout << "Error: Incorrect number of function parameters.\nType \"help(" << name << ")\" for more information." << endl;
+        cout << "Error: Incorrect number of function parameters.\nType \"help(\"" << name << "\")\" for more information." << endl;
         return false;
     }
     //TODO: Check if paramter type is correct
@@ -668,14 +669,14 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename, bool verbose) {
     vector<vector<double> >* signals = trial.signals();
     vector<double>* timesteps = trial.timeSteps();
 
-    Gri gri;
-    Gri::PlotProperties plotProperties;
-    Gri::Color start;
+    GLE gle;
+    GLE::PlotProperties plotProperties;
+    GLE::Color start;
     start.r = 0.5;
     start.g = 0.5;
     start.b = 0.5;
     plotProperties.first = start;
-    gri.plot(*timesteps, *signals, plotProperties);
-    gri.draw(filename);
+    gle.plot(*timesteps, *signals, plotProperties);
+    gle.draw(filename);
     return true;
 }

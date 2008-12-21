@@ -1,10 +1,10 @@
-/** Gri++
- *  Gri interface for C++
+/** GLE++
+ *  GLE interface for C++
  *  Written by Brandon Aubie
  */
 
-#ifndef GRI_H
-#define GRI_H
+#ifndef GLE_H
+#define GLE_H
 
 #include <vector>
 #include <cstdio>
@@ -17,7 +17,7 @@
 #include <boost/iostreams/stream.hpp>
 #include <math.h>
 
-class Gri
+class GLE
 {
     public:
         
@@ -125,7 +125,7 @@ class Gri
 
         bool verifyData(Plot &plot);
         std::string data_to_file();
-        std::string griscript_to_file(std::string const &data_file, std::string const &output_file);
+        std::string gle_script_to_file(std::string const &data_file, std::string const &output_file);
 };
 
 #endif

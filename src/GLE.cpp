@@ -1,36 +1,35 @@
 
-#include "gri++.h"
+#include "GLE.h"
 
 using namespace std;
 
-
-bool Gri::verifyData(Gri::Plot &plot)
+bool GLE::verifyData(GLE::Plot &plot)
 {
     vector<vector<double> >::iterator iter;
     for (iter = plot.y.begin(); iter != plot.y.end(); ++iter)
     {
         if (iter->size() != plot.x.size())
         {
-            cout << "[Gri++] Error: x and y vector sizes do not all match!" << endl;
+            cout << "[GLE++] Error: x and y vector sizes do not all match!" << endl;
             return false;
         }
     }
     return true;
 }
 
-Gri::PanelID Gri::plot(vector<double> const &x, vector<double> const &y, Gri::PlotProperties properties)
+GLE::PanelID GLE::plot(vector<double> const &x, vector<double> const &y, GLE::PlotProperties properties)
 {
-    return this->plot(x, y, properties, Gri::NEW_PANEL);
+    return this->plot(x, y, properties, GLE::NEW_PANEL);
 }
 
-Gri::PanelID Gri::plot(vector<double> const &x, vector<vector<double> > const &y, Gri::PlotProperties properties)
+GLE::PanelID GLE::plot(vector<double> const &x, vector<vector<double> > const &y, GLE::PlotProperties properties)
 {
-    return this->plot(x, y, properties, Gri::NEW_PANEL);
+    return this->plot(x, y, properties, GLE::NEW_PANEL);
 }
 
-Gri::PanelID Gri::plot(vector<double> const &x, vector<vector<double> > const &y, Gri::PlotProperties properties, Gri::PanelID ID)
+GLE::PanelID GLE::plot(vector<double> const &x, vector<vector<double> > const &y, GLE::PlotProperties properties, GLE::PanelID ID)
 {
-    Gri::Plot plot;
+    GLE::Plot plot;
     plot.x = x;
     plot.y = y;
     plot.properties = properties;
@@ -38,7 +37,7 @@ Gri::PanelID Gri::plot(vector<double> const &x, vector<vector<double> > const &y
 
     Panel panel;
 
-    if (ID == Gri::NEW_PANEL) 
+    if (ID == GLE::NEW_PANEL) 
     {
         // Get a new ID
         this->panels.push_back(panel);
@@ -52,7 +51,7 @@ Gri::PanelID Gri::plot(vector<double> const &x, vector<vector<double> > const &y
         } 
         catch (out_of_range outOfRange)
         {
-            cout << "[Gri++] Attempted to add to a non-existent panel (" << outOfRange.what() << ")." << endl;
+            cout << "[GLE++] Attempted to add to a non-existent panel (" << outOfRange.what() << ")." << endl;
             return false;
         }
         
@@ -65,49 +64,49 @@ Gri::PanelID Gri::plot(vector<double> const &x, vector<vector<double> > const &y
 }
 
 
-Gri::PanelID Gri::plot(vector<double> const &x, vector<double> const &y, Gri::PlotProperties properties, Gri::PanelID ID)
+GLE::PanelID GLE::plot(vector<double> const &x, vector<double> const &y, GLE::PlotProperties properties, GLE::PanelID ID)
 {
     vector<vector<double> > tmp;
     tmp.push_back(y);
     return this->plot(x, tmp, properties, ID);
 }
 
-bool Gri::draw()
+bool GLE::draw()
 {
     return this->draw("output.ps");
 }
 
-bool Gri::draw(string const &filename)
+bool GLE::draw(string const &filename)
 {
     string data_file = this->data_to_file();
-    string griscript_file = this->griscript_to_file(data_file, filename);
+    string gle_script_file = this->gle_script_to_file(data_file, filename);
 
     size_t MAX_BUFFER = 255;
-    string command = string("gri ") + griscript_file;
-    string gri_output;
+    string command = string("gle ") + gle_script_file;
+    string gle_output;
     FILE *stream;
     char buffer[MAX_BUFFER];
 
     stream = popen(command.c_str(), "r");
-    while( fgets(buffer, MAX_BUFFER, stream) != NULL ) cout << "[Gri++.output] " << buffer;
+    while( fgets(buffer, MAX_BUFFER, stream) != NULL ) cout << "[GLE++.output] " << buffer;
     pclose(stream);
-    cout << "[Gri++] Saved plot to " << filename << endl;
+    cout << "[GLE++] Saved plot to " << filename << endl;
 
     // TODO: Delete Temporary Files
 
     return true;
 }
 
-string Gri::data_to_file()
+string GLE::data_to_file()
 {
-    char data_filename[] = "/tmp/gri_data_XXXXXX";
+    char data_filename[] = "/tmp/gle_data_XXXXXX";
     int pTemp = mkstemp(data_filename);
     boost::iostreams::file_descriptor_sink sink( pTemp );
     boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
 
     if (!of) 
     {
-       cout << "[Gri++] Unable to create temporary file." << endl;
+       cout << "[GLE++] Unable to create temporary file." << endl;
        return false;
     }
 
@@ -140,9 +139,9 @@ string Gri::data_to_file()
     return string(data_filename);
 }
 
-string Gri::griscript_to_file(string const &data_file, string const &output_file)
+string GLE::gle_script_to_file(string const &data_file, string const &output_file)
 {
-    char filename[] = "/tmp/gri_script_XXXXXX";
+    char filename[] = "/tmp/gle_script_XXXXXX";
     int pTemp = mkstemp(filename);
     boost::iostreams::file_descriptor_sink sink( pTemp );
     boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
@@ -218,7 +217,7 @@ string Gri::griscript_to_file(string const &data_file, string const &output_file
     close ( pTemp );
 
     string old_filename = string(filename);
-    string new_filename = string(filename) + ".gri";
+    string new_filename = string(filename) + ".gle";
     rename(old_filename.c_str(), new_filename.c_str());
     return new_filename; 
 }
