@@ -12,6 +12,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <iomanip>
 #include <boost/iostreams/device/file_descriptor.hpp>
@@ -53,7 +54,7 @@ class GLE
                 width(8.5),
                 height(8.5),
                 columns(1),
-                margin_top(0.25),
+                margin_top(0.50),
                 margin_left(0.25),
                 auto_layout(true)
             {}
