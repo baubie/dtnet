@@ -13,13 +13,24 @@
 #include <math.h>
 #include <errno.h>
 #include "population.h"
+#include "neuron.h"
 #include "lib/tinyxml/tinyxml.h"
 
 class Net {
 
+    public:
+        Net();
+        bool verbose;
+        std::string name; // A name for this network
+
+		void saveVoltages(std::string filename);
+		bool load(std::string filename, std::string &error);	
+        int count_populations();
+        std::string toString();
+
     private:
-		float dt;
-		float T;
+		double dt;
+		double T;
 
         static const int ALPHA_WIDTH = 20; // 20 ms is MORE than enough width for the alpha function
         static const int CONSTANT_INPUT = 999;
@@ -35,24 +46,22 @@ class Net {
         std::vector< std::vector<double> > inputs;
         std::vector<double> alphaE;
         std::vector<double> alphaI;
+        
+        std::string filename;
 
-        int createPopulation(std::string name, int size, NeuronParams params);
+        void createPopulation(std::string name, std::string ID, int size, NeuronParams params);
+                
         int numPopulations();
-        void initAlpha(float q, float tau, std::vector<double> &vals);
-		double alpha(float t, std::vector<float> &spikes, double delay, double weight);
+        void initAlpha(double q, double tau, std::vector<double> &vals);
+		double alpha(double t, std::vector<double> &spikes, double delay, double weight);
 		void initSimulation();
 		void finalizePopulations();
 		void connectPopulations(int from, int to, double weight, double delay);
 		void connectInput(int to, std::vector<double> input);
-		void geninput(std::vector<double>* input, float duration, float mu, double delay);		
+		void geninput(std::vector<double>* input, double duration, double mu, double delay);		
 		void runSimulation();
 
-    public:
-        Net();
-        bool verbose;
+        bool parseXML(std::string filename, std::string &error);
 
-	
-		void saveVoltages(std::string filename);
-		void loadNetwork(std::string filename);		
 };
 #endif

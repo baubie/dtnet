@@ -13,10 +13,6 @@
 
 class Input {
 	
-	private:
-        std::vector< std::vector<double> > signals;
-        void generateSignals(double T, double dt, double delay);
-	
 	public:
 		static const int PURE = 1;
 		static const int PULSE = 2;
@@ -37,5 +33,10 @@ class Input {
         Input();
         std::vector<std::vector<double> >* inputs(double T, double dt, double delay);
         std::string toString();
+
+
+	private:
+        std::vector< std::vector<double> > signals;
+        void generateSignals(double T, double dt, double delay);
 };
 #endif

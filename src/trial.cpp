@@ -9,21 +9,6 @@ Trial::Trial(double T, double dt, double delay)
     this->delay = delay;
 }
 
-Trial::Trial(const Trial &trial)
-{
-    this->T = trial.T;
-    this->dt = trial.dt;
-    this->delay = trial.delay;
-    if (trial.filename != "") {
-        cout << "Reloading trial to create new object.";
-        string error;
-        if (this->load(trial.filename, error)) {
-            cout << "\t[OK]" << endl;
-        }
-    }
-}
-
-
 bool Trial::load(string filename, string &error)
 {
 	if (parseXML(filename, error))
@@ -122,8 +107,6 @@ bool Trial::parseXML(string filename, string &error) {
 
 	if (doc.LoadFile()) {
 
-		map<string, string> params;
-		string trial_name = "input";
 		stringstream name;
 
 		TiXmlHandle hDoc(&doc);
@@ -168,7 +151,6 @@ bool Trial::parseXML(string filename, string &error) {
 				hParam = pElemParam;
                // Found a Parameter Element With Text
 				if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
-					params[pElemParam->Attribute("name")] = pElemParam->FirstChild()->Value();
                     if (strcmp(pElemParam->Attribute("name"),"duration") == 0) {
                         input.duration.start = (float)atof(pElemParam->FirstChild()->Value());
                         input.duration.end = (float)atof(pElemParam->FirstChild()->Value());

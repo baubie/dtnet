@@ -17,42 +17,43 @@ struct NeuronParams {
 	ModelTypes type;
 	
 	// Model Parameters (Poisson)
-	float mu;
+	double mu;
 	
 	// Model Parameters (AEIF)
 	enum Integrators { Euler, Euler2, RungeKutta };
 	Integrators integrator; 
 	bool jitter;
-	float VT;
-	float C;
-	float hypTau;
-	float alpha_q;
-	float gL;
-	float EL;
-	float tauw;
-	float a;
-	float deltaT;
-	float b;
-	float VR;
+	double VT;
+	double C;
+	double hypTau;
+	double alpha_q;
+	double gL;
+	double EL;
+	double tauw;
+	double a;
+	double deltaT;
+	double b;
+	double VR;
 
-	int jVT;
-	int jC;
-	int jhypTau;
-	int jalpha_q;
-	int jgL;
-	int jEL;
-	int jtauw;
-	int ja;
-	int jdeltaT;
-	int jb;
-	int jVR;
+    // The sigma value of each parameter
+	double jVT;
+	double jC;
+	double jhypTau;
+	double jalpha_q;
+	double jgL;
+	double jEL;
+	double jtauw;
+	double ja;
+	double jdeltaT;
+	double jb;
+	double jVR;
 };
 
 class Neuron {
 
 	private:
-		float V;    // Voltage (mV)
-		float w;
+		double V;    // Voltage (mV)
+		double w;
 		
 		static const int spikeHeight = -20;
 			
@@ -60,26 +61,26 @@ class Neuron {
 		NeuronParams params;		
 		
 		// Calculate next voltage change with different methods
-		float V_update(float V, float current, int position);
-		float w_update();
-		void Spike(int position, float dt);
-		void Euler(float current, int position, float dt);
-		void Euler2(float current, int position, float dt);
-		void RungeKutta(float current, int position, float dt);
+		double V_update(double V, double current, int position);
+		double w_update();
+		void Spike(int position, double dt);
+		void Euler(double current, int position, double dt);
+		void Euler2(double current, int position, double dt);
+		void RungeKutta(double current, int position, double dt);
 	
 		// Calculuate poisson spikes
-		void Poisson(float current, int position, float dt);
+		void Poisson(double current, int position, double dt);
 		
 	public:
 		// Recording Variables
-        std::vector<float> voltage;
-        std::vector<float> spikes;
+        std::vector<double> voltage;
+        std::vector<double> spikes;
 		
 		// Methods
 		Neuron(NeuronParams params);
 		static NeuronParams defaultParams();
 		void init(int steps);
 		void jitter();
-		void update(float current, int position, float dt);
+		void update(double current, int position, double dt);
 };
 #endif

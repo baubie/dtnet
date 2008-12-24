@@ -29,6 +29,7 @@
 namespace dtlang 
 {
     static const int NO_RETURN = 999999;
+    static const int TYPE_ANY = 2948242;
     static const int TYPE_VOID = 1;
     static const int TYPE_STRING = 2;
     static const int TYPE_INT = 3;
@@ -109,7 +110,9 @@ namespace dtlang
     bool f_runsimulation(string name, Input input, Net net, bool verbose);
     bool f_graphinputs(Trial &trial, string const &filename, bool verbose);
     bool f_loadtrial(const string filename, Trial *trial, bool verbose);
+    bool f_loadnetwork(const string filename, Net *net, bool verbose);
     bool f_external(string filename, boost::threadpool::pool &tp, bool verbose, bool &end_input);
+    bool f_print(void* ptr, int const type);
 
     /**
      * Comment Parser

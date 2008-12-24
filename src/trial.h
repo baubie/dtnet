@@ -13,6 +13,17 @@
 #include "lib/tinyxml/tinyxml.h"
 
 class Trial {
+
+	public:	
+        std::string name; // A name for the trial
+
+        Trial(double T, double dt, double delay);
+		bool load(std::string filename, std::string &error);		
+        std::vector<std::vector<double> >* signals();
+        std::vector<double>* timeSteps();
+        int count();
+
+        std::string toString();
 	
 	private:
         std::vector<Input> inputs;
@@ -28,18 +39,5 @@ class Trial {
         double delay; // A delay before time 0 in the trial
 
         std::string filename;
-		
-	public:	
-
-        std::string name; // A name for the trial
-
-        Trial(double T, double dt, double delay);
-        Trial(const Trial &trial);
-		bool load(std::string filename, std::string &error);		
-        std::vector<std::vector<double> >* signals();
-        std::vector<double>* timeSteps();
-        int count();
-
-        std::string toString();
 };
 #endif

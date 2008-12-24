@@ -201,7 +201,7 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool ma
                     break;
                 
                 case dtlang::TYPE_NET:
-                    cout << "Sorry, copying a Net object is not yet supported." << endl << endl;
+                    var.obj = new Net(*(static_cast<Net*>(oldvar.obj)));
                     break;
 
                 default:
@@ -227,6 +227,7 @@ void dtlang::initialize_variables()
     dtlang::variable_def v;
 
     dtlang::type_names[dtlang::TYPE_VOID] = "Void";
+    dtlang::type_names[dtlang::TYPE_ANY] = "*ANY*";
     dtlang::type_names[dtlang::TYPE_DOUBLE] = "Double";
     dtlang::type_names[dtlang::TYPE_INT] = "Integer";
     dtlang::type_names[dtlang::TYPE_STRING] = "String";
@@ -300,6 +301,16 @@ void dtlang::initialize_functions()
     f.params["filename"] = p;
     dtlang::functions["loadtrial"] = f;
 
+    // loadnetwork()
+    f.help = "Load and return a network from a network XML file. This function must be assigned to a variable.";
+    f.return_type = dtlang::TYPE_NET;
+    f.params.clear();
+    p.type = dtlang::TYPE_STRING;
+    p.help = "Filename of the network XML file.";
+    p.optional = false;
+    f.params["filename"] = p;
+    dtlang::functions["loadnetwork"] = f;
+
     // graphinputs()
     f.help = "Display a graph showing some or all of the inputs from a trial.";
     f.return_type = dtlang::TYPE_VOID;
@@ -324,6 +335,16 @@ void dtlang::initialize_functions()
     p.optional = false;
     f.params["filename"] = p;
     dtlang::functions["external"] = f;
+
+    // print()
+    f.help = "Print the contents of the variable by either simply printing it or calling the corresponding C++ function \"toString()\", depending on the type.";
+    f.return_type = dtlang::TYPE_VOID;
+    f.params.clear();
+    p.type = dtlang::TYPE_ANY;
+    p.help = "Variable to print.";
+    p.optional = false;
+    f.params["variable"] = p;
+    dtlang::functions["print"] = f;
 }
 
 bool dtlang::runFunction(const string &name, const vector<variable_def> &params, boost::threadpool::pool &tp, bool &verbose, void *&r, int &r_type, bool &end_input)
@@ -382,6 +403,10 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	if (name == "funcs") {
         return dtlang::f_funcs();
 	} 
+
+	if (name == "print") {
+        return dtlang::f_print(params[0].obj, params[0].type);
+	} 
 	
 	if (name == "benchmark") {
         if (params.size() == 0) {
@@ -394,6 +419,15 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	if (name == "external") {
         return dtlang::f_external(*(static_cast<string*>(params[0].obj)), tp, verbose, end_input);
 	}
+
+    if (name == "loadnetwork") {
+        if (r_type == dtlang::NO_RETURN) {
+            cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
+            return false;
+        }
+        r = new Net();
+        return dtlang::f_loadnetwork(*(static_cast<string*>(params[0].obj)), static_cast<Net*>(r), verbose);
+    }
 
 	if (name == "loadtrial") {
         if (r_type == dtlang::NO_RETURN) {
@@ -650,6 +684,21 @@ bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool
     }
 }
 
+bool dtlang::f_loadnetwork(const string filename, Net *net, bool verbose) {
+
+    string error;
+    /* Load Network */
+    if (verbose) cout << "...Loading network definition from " << filename;
+    if ( net->load(filename, error) == false ) {
+        if (verbose) cout << "\t[FAILED]" << endl;
+        return false;
+    }
+    if (verbose) cout << "\t[OK]" << endl;
+    if (verbose) cout << "...Loaded " << net->count_populations() << " populations" << endl;
+    return true;
+}
+
+
 bool dtlang::f_loadtrial(const string filename, Trial *trial, bool verbose) {
 
     string error;
@@ -697,3 +746,37 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename, bool verbose) {
     gle.draw(filename);
     return true;
 }
+
+bool dtlang::f_print(void* ptr, int const type)
+{
+    switch(type)
+    {
+        case dtlang::TYPE_STRING:
+            cout << *(static_cast<string*>(ptr)) << endl;
+            break;
+
+        case dtlang::TYPE_TRIAL:
+            cout << static_cast<Trial*>(ptr)->toString() << endl;
+            break;
+
+        case dtlang::TYPE_NET:
+            cout << static_cast<Net*>(ptr)->toString() << endl;
+            break;    
+
+        case dtlang::TYPE_INT:
+            cout << *(static_cast<int*>(ptr)) << endl;
+            break;    
+
+        case dtlang::TYPE_DOUBLE:
+            cout << *(static_cast<double*>(ptr)) << endl;
+            break;        
+            
+        default:
+            cout << "Cannot print this data type." << endl;
+            return false;
+            break;
+    }
+    return true;
+
+}
+

@@ -62,19 +62,22 @@ Neuron::Neuron(NeuronParams params) {
 
 	void Neuron::jitter() {
        
+        //TODO: Replace this jitter with a Gaussian distribution 
+        
         // Jitter by a percentage
         // [-x,+x] = rand() % (2x+1) - x
-		float jit_C = rand() % (this->params.jC*2+1) - this->params.jC;
-		float jit_VT = rand() % (this->params.jVT*2+1) - this->params.jVT;
-		float jit_hypTau = rand() % (this->params.jhypTau*2+1) - this->params.jhypTau;
-		float jit_alpha_q = rand() % (this->params.jalpha_q*2+1) - this->params.jalpha_q;
-		float jit_gL = rand() % (this->params.jgL*2+1) - this->params.jgL;
-		float jit_EL = rand() % (this->params.jEL*2+1) - this->params.jEL;
-		float jit_tauw = rand() % (this->params.jtauw*2+1) - this->params.jtauw;
-		float jit_a = rand() % (this->params.ja*2+1) - this->params.ja;
-		float jit_deltaT = rand() % (this->params.jdeltaT*2+1) - this->params.jdeltaT;
-		float jit_b = rand() % (this->params.jb*2+1) - this->params.jb;
-		float jit_VR = rand() % (this->params.jVR*2+1) - this->params.jVR;
+        /*
+		double jit_C = rand() % (this->params.jC*2+1) - this->params.jC;
+		double jit_VT = rand() % (this->params.jVT*2+1) - this->params.jVT;
+		double jit_hypTau = rand() % (this->params.jhypTau*2+1) - this->params.jhypTau;
+		double jit_alpha_q = rand() % (this->params.jalpha_q*2+1) - this->params.jalpha_q;
+		double jit_gL = rand() % (this->params.jgL*2+1) - this->params.jgL;
+		double jit_EL = rand() % (this->params.jEL*2+1) - this->params.jEL;
+		double jit_tauw = rand() % (this->params.jtauw*2+1) - this->params.jtauw;
+		double jit_a = rand() % (this->params.ja*2+1) - this->params.ja;
+		double jit_deltaT = rand() % (this->params.jdeltaT*2+1) - this->params.jdeltaT;
+		double jit_b = rand() % (this->params.jb*2+1) - this->params.jb;
+		double jit_VR = rand() % (this->params.jVR*2+1) - this->params.jVR;
 
 		this->params.C *= jit_C/100.0+1.0;
 		this->params.VT *= jit_VT/100.0+1.0;
@@ -87,9 +90,10 @@ Neuron::Neuron(NeuronParams params) {
 		this->params.deltaT *= (jit_deltaT/100.0+1.0);
 		this->params.b *= (jit_b/100.0+1.0);
 		this->params.VR *= (jit_VR/100.0+1.0);
+        */
 	}
 
-	void Neuron::update(float current, int position, float dt) {
+	void Neuron::update(double current, int position, double dt) {
 		switch(params.type) {
             
 			case NeuronParams::AEIF:
@@ -115,7 +119,7 @@ Neuron::Neuron(NeuronParams params) {
         
 	}
 
-	void Neuron::Poisson(float current, int position, float dt) {
+	void Neuron::Poisson(double current, int position, double dt) {
 
 
         // Use rand() to determine if we have a spike
@@ -136,7 +140,7 @@ Neuron::Neuron(NeuronParams params) {
 		}
 	}
 
-	void Neuron::Euler(float current, int position, float dt) {
+	void Neuron::Euler(double current, int position, double dt) {
 		w += w_update() * dt;
 		V += V_update(V, current, position) * dt;
         
@@ -144,30 +148,30 @@ Neuron::Neuron(NeuronParams params) {
 		Spike(position, dt);
 	}
 
-	void Neuron::Euler2(float current, int position, float dt) {
+	void Neuron::Euler2(double current, int position, double dt) {
 		w += w_update() * dt; // Just stick with Euler
         
-		float Vtmp = V + V_update(V, current, position) * dt; // Trial step
+		double Vtmp = V + V_update(V, current, position) * dt; // Trial step
 		V += 0.5 * (V_update(V, current, position) + V_update(Vtmp, current, position)) * dt;
         
 		voltage[position] = V;
 		Spike(position, dt);
 	}
 
-	void Neuron::RungeKutta(float current, int position, float dt) {
+	void Neuron::RungeKutta(double current, int position, double dt) {
 		w += w_update() * dt; // Just stick with Euler
         
-		float k1 = V_update(V, current, position)*dt;
-		float k2 = V_update(V+0.5*k1, current, position)*dt;
-		float k3 = V_update(V+0.5*k2, current, position)*dt;
-		float k4 = V_update(V+k3, current, position)*dt;
+		double k1 = V_update(V, current, position)*dt;
+		double k2 = V_update(V+0.5*k1, current, position)*dt;
+		double k3 = V_update(V+0.5*k2, current, position)*dt;
+		double k4 = V_update(V+k3, current, position)*dt;
 		V += (k1+2*k2+2*k3+k4)/6;
         
 		voltage[position] = V;
 		Spike(position, dt);
 	}
 
-	void Neuron::Spike(int position, float dt) {
+	void Neuron::Spike(int position, double dt) {
 		switch(params.type) {
 			case NeuronParams::AEIF:
 				if (V >= 20) {
@@ -185,17 +189,17 @@ Neuron::Neuron(NeuronParams params) {
 		}
 	}
 
-	float Neuron::V_update(float V, float current, int position) {
+	double Neuron::V_update(double V, double current, int position) {
 			
-		float IL;
-		float ILd;	
+		double IL;
+		double ILd;	
 		IL = params.gL * (V - params.EL);
 		ILd = -params.gL * params.deltaT * exp((V-params.VT)/params.deltaT);
 		double r =  (current - IL - ILd - w) / params.C;
 		if (r > 100000) r = 100000; // Prevent overflows
-		return (float)r;
+		return (double)r;
 	}
 
-	float Neuron::w_update() {
+	double Neuron::w_update() {
 		return (params.a*(V-params.EL)-w)/params.tauw;
 	}

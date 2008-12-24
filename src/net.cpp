@@ -19,10 +19,13 @@ Net::Net() {
     srand( seed );
 }
 
-int Net::createPopulation(string name, int size, NeuronParams params) {
+int Net::count_populations() {
+    return this->populations.size();
+}
+
+void Net::createPopulation(string name, string ID, int size, NeuronParams params) {
     
-	populations.push_back(Population(name, size, params));
-	return populations.size()-1;
+	populations.push_back(Population(name, ID, size, params));
 }
 
 int Net::numPopulations() {
@@ -45,8 +48,8 @@ void Net::finalizePopulations() {
 
 void Net::initSimulation() {
 
-    initAlpha((float)1000.0, this->alphaTauE, alphaE);
-    initAlpha((float)1000.0, this->alphaTauI, alphaI);
+    initAlpha((double)1000.0, this->alphaTauE, alphaE);
+    initAlpha((double)1000.0, this->alphaTauI, alphaI);
 
 	for (unsigned int p=0; p < populations.size(); p++) { // Loop over populations
 		for (unsigned int n=0; n < populations.at(p).neurons.size(); n++) { // Loop over neurons
@@ -64,7 +67,7 @@ void Net::connectInput(int to, vector<double> input) {
     inputs[to] = vector<double> (input);
 }
 
-void Net::initAlpha(float q, float tau, vector<double> &vals) {
+void Net::initAlpha(double q, double tau, vector<double> &vals) {
 
     int alpha_steps = (int)(ALPHA_WIDTH/dt);
 
@@ -76,9 +79,9 @@ void Net::initAlpha(float q, float tau, vector<double> &vals) {
     }
 }
 
-double Net::alpha(float t, vector<float> &spikes, double delay, double weight) {
+double Net::alpha(double t, vector<double> &spikes, double delay, double weight) {
 	double current = 0;
-	float spike;
+	double spike;
     int step;
     unsigned int numSpikes = spikes.size();
 
@@ -147,10 +150,10 @@ void Net::saveVoltages(string filename) {
 	fout.write((char*)&pops, sizeof(int));
 	
 	// Next write out the timesteps
-	float t;
+	double t;
 	for (unsigned int ts=0; ts < steps; ts++) {		
 		t = ts*dt - 10;
-		fout.write((char*)&t, sizeof(float));
+		fout.write((char*)&t, sizeof(double));
 	}
 	
 	for (unsigned int p=0; p < populations.size(); p++) { // Loop over populations
@@ -167,20 +170,20 @@ void Net::saveVoltages(string filename) {
 		fout.write((char*)&namesize, sizeof(int));
 		fout.write(const_cast<char*>(name), sizeof(char)*namesize);
 		for (unsigned int n=0; n < populations.at(p).neurons.size(); n++) { // Loop over neurons
-            fout.write((char*)&populations.at(p).neurons.at(n).voltage[0], sizeof(float)*steps);
+            fout.write((char*)&populations.at(p).neurons.at(n).voltage[0], sizeof(double)*steps);
 			// Write out the spike times
 			int numspikes = populations.at(p).neurons.at(n).spikes.size();
 			fout.write((char*)&numspikes, sizeof(int));
-			fout.write((char*)&populations.at(p).neurons.at(n).spikes[0],sizeof(float)*numspikes);
+			fout.write((char*)&populations.at(p).neurons.at(n).spikes[0],sizeof(double)*numspikes);
 		}
 	}
 	
 	fout.close();
 }
 
-void Net::geninput(vector<double>* input, float duration, float mu, double delay) {
+void Net::geninput(vector<double>* input, double duration, double mu, double delay) {
    /* Create an input signal
-	* fills float input with values in [0,inf]
+	* fills double input with values in [0,inf]
 	* Where 0 is no firing and 1 is firing at mu
 	* Therefore 2 is firing at 2*mu, etc.
 	*/
@@ -241,14 +244,166 @@ void Net::geninput(vector<double>* input, float duration, float mu, double delay
     }
 }
 
+string Net::toString() {
+    stringstream r;
+    
+    r << "Network Name: " << this->name << endl;
+    r << "Number of Populations: " << this->populations.size() << endl;
+    vector<Population>::iterator iter;
+    for ( iter = this->populations.begin(); iter != this->populations.end(); ++iter) {
+        r << "== Population ==\n" << (*iter).toString() << endl;
+    }
+    return r.str();
+}
+
+bool Net::load(std::string filename, std::string &error)
+{
+    if (parseXML(filename, error))
+    {
+        this->filename = filename;
+        return true;
+    }
+    return false;
+}
 
 
+bool Net::parseXML(string filename, string &error)
+{
+	TiXmlDocument doc(filename);
 
+	if (doc.LoadFile()) {
+
+		stringstream name;
+
+		TiXmlHandle hDoc(&doc);
+		TiXmlElement* pElem;
+		TiXmlElement* pElemParam;
+		TiXmlHandle hRoot(0);
+		TiXmlHandle hConnection(0);
+		TiXmlHandle hPopulation(0);
+		TiXmlHandle hParam(0);
+
+        // Find Root
+		pElem=hDoc.FirstChildElement().Element();
+		if (!pElem) {
+			error = "Invalid root.";
+			return false;
+		}
+		hRoot = pElem;
+	
+        // Load Network Attributes 
+    	pElem->QueryValueAttribute("name", &this->name);
+
+        // Load Each Population
+ 		pElem = hRoot.FirstChild( "population" ).Element();
+		for( /***/; pElem; pElem = pElem->NextSiblingElement("population")) {
+
+            string pop_name;
+            string pop_id;
+    		int pop_size = 0;
+            NeuronParams np;
+            hPopulation = pElem;        
+
+            if (strcmp(pElem->Attribute("type"), "Poisson") == 0) {
+                np.type = NeuronParams::POISSON;
+            }
+            if (strcmp(pElem->Attribute("type"), "aEIF") == 0) {
+                np.type = NeuronParams::AEIF;
+            }
+            pElem->QueryValueAttribute("id", &pop_id);             
+            pElem->QueryValueAttribute("name", &pop_name);             
+            
+			pElemParam = hPopulation.FirstChild( "param" ).Element();
+			for ( /***/; pElemParam; pElemParam = pElemParam->NextSiblingElement( "param" )) {
+
+				hParam = pElemParam;
+               // Found a Parameter Element With Text
+				if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
+
+                    if (strcmp(pElemParam->Attribute("name"),"size") == 0) {
+                        pop_size = (int)atoi(pElemParam->FirstChild()->Value());
+                    }
+         
+                    if (strcmp(pElemParam->Attribute("name"),"VT") == 0) {
+                        np.VT = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jVT);                    
+                    }
+                    
+                    if (strcmp(pElemParam->Attribute("name"),"C") == 0) {
+                        np.C = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jC);                    
+                    }
+                    
+                    if (strcmp(pElemParam->Attribute("name"),"hypTau") == 0) {
+                        np.hypTau = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jhypTau);                    
+                    }
+
+                    if (strcmp(pElemParam->Attribute("name"),"alpha_q") == 0) {
+                        np.alpha_q = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jalpha_q);                    
+                    }
+
+                    if (strcmp(pElemParam->Attribute("name"),"gL") == 0) {
+                        np.gL = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jgL);                    
+                    }
+
+                    if (strcmp(pElemParam->Attribute("name"),"EL") == 0) {
+                        np.EL = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jEL);                    
+                    }
+                                        
+                    if (strcmp(pElemParam->Attribute("name"),"tauw") == 0) {
+                        np.tauw = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jtauw);                    
+                    }
+
+                    if (strcmp(pElemParam->Attribute("name"),"a") == 0) {
+                        np.a = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.ja);                    
+                    }
+
+                    if (strcmp(pElemParam->Attribute("name"),"b") == 0) {
+                        np.b = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jb);                    
+                    }
+
+                    if (strcmp(pElemParam->Attribute("name"),"deltaT") == 0) {
+                        np.deltaT = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jdeltaT);                    
+                    }
+
+                    if (strcmp(pElemParam->Attribute("name"),"VR") == 0) {
+                        np.VR = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.jVR);                    
+                    }
+                    
+               // Found a Parameter Element With A Range Element
+				} else if (pElemParam->FirstChild()->Type() == TiXmlNode::ELEMENT) {
+                    //TODO: Handle range element
+				}
+				
+				
+			} // Parameter Loop            
+            createPopulation(pop_name, pop_id, pop_size, np);
+        }
+
+        return true;
+	} else {
+		error = "Unable to find file or XML syntax error.";
+		return false;
+	}   
+
+}
+
+
+/*
 void Net::loadNetwork(string filename) 
 {
     if (verbose) cout << "...Loading Network From " << filename << endl;
 
-    /*
+    
 
 	using namespace libconfig;	
 	
@@ -259,14 +414,14 @@ void Net::loadNetwork(string filename)
     cfg.lookupValue("simulation.T", T);
     this->T = T;
 
-    float dt = 0.05;
+    double dt = 0.05;
     cfg.lookupValue("simulation.dt", dt);
     this->dt = dt;
 
     this->steps = (unsigned int)(T/dt);
 
-    float alphaTauE = 0.7;
-    float alphaTauI = 1.1;
+    double alphaTauE = 0.7;
+    double alphaTauI = 1.1;
     cfg.lookupValue("simulation.alphaTauE", alphaTauE);
     cfg.lookupValue("simulation.alphaTauI", alphaTauI);
     this->alphaTauE = alphaTauE;
@@ -344,5 +499,5 @@ void Net::loadNetwork(string filename)
         }
         //connectPopulations(popID[(const char *)network[i][0]], popID[(const char *)network[i][1]], (double)network[i][2], (double)network[i][3]);
     }
-    */
 }
+*/
