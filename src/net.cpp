@@ -23,9 +23,9 @@ int Net::count_populations() {
     return this->populations.size();
 }
 
-void Net::createPopulation(string name, string ID, int size, NeuronParams params) {
+void Net::createPopulation(string name, string ID, int size, bool accept_input, NeuronParams params) {
     
-	populations.push_back(Population(name, ID, size, params));
+	populations.push_back(Population(name, ID, size, accept_input, params));
 }
 
 int Net::numPopulations() {
@@ -301,6 +301,7 @@ bool Net::parseXML(string filename, string &error)
             string pop_name;
             string pop_id;
     		int pop_size = 0;
+            bool accept_input = false;
             NeuronParams np;
             hPopulation = pElem;        
 
@@ -319,6 +320,10 @@ bool Net::parseXML(string filename, string &error)
 				hParam = pElemParam;
                // Found a Parameter Element With Text
 				if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
+
+                    if (strcmp(pElemParam->Attribute("name"),"accept_input") == 0) {
+                        accept_input = (strcmp(pElemParam->FirstChild()->Value(), "true") == 0);
+                    }
 
                     if (strcmp(pElemParam->Attribute("name"),"size") == 0) {
                         pop_size = (int)atoi(pElemParam->FirstChild()->Value());
@@ -386,7 +391,7 @@ bool Net::parseXML(string filename, string &error)
 				
 				
 			} // Parameter Loop            
-            createPopulation(pop_name, pop_id, pop_size, np);
+            createPopulation(pop_name, pop_id, pop_size, accept_input, np);
         }
 
         return true;

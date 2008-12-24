@@ -627,7 +627,7 @@ bool dtlang::delete_variable(variable_def var) {
 }
 
 
-bool dtlang::f_runsimulation(string name, Input input, Net net, bool verbose) {
+bool dtlang::f_runsimulation(Input input, Net net, bool verbose) {
 
     /*
     // Initiate multiple threads to run the network over all inputs

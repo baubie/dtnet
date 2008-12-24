@@ -107,7 +107,7 @@ namespace dtlang
     bool f_funcs();
     bool f_quit(boost::threadpool::pool &tp, bool verbose);
     bool f_benchmark(boost::threadpool::pool &tp, double mult);
-    bool f_runsimulation(string name, Input input, Net net, bool verbose);
+    bool f_runsimulation(Input input, Net net, bool verbose);
     bool f_graphinputs(Trial &trial, string const &filename, bool verbose);
     bool f_loadtrial(const string filename, Trial *trial, bool verbose);
     bool f_loadnetwork(const string filename, Net *net, bool verbose);

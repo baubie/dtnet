@@ -49,7 +49,7 @@ class Net {
         
         std::string filename;
 
-        void createPopulation(std::string name, std::string ID, int size, NeuronParams params);
+        void createPopulation(std::string name, std::string ID, int size, bool accept_input, NeuronParams params);
                 
         int numPopulations();
         void initAlpha(double q, double tau, std::vector<double> &vals);
