@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+
+<network name="Simple Network">
+
+    <connection>
+        <param name="from" value="CN" /> 
+        <param name="to" value="SI" />
+        <param name="weight" value="6" />
+        <param name="sigma" value="5" />
+        <param name="density" value="0.2" />
+        <param name="bidirectional" value="false" />
+    </connection>
+
+    <population id="CN" name="Cochlear Nucleus" type="Poisson">
+        <param name="size">25</param>
+        <param name="accept_input">true</param>
+    </population>
+
+    <population id="SI" name="Sustained Inhibition" type="aEIF">
+        <param name="size">10</param>
+        <param name="C" sigma="5">220</param>
+        <param name="a" sigma="0">40</param>
+        <param name="b" sigma="2">20</param>
+        <param name="tauw" sigma="0">250</param>
+        <param name="EL" sigma="0">-65</param>
+        <param name="VR" sigma="0">-63</param>
+        <param name="VT" sigma="2">-52</param>
+    </population>
+</network>
+
+

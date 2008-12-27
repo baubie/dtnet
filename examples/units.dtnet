@@ -1,0 +1,18 @@
+file = "input/input.xml"
+D = 20491.424
+vars()
+funcs()
+trial1 = loadtrial(file)
+trial2 = loadtrial("input/input.xml")
+graphinputs(trial1)
+tmp = trial1
+trial2 = trial2
+tmp = D
+tmp = 20.23
+trial1 = trial2
+trial1 = "No Wammies!"
+trial2 = "I'll try :)"
+benchmark(0.01)
+help("help")
+help()
+quit()
