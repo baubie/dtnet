@@ -82,8 +82,14 @@ bool GLE::draw(string const &filename)
     string gle_script_file = this->gle_script_to_file();
     string command = string("gle -output ") + filename + " " + gle_script_file;
 
-    system(command.c_str());
-    cout << "[GLE] Saved plot to " << filename << endl;
+    int r = system(command.c_str());
+	if (r != 0) {
+		cout << "[GLE] An error occured." << endl;
+    }
+	else
+    {
+	    cout << "[GLE] Saved plot to " << filename << endl;
+    }
 
     // Delete the temporary files
     vector<Panel>::iterator panel_iter;
@@ -97,7 +103,7 @@ bool GLE::draw(string const &filename)
         }
     }
 
-    return true;
+    return (r == 0);
 }
 
 bool GLE::data_to_file()

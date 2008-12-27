@@ -1,6 +1,6 @@
 CCFLAGS = -g -Wall -O3 -ffast-math -funroll-loops -mtune=nocona -ftree-vectorize
 CXX = g++ $(CCFLAGS) 
-LFLAGS = -lrt -L /home/aubiebn/local64/lib -lboost_thread-gcc43-mt -lboost_iostreams-gcc43-mt -lreadline -lcurses
+LFLAGS = -lrt -lboost_thread-gcc43-mt -lboost_iostreams-gcc43-mt -lreadline -lcurses
 SOURCES = src/dtnet.cpp src/net.cpp src/input.cpp src/trial.cpp src/population.cpp src/neuron.cpp src/parseargs.cpp src/lib/tinyxml/tinyxml.cpp src/lib/tinyxml/tinyxmlerror.cpp src/lib/tinyxml/tinyxmlparser.cpp src/lib/tinyxml/tinystr.cpp src/dtlang.cpp src/GLE.cpp src/simulation.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 EXECUTABLE = dtnet
@@ -18,3 +18,4 @@ clean:
 
 docs:
 	doxygen
+	make docs/latex/Makefile
