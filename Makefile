@@ -15,3 +15,6 @@ $(EXECUTABLE): $(OBJECTS)
 
 clean:
 	rm -f dtnet src/*.o src/lib/tinyxml/*.o
+
+docs:
+	doxygen
