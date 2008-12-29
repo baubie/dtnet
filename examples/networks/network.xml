@@ -7,13 +7,15 @@
         <param name="from" value="CN" /> 
         <param name="to" value="SI" />
         <param name="weight" value="6" />
+        <param name="delay" value="1" />
         <param name="sigma" value="5" />
-        <param name="density" value="0.2" />
+        <param name="density" value="1" />
         <param name="bidirectional" value="false" />
     </connection>
 
     <population id="CN" name="Cochlear Nucleus" type="Poisson">
         <param name="size">25</param>
+		<param name="mu">300</param>
         <param name="accept_input">true</param>
     </population>
 

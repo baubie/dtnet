@@ -16,6 +16,7 @@
 #include "GLE.h"
 #include "net.h"
 #include "trial.h"
+#include "vt100.h"
 #include <string>
 #include <vector>
 #include <iostream>

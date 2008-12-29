@@ -58,8 +58,10 @@ int main(int argc, char* argv[]) {
     }
 
     string input;
+    stringstream ssprompt;
+    ssprompt << VT_set_colors(VT_BLUE, VT_DEFAULT) << "dtnet" << VT_default_attributes << "> ";
     while (!EndOfInput) {
-        input = Reader.GetLine("dtnet> ", EndOfInput); 
+        input = Reader.GetLine(ssprompt.str(), EndOfInput); 
         if (dtlang::parse(input, tp, verbose, EndOfInput)) {
             Reader.SaveHistory(history);
         }

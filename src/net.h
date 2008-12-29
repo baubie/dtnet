@@ -42,6 +42,8 @@ class Net {
         std::vector<Population> populations;
         std::vector< std::vector<double> > delays;
         std::vector< std::vector<double> > weights;
+        std::vector< std::vector<double> > sigmas;
+        std::vector< std::vector<double> > density;
 
         std::vector< std::vector<double> > inputs;
         std::vector<double> alphaE;

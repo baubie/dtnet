@@ -11,45 +11,57 @@
 #include <boost/random.hpp>
 
 struct NeuronParams {
-	
-	// Model Selection
-	enum ModelTypes { AEIF, POISSON };
-	ModelTypes type;
-	
-	// Model Parameters (Poisson)
-	double mu;
-	
-	// Model Parameters (AEIF)
-	enum Integrators { Euler, Euler2, RungeKutta };
-	Integrators integrator; 
-	bool jitter;
-	double VT;
-	double C;
-	double hypTau;
-	double alpha_q;
-	double gL;
-	double EL;
-	double tauw;
-	double a;
-	double deltaT;
-	double b;
-	double VR;
 
-    // The sigma value of each parameter
-	double jVT;
-	double jC;
-	double jhypTau;
-	double jalpha_q;
-	double jgL;
-	double jEL;
-	double jtauw;
-	double ja;
-	double jdeltaT;
-	double jb;
-	double jVR;
+    enum Integrator { Euler, Euler2, RungeKutta } integrator;
+    enum ModelType { AEIF, POISSON } type;
+
+    struct POISSON {
+        double mu;
+    } Poisson;
+
+    struct AEIF {
+        bool jitter;
+        double VT;
+        double C;
+        double hypTau;
+        double alpha_q;
+        double gL;
+        double EL;
+        double tauw;
+        double a;
+        double deltaT;
+        double b;
+        double VR;
+
+        // The sigma value of each parameter
+        double jVT;
+        double jC;
+        double jhypTau;
+        double jalpha_q;
+        double jgL;
+        double jEL;
+        double jtauw;
+        double ja;
+        double jdeltaT;
+        double jb;
+        double jVR;
+    } aEIF;
 };
 
 class Neuron {
+
+	public:
+
+		// Recording Variables
+        std::vector<double> voltage;
+        std::vector<double> spikes;
+		
+		// Methods
+		Neuron(NeuronParams params);
+		static NeuronParams defaultParams();
+		void init(int steps);
+		void jitter();
+		void update(double current, int position, double dt);
 
 	private:
 		double V;    // Voltage (mV)
@@ -70,17 +82,5 @@ class Neuron {
 	
 		// Calculuate poisson spikes
 		void Poisson(double current, int position, double dt);
-		
-	public:
-		// Recording Variables
-        std::vector<double> voltage;
-        std::vector<double> spikes;
-		
-		// Methods
-		Neuron(NeuronParams params);
-		static NeuronParams defaultParams();
-		void init(int steps);
-		void jitter();
-		void update(double current, int position, double dt);
 };
 #endif

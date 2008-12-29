@@ -43,6 +43,8 @@ bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::vari
 
 bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool verbose, bool &end_input)
 {
+	if (str == "") return true;
+
     bool r;
     string::const_iterator iter, end;
 
@@ -70,12 +72,13 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool verbose,
         int r_type = dtlang::NO_RETURN;
         vector<dtlang::variable_def> var_params; 
         if (!dtlang::params_to_variables(func.params, var_params)) return false;
-        dtlang::runFunction(func.name, var_params, tp, verbose, r, r_type, end_input);
+        bool run_result = dtlang::runFunction(func.name, var_params, tp, verbose, r, r_type, end_input);
         // Clean up the parameters
         vector<dtlang::variable_def>::iterator iter;
         for (iter = var_params.begin(); iter != var_params.end(); ++iter) {
             dtlang::delete_variable(*iter);
         } 
+		if (run_result == false) return false;
         if (func.name == "quit") { end_input = true; }
         return true;
 
@@ -629,13 +632,6 @@ bool dtlang::delete_variable(variable_def var) {
 
 bool dtlang::f_runsimulation(Input input, Net net, bool verbose) {
 
-    /*
-    // Initiate multiple threads to run the network over all inputs
-    Net net;
-    net.verbose = verbose;
-    net.loadNetwork(network);
-    net.saveVoltages(output);
-    */
     return true;
 }
 
@@ -668,12 +664,15 @@ bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool
         while (!script.eof() && !end_input) 
         {
             getline(script, line);    
-            cout << "extern> " << line << endl;
-            if (!dtlang::parse(line, tp, verbose, end_input))
-            {
-                cout << "Error encountered in script.  Halting execution." << endl << endl;
-                break;
-            } 
+			if (line != "") // Skip blank lines
+			{
+				cout << VT_set_colors(VT_RED, VT_DEFAULT) << "extern" << VT_default_attributes << "> " << line << endl;
+				if (!dtlang::parse(line, tp, verbose, end_input))
+				{
+					cout << "Error encountered in script.  Halting execution." << endl << endl;
+					break;
+				}
+			} 
         }
 
         script.close();
@@ -691,6 +690,7 @@ bool dtlang::f_loadnetwork(const string filename, Net *net, bool verbose) {
     if (verbose) cout << "...Loading network definition from " << filename;
     if ( net->load(filename, error) == false ) {
         if (verbose) cout << "\t[FAILED]" << endl;
+		cout << "[X] " << error << endl;
         return false;
     }
     if (verbose) cout << "\t[OK]" << endl;
@@ -756,11 +756,11 @@ bool dtlang::f_print(void* ptr, int const type)
             break;
 
         case dtlang::TYPE_TRIAL:
-            cout << static_cast<Trial*>(ptr)->toString() << endl;
+            cout << static_cast<Trial*>(ptr)->toString();
             break;
 
         case dtlang::TYPE_NET:
-            cout << static_cast<Net*>(ptr)->toString() << endl;
+            cout << static_cast<Net*>(ptr)->toString();
             break;    
 
         case dtlang::TYPE_INT:

@@ -18,5 +18,6 @@ string Population::toString() {
     r << "Name: " << this->name << endl;
     r << "ID: " << this->ID << endl;
     r << "Size: " << this->neurons.size() << endl;
+	r << "Accept Input: " << ((this->accept_input)?"Yes":"No") << endl;
     return r.str();
 }

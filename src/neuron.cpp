@@ -9,50 +9,51 @@ Neuron::Neuron(NeuronParams params) {
 	// Do some other setup stuff
 	switch (params.type) {
 		case NeuronParams::AEIF:
-			if (params.jitter) { jitter(); }
+			if (params.aEIF.jitter) { jitter(); }
 			break;
 		case NeuronParams::POISSON:
 			break;
 	}
 
-	this->V = this->params.EL; //mV
+	this->V = this->params.aEIF.EL; //mV
 	this->w = 0;
 }
 
     NeuronParams Neuron::defaultParams() {
 		NeuronParams p;
         
+        // Global Parameters
 		p.type = NeuronParams::AEIF;
+		p.integrator = NeuronParams::RungeKutta;
         
         // Poisson
-		p.mu = 300; // In Hz
+		p.Poisson.mu = 300; // In Hz
         
         // AEIF
-		p.jitter = true;
-		p.integrator = NeuronParams::RungeKutta;
-		p.VT = -52;
-		p.C	= 281;
-		p.hypTau = 5;
-		p.alpha_q = 1;
-		p.gL = 30;
-		p.EL = -63;
-		p.tauw = 200;
-		p.a = 1500;
-		p.deltaT = 2;
-		p.b = 80.5;
-		p.VR = -63;	
+		p.aEIF.jitter = true;
+		p.aEIF.VT = -52;
+		p.aEIF.C	= 281;
+		p.aEIF.hypTau = 5;
+		p.aEIF.alpha_q = 1;
+		p.aEIF.gL = 30;
+		p.aEIF.EL = -63;
+		p.aEIF.tauw = 200;
+		p.aEIF.a = 1500;
+		p.aEIF.deltaT = 2;
+		p.aEIF.b = 80.5;
+		p.aEIF.VR = -63;	
 
-		p.jC	= 0;
-		p.jVT = 0;
-		p.jhypTau = 0;
-		p.jalpha_q = 0;
-		p.jgL = 0;
-		p.jEL = 0;
-		p.jtauw = 0;
-		p.ja = 0;
-		p.jdeltaT = 0;
-		p.jb = 0;
-		p.jVR = 0;
+		p.aEIF.jC	= 0;
+		p.aEIF.jVT = 0;
+		p.aEIF.jhypTau = 0;
+		p.aEIF.jalpha_q = 0;
+		p.aEIF.jgL = 0;
+		p.aEIF.jEL = 0;
+		p.aEIF.jtauw = 0;
+		p.aEIF.ja = 0;
+		p.aEIF.jdeltaT = 0;
+		p.aEIF.jb = 0;
+		p.aEIF.jVR = 0;
 		return p;
 	}
 
@@ -130,7 +131,7 @@ Neuron::Neuron(NeuronParams params) {
         // Then multiplies by the time step to find mu in terms of per time step.
         // This gives a probability of firing in this time step.
         // When dt = 0.05, this means that mu <= 20,000Hz, so we're good.
-		double p = (params.mu * 10 * dt); // Probability of firing. (10.0 = 1000.0/100.0)
+		double p = (params.Poisson.mu * 10 * dt); // Probability of firing. (10.0 = 1000.0/100.0)
 		p *= current; // Decrease or increase depending on current;
         
 		if (r < p) { 
@@ -175,8 +176,8 @@ Neuron::Neuron(NeuronParams params) {
 		switch(params.type) {
 			case NeuronParams::AEIF:
 				if (V >= 20) {
-					V = params.VR;
-					w += params.b;
+					V = params.aEIF.VR;
+					w += params.aEIF.b;
 					voltage[position] = spikeHeight; // Artificial spike
 					spikes.push_back(position*dt); // Save the actual spike time
 				}
@@ -193,13 +194,13 @@ Neuron::Neuron(NeuronParams params) {
 			
 		double IL;
 		double ILd;	
-		IL = params.gL * (V - params.EL);
-		ILd = -params.gL * params.deltaT * exp((V-params.VT)/params.deltaT);
-		double r =  (current - IL - ILd - w) / params.C;
+		IL = params.aEIF.gL * (V - params.aEIF.EL);
+		ILd = -params.aEIF.gL * params.aEIF.deltaT * exp((V-params.aEIF.VT)/params.aEIF.deltaT);
+		double r =  (current - IL - ILd - w) / params.aEIF.C;
 		if (r > 100000) r = 100000; // Prevent overflows
 		return (double)r;
 	}
 
 	double Neuron::w_update() {
-		return (params.a*(V-params.EL)-w)/params.tauw;
+		return (params.aEIF.a*(V-params.aEIF.EL)-w)/params.aEIF.tauw;
 	}

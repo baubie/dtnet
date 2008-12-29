@@ -1,3 +1,0 @@
-trial = loadtrial("input/input.xml")
-graphinputs(trial, "inputs.eps")
-quit()

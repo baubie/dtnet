@@ -330,58 +330,58 @@ bool Net::parseXML(string filename, string &error)
                     }
          
                     if (strcmp(pElemParam->Attribute("name"),"VT") == 0) {
-                        np.VT = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jVT);                    
+                        np.aEIF.VT = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jVT);                    
                     }
                     
                     if (strcmp(pElemParam->Attribute("name"),"C") == 0) {
-                        np.C = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jC);                    
+                        np.aEIF.C = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jC);                    
                     }
                     
                     if (strcmp(pElemParam->Attribute("name"),"hypTau") == 0) {
-                        np.hypTau = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jhypTau);                    
+                        np.aEIF.hypTau = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jhypTau);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"alpha_q") == 0) {
-                        np.alpha_q = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jalpha_q);                    
+                        np.aEIF.alpha_q = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jalpha_q);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"gL") == 0) {
-                        np.gL = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jgL);                    
+                        np.aEIF.gL = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jgL);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"EL") == 0) {
-                        np.EL = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jEL);                    
+                        np.aEIF.EL = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jEL);                    
                     }
                                         
                     if (strcmp(pElemParam->Attribute("name"),"tauw") == 0) {
-                        np.tauw = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jtauw);                    
+                        np.aEIF.tauw = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jtauw);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"a") == 0) {
-                        np.a = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.ja);                    
+                        np.aEIF.a = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.ja);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"b") == 0) {
-                        np.b = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jb);                    
+                        np.aEIF.b = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jb);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"deltaT") == 0) {
-                        np.deltaT = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jdeltaT);                    
+                        np.aEIF.deltaT = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jdeltaT);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"VR") == 0) {
-                        np.VR = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.jVR);                    
+                        np.aEIF.VR = (double)atof(pElemParam->FirstChild()->Value());
+                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jVR);                    
                     }
                     
                // Found a Parameter Element With A Range Element
@@ -393,6 +393,12 @@ bool Net::parseXML(string filename, string &error)
 			} // Parameter Loop            
             createPopulation(pop_name, pop_id, pop_size, accept_input, np);
         }
+
+        // Load Each Connection
+ 		pElem = hRoot.FirstChild( "connection" ).Element();
+		for( /***/; pElem; pElem = pElem->NextSiblingElement("connection")) {
+
+		}
 
         return true;
 	} else {

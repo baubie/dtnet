@@ -1,3 +1,7 @@
+
+More information and latest version available at:
+http://dtnet.googlecode.com
+
 Requirements
 ============
 - Boost 1.37+
@@ -5,5 +9,9 @@ Requirements
 
 Installation
 ============
-1) Type "make" in the same folder as the file "Makefile"
-2) This produces the binary "dtnet".  Place this somewhere in your PATH environment variable.
+$ ./configure
+$ make
+$ sudo make install
+
+Options are available for configure to specify installation location and library locations if configure is unable to find them on their own.
+Type ./configure --help for more information.
