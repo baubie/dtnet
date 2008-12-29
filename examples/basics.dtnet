@@ -4,5 +4,5 @@ net = loadnetwork("networks/network.xml")
 print(trial)
 print(net)
 
-# graphinputs(trial, "inputs.eps")
+graphinputs(trial, "inputs.eps")
 quit()

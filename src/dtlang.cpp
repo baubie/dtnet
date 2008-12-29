@@ -728,21 +728,8 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename, bool verbose) {
     plotProperties.first = start;
     gle.plot(*timesteps, *signals, plotProperties);
 
-    start.r = 0.5;
-    start.g = 0.0;
-    start.b = 0.0;
-    plotProperties.first = start;
-    gle.plot(*timesteps, *signals, plotProperties);
-
-    start.r = 0.0;
-    start.g = 1.0;
-    start.b = 0.0;
-    plotProperties.first = start;
-    gle.plot(*timesteps, *signals, plotProperties);
-
-    gle.canvasProperties.width = 11.5;
-    gle.canvasProperties.height = 10;
-    gle.canvasProperties.columns = 2;
+    gle.canvasProperties.width = 8.5;
+    gle.canvasProperties.height = 7;
     gle.draw(filename);
     return true;
 }
