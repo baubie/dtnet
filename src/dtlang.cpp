@@ -20,13 +20,13 @@ void dtlang::initialize()
     dtlang::initialize_functions();
 }
 
-bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::variable_def> &var_params) 
+bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::variable_def> &var_params, boost::threadpool::pool &tp, bool &end_input)
 {
     var_params.resize(params.size());
     dtlang::parameters::iterator param_iter;
     int count = 0;
     for (param_iter = params.begin(); param_iter != params.end(); ++param_iter) {
-       if (!dtlang::parse_statement(*param_iter, var_params[count], true))
+       if (!dtlang::parse_statement(*param_iter, var_params[count], true, true, tp, end_input))
        {
             // Something bad happened
             // Clean up the work we've already done.
@@ -41,7 +41,7 @@ bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::vari
     return true;
 }
 
-bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool verbose, bool &end_input)
+bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_input)
 {
 	if (str == "") return true;
 
@@ -57,22 +57,63 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool verbose,
         return true;
     }
 
-
-    dtlang::function_parser<string::const_iterator> pFunction;
-    dtlang::function_call func;
+    // Check if it is an assignment
+    dtlang::assignment_parser<string::const_iterator> pAssignment;
+    dtlang::variable_assign var;
     iter = str.begin();
     end = str.end();
-    r = phrase_parse(iter, end, pFunction, func, boost::spirit::ascii::space);
-
-    // Check if it is a function call
+    r = phrase_parse(iter, end, pAssignment, var, boost::spirit::ascii::space);
     if (r && iter == end) {
+        // It is an assignment!
+        iter = var.value.begin();
+        end = var.value.end();
+        dtlang::variable_def new_var;
+        if (dtlang::parse_statement(var.value, new_var, true, true, tp, end_input)) {
+            if (dtlang::vars.find(var.name) != dtlang::vars.end()) dtlang::delete_variable(dtlang::vars[var.name]);
+            dtlang::vars[var.name] = new_var;
+            return true;
+        }
+        cout << "Syntax error: " << var.value << endl << endl;
+        return false; 
+    }
 
+    // Perhaps it's just a function call?
+    dtlang::variable_def dud_var; // A place holder
+    if (!dtlang::parse_statement(str, dud_var, false, false, tp, end_input))
+    {
+        /* Failed To Parse */
+        string::const_iterator some = iter+30;
+        string context(iter, (some>end)?end:some);
+        cout << "Syntax error: \"" << context << "...\"" << endl << "Type \"help()\" for assistance." << endl << endl;
+        return false;
+    }
+    if (dud_var.type != dtlang::NO_RETURN && dud_var.type != dtlang::TYPE_VOID) {
+        dtlang::delete_variable(dud_var);
+    }
+    return true;
+}
+
+
+bool dtlang::parse_statement(const string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input)
+{
+    bool r;
+
+    // Is it a function?
+    dtlang::function_parser<string::const_iterator> pFunction;
+    dtlang::function_call func;
+    string::const_iterator iter = str.begin();
+    string::const_iterator end = str.end();
+    r = phrase_parse(iter, end, pFunction, func, boost::spirit::ascii::space);
+    if (r && iter == end) {
         if (func.first_param != "") { func.params.insert(func.params.begin(), (string)func.first_param); }
-        void *r;
+        void *ret;
         int r_type = dtlang::NO_RETURN;
+        if (assignment) r_type = NULL;
         vector<dtlang::variable_def> var_params; 
-        if (!dtlang::params_to_variables(func.params, var_params)) return false;
-        bool run_result = dtlang::runFunction(func.name, var_params, tp, verbose, r, r_type, end_input);
+        if (!dtlang::params_to_variables(func.params, var_params, tp, end_input)) return false;
+        bool run_result = dtlang::runFunction(func.name, var_params, tp, ret, r_type, end_input);
+        var.type = r_type;
+        var.obj = ret;
         // Clean up the parameters
         vector<dtlang::variable_def>::iterator iter;
         for (iter = var_params.begin(); iter != var_params.end(); ++iter) {
@@ -81,83 +122,12 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool verbose,
 		if (run_result == false) return false;
         if (func.name == "quit") { end_input = true; }
         return true;
-
-    } else {
-
-        // Check if it is an assignment
-        dtlang::assignment_parser<string::const_iterator> pAssignment;
-        dtlang::variable_assign var;
-        iter = str.begin();
-        end = str.end();
-        r = phrase_parse(iter, end, pAssignment, var, boost::spirit::ascii::space);
-
-        if (r && iter == end) {
-            // It is an assignment!
-            // Is it assigning the return value of a function?
-            iter = var.value.begin();
-            end = var.value.end();
-            r = phrase_parse(iter, end, pFunction, func, boost::spirit::ascii::space);
-
-            if (r && iter == end) {
-                // Yes! We are wanting the return value of a function.
-                if (func.first_param != "") { func.params.insert(func.params.begin(), (string)func.first_param); }
-                if (func.name == "quit") return false; // quit cleans stuff up, which is bad if we don't really quit.
-                void *r;
-                int r_type = NULL;
-                vector<dtlang::variable_def> var_params;
-                if (!dtlang::params_to_variables(func.params, var_params)) return false;
-                bool run_result = dtlang::runFunction(func.name, var_params, tp, verbose, r, r_type, end_input);
-                end_input = false; // Ensure that we can't just quit when trying to assign.
-                // Clean up the parameters
-                vector<dtlang::variable_def>::iterator iter;
-                for (iter = var_params.begin(); iter != var_params.end(); ++iter) {
-                    dtlang::delete_variable(*iter);
-                } 
-                if (run_result) {
-                    if (r_type == dtlang::TYPE_VOID) {
-                        cout << "Error: Cannot assign a void function to a variable." << endl << endl;
-                        return false;
-                    }
-                    dtlang::variable_def new_var;
-                    new_var.type = r_type;
-                    new_var.obj = r;
-                    dtlang::vars[var.name] = new_var;
-                    return true;
-                }
-                return false;
-            } else {
-                // No, it's just a statement (constant or variable)
-                dtlang::variable_def new_var;
-                if (dtlang::parse_statement(var.value, new_var, true)) {
-                    if (dtlang::vars.find(var.name) != dtlang::vars.end()) dtlang::delete_variable(dtlang::vars[var.name]);
-                    dtlang::vars[var.name] = new_var;
-                    return true;
-                }
-                cout << "Syntax error: " << var.value << endl << endl;
-                return false; 
-            }
-
-
-        } else {
-            /* Failed To Parse */
-            string::const_iterator some = iter+30;
-            string context(iter, (some>end)?end:some);
-            cout << "Syntax error: \"" << context << "...\"" << endl << "Type \"help()\" for assistance." << endl << endl;
-            return false;
-        }
     }
-
-}
-
-
-bool dtlang::parse_statement(const string &str, variable_def &var, const bool make_copy)
-{
-    bool r;
 
     // Is it a string?
     dtlang::string_parser<string::const_iterator> pString;
-    string::const_iterator iter = str.begin();
-    string::const_iterator end = str.end();
+    iter = str.begin();
+    end = str.end();
     string *str_val = new string();
     r = phrase_parse(iter, end, pString, *str_val, boost::spirit::ascii::space);
     if (r && iter == end) { var.type = dtlang::TYPE_STRING; var.obj = str_val; return true; }
@@ -233,6 +203,7 @@ void dtlang::initialize_variables()
     dtlang::type_names[dtlang::TYPE_ANY] = "*ANY*";
     dtlang::type_names[dtlang::TYPE_DOUBLE] = "Double";
     dtlang::type_names[dtlang::TYPE_INT] = "Integer";
+    dtlang::type_names[dtlang::TYPE_POPULATION] = "Population";
     dtlang::type_names[dtlang::TYPE_STRING] = "String";
     dtlang::type_names[dtlang::TYPE_TRIAL] = "Trial";
     dtlang::type_names[dtlang::TYPE_NET] = "Net";
@@ -350,7 +321,7 @@ void dtlang::initialize_functions()
     dtlang::functions["print"] = f;
 }
 
-bool dtlang::runFunction(const string &name, const vector<variable_def> &params, boost::threadpool::pool &tp, bool &verbose, void *&r, int &r_type, bool &end_input)
+bool dtlang::runFunction(const string &name, const vector<variable_def> &params, boost::threadpool::pool &tp, void *&r, int &r_type, bool &end_input)
 {
     dtlang::function_def f;
     map<string, function_def>::iterator iter = dtlang::functions.find(name);
@@ -380,7 +351,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
     // Execute Functions
 	if (name == "quit") {
-        return dtlang::f_quit(tp, verbose);
+        return dtlang::f_quit(tp);
 	} 
 
 	if (name == "help") {
@@ -393,9 +364,9 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
 	if (name == "graphinputs") {
         if (params.size() == 1) {
-            return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), "inputs.ps", verbose);
+            return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), "inputs.ps");
         } else if (params.size() == 2) {
-            return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), verbose);
+            return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
         }
 	} 
 
@@ -420,7 +391,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	}
 
 	if (name == "external") {
-        return dtlang::f_external(*(static_cast<string*>(params[0].obj)), tp, verbose, end_input);
+        return dtlang::f_external(*(static_cast<string*>(params[0].obj)), tp, end_input);
 	}
 
     if (name == "loadnetwork") {
@@ -429,7 +400,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
             return false;
         }
         r = new Net();
-        return dtlang::f_loadnetwork(*(static_cast<string*>(params[0].obj)), static_cast<Net*>(r), verbose);
+        return dtlang::f_loadnetwork(*(static_cast<string*>(params[0].obj)), static_cast<Net*>(r));
     }
 
 	if (name == "loadtrial") {
@@ -444,7 +415,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
                        *(static_cast<double*>(dtlang::vars["dt"].obj)),
                        *(static_cast<double*>(dtlang::vars["delay"].obj))
                       );
-        return dtlang::f_loadtrial(*(static_cast<string*>(params[0].obj)), static_cast<Trial*>(r), verbose);
+        return dtlang::f_loadtrial(*(static_cast<string*>(params[0].obj)), static_cast<Trial*>(r));
 	} 
 
     return false;
@@ -502,35 +473,7 @@ bool dtlang::f_funcs() {
     for (iter = dtlang::functions.begin(); iter != dtlang::functions.end(); ++iter) {
         cout << iter->first << "\t";
         if (iter->first.length() < 8) cout << "\t";
-        switch(iter->second.return_type) {
-            case dtlang::TYPE_VOID:
-                cout << "Void" << "\t";
-                break;
-
-            case dtlang::TYPE_STRING:
-                cout << "String" << "\t";
-                break;
-
-            case dtlang::TYPE_INT:
-                cout << "Integer" << "\t";
-                break;
-
-            case dtlang::TYPE_DOUBLE:
-                cout << "Double" << "\t";
-                break;
-
-            case dtlang::TYPE_TRIAL:
-                cout << "Trial" << "\t";
-                break;
-            
-            case dtlang::TYPE_NET:
-                cout << "Net" << "\t";
-                break;
-
-            default:
-                cout << "Unknown" << "\t";
-                break;
-        } 
+        cout << dtlang::type_names[iter->second.return_type] << "\t";
         cout << iter->second.help << endl; 
     }
     cout << endl;
@@ -586,7 +529,7 @@ bool dtlang::f_help(string name) {
 }
 
 
-bool dtlang::f_quit(boost::threadpool::pool &tp, bool verbose) {
+bool dtlang::f_quit(boost::threadpool::pool &tp) {
     tp.wait();
     map<string, variable_def>::iterator iter;
     for (iter = vars.begin(); iter != vars.end(); ++iter) {
@@ -630,7 +573,7 @@ bool dtlang::delete_variable(variable_def var) {
 }
 
 
-bool dtlang::f_runsimulation(Input input, Net net, bool verbose) {
+bool dtlang::f_runsimulation(Input input, Net net) {
 
     return true;
 }
@@ -656,7 +599,7 @@ bool dtlang::f_benchmark(boost::threadpool::pool &tp, double mult) {
     return true;
 }
 
-bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool verbose, bool &end_input) {
+bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool &end_input) {
     string line;
     ifstream script(filename.c_str());
     if (script.is_open()) 
@@ -667,7 +610,7 @@ bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool
 			if (line != "") // Skip blank lines
 			{
 				cout << VT_set_colors(VT_RED, VT_DEFAULT) << "extern" << VT_default_attributes << "> " << line << endl;
-				if (!dtlang::parse(line, tp, verbose, end_input))
+				if (!dtlang::parse(line, tp, end_input))
 				{
 					cout << "Error encountered in script.  Halting execution." << endl << endl;
 					break;
@@ -683,38 +626,38 @@ bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool
     }
 }
 
-bool dtlang::f_loadnetwork(const string filename, Net *net, bool verbose) {
+bool dtlang::f_loadnetwork(const string filename, Net *net) {
 
     string error;
     /* Load Network */
-    if (verbose) cout << "...Loading network definition from " << filename;
+    if (dtlang::verbose) cout << "...Loading network definition from " << filename;
     if ( net->load(filename, error) == false ) {
-        if (verbose) cout << "\t[FAILED]" << endl;
+        if (dtlang::verbose) cout << "\t[FAILED]" << endl;
 		cout << "[X] " << error << endl;
         return false;
     }
-    if (verbose) cout << "\t[OK]" << endl;
-    if (verbose) cout << "...Loaded " << net->count_populations() << " populations" << endl;
+    if (dtlang::verbose) cout << "\t[OK]" << endl;
+    if (dtlang::verbose) cout << "...Loaded " << net->count_populations() << " populations" << endl;
     return true;
 }
 
 
-bool dtlang::f_loadtrial(const string filename, Trial *trial, bool verbose) {
+bool dtlang::f_loadtrial(const string filename, Trial *trial) {
 
     string error;
     /* Load Inputs */
-    if (verbose) cout << "...Loading input vectors from " << filename;
+    if (dtlang::verbose) cout << "...Loading input vectors from " << filename;
     if ( trial->load(filename, error) == false ) {
-        if (verbose) cout << "\t[FAILED]" << endl;
+        if (dtlang::verbose) cout << "\t[FAILED]" << endl;
         cout << "[X] " << error << endl;
         return false;
     }
-    if (verbose) cout << "\t[OK]" << endl;
-    if (verbose) cout << "...Generated " << trial->count() << " input signals" << endl;
+    if (dtlang::verbose) cout << "\t[OK]" << endl;
+    if (dtlang::verbose) cout << "...Generated " << trial->count() << " input signals" << endl;
     return true;
 }
 
-bool dtlang::f_graphinputs(Trial &trial, string const &filename, bool verbose) {
+bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
     vector<vector<double> >* signals = trial.signals();
     vector<double>* timesteps = trial.timeSteps();
 

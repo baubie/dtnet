@@ -30,6 +30,8 @@ class GLE
         static const int STYLE_POINT = 101;
         static const int NEW_PANEL = -1;
 
+        static bool gv;
+
         struct Color {
             float r;
             float g;

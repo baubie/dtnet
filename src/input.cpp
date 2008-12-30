@@ -71,9 +71,17 @@ string Input::toString() {
             break;
     }
 
-    r << "Duration: [" << this->duration.start << "..." << this->duration.end << "] by " << this->duration.step << "\n";
-    r << "Amplitude: [" << this->amplitude.start << "..." << this->amplitude.end << "] by " << this->amplitude.step << "\n";
-    r << "Delay: [" << this->delay.start << "..." << this->delay.end << "] by " << this->delay.step << "\n";
+    r << "Duration: ";
+    if (this->duration.start != this->duration.end) r << "[" << this->duration.start << "..." << this->duration.end << "] by " << this->duration.step << "\n";
+    else r << this->duration.start << "\n";
+
+    r << "Amplitude: ";
+    if (this->amplitude.start != this->amplitude.end) r << "[" << this->amplitude.start << "..." << this->amplitude.end << "] by " << this->amplitude.step << "\n";
+    else r << this->amplitude.start << "\n";
+
+    r << "Delay: ";
+    if (this->delay.start != this->delay.end) r << "[" << this->delay.start << "..." << this->delay.end << "] by " << this->delay.step << "\n";
+    else r << this->delay.start << "\n";
 
     return r.str();
 }

@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <string>
+#include "GLE.h"
 #include "net.h"
 #include "trial.h"
 #include "parseargs.h"
@@ -13,5 +14,8 @@
 #include "lib/threadpool/threadpool.hpp"
 #include "dtlang.h"
 #include "lib/SReadline/SReadline.h"
+
+extern bool GLE::gv;
+extern bool dtlang::verbose;
 
 #endif

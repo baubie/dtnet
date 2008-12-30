@@ -1,18 +1,23 @@
-file = "input/input.xml"
+# Unit Tests
+# Use with the dtnet_valgrind script to look for memory leaks
+file = "inputs/input.xml"
 D = 20491.424
 vars()
 funcs()
 trial1 = loadtrial(file)
-trial2 = loadtrial("input/input.xml")
+trial2 = loadtrial("inputs/input.xml")
+net = loadnetwork("networks/network.xml")
+print(trial2)
+print(loadtrial("inputs/input.xml"))
 graphinputs(trial1)
 tmp = trial1
 trial2 = trial2
 tmp = D
 tmp = 20.23
 trial1 = trial2
-trial1 = "No Wammies!"
-trial2 = "I'll try :)"
-benchmark(0.01)
+trial1 = "Some String"
+trial2 = "Another String"
+benchmark(0.001)
 help("help")
 help()
 quit()

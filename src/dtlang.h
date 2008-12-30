@@ -37,6 +37,10 @@ namespace dtlang
     static const int TYPE_DOUBLE = 4;
     static const int TYPE_TRIAL = 5;
     static const int TYPE_NET = 6;
+    static const int TYPE_POPULATION = 7;
+
+    // Runtime parameters
+    static bool verbose;
 
     using namespace boost::spirit;
     using namespace boost::spirit::ascii;
@@ -96,23 +100,23 @@ namespace dtlang
     void initialize();
     void initialize_functions();
     void initialize_variables();
-    bool parse(const string &str, boost::threadpool::pool &tp, bool verbose, bool &end_input);
-    bool runFunction(const string &name, const vector<variable_def> &params, boost::threadpool::pool &tp, bool &verbose, void *&r, int &r_type, bool &end_input);
-    bool parse_statement(const string &str, variable_def &var, const bool make_copy);
-    bool params_to_variables(parameters &params, vector<variable_def> &var_params);
+    bool parse(const string &str, boost::threadpool::pool &tp, bool &end_input);
+    bool runFunction(const string &name, const vector<variable_def> &params, boost::threadpool::pool &tp, void *&r, int &r_type, bool &end_input);
+    bool parse_statement(const string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input);
+    bool params_to_variables(parameters &params, vector<variable_def> &var_params, boost::threadpool::pool &tp, bool &end_input);
     bool delete_variable(variable_def var);
 
     bool f_help(string name);
     bool f_help();
     bool f_vars();
     bool f_funcs();
-    bool f_quit(boost::threadpool::pool &tp, bool verbose);
+    bool f_quit(boost::threadpool::pool &tp);
     bool f_benchmark(boost::threadpool::pool &tp, double mult);
-    bool f_runsimulation(Input input, Net net, bool verbose);
-    bool f_graphinputs(Trial &trial, string const &filename, bool verbose);
-    bool f_loadtrial(const string filename, Trial *trial, bool verbose);
-    bool f_loadnetwork(const string filename, Net *net, bool verbose);
-    bool f_external(string filename, boost::threadpool::pool &tp, bool verbose, bool &end_input);
+    bool f_runsimulation(Input input, Net net);
+    bool f_graphinputs(Trial &trial, string const &filename);
+    bool f_loadtrial(const string filename, Trial *trial);
+    bool f_loadnetwork(const string filename, Net *net);
+    bool f_external(string filename, boost::threadpool::pool &tp, bool &end_input);
     bool f_print(void* ptr, int const type);
 
     /**
@@ -137,7 +141,7 @@ namespace dtlang
         function_parser(): function_parser::base_type(expr)
         {
             expr        %= name >> "(" >> -param >> *("," > param) >> ")";
-            param       %= raw[lexeme[(lit('"') >> *(print - lit('"')) >> lit('"')) | *(alnum|'_'|'.')]];
+            param       %= raw[lexeme[(lit('"') >> *(print - lit('"')) >> lit('"')) | (+(alnum|'_'|'.') >> -('(' >> *(print - ')' - '(') >> ')'))]];
             name        %= raw[lexeme[+(alnum|'_')]];
         }
         rule<Iter, function_call(), space_type> expr;
