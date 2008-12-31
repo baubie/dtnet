@@ -14,9 +14,9 @@
 /** Load and generate the input signal vectors from an XML file. */
 class Trial {
 
-
 	public:	
         std::string name;                                       /**< A name for this trial. */
+		std::string ID;											/**< A unique ID for this trial. */
 
         Trial(double T, double dt, double delay);               /**< Constructor for a new trial. */
 

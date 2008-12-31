@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Net::Net() {
+Net::Net(double T, double dt) {
 
     unsigned int seed = time(NULL);
 
@@ -15,8 +15,9 @@ Net::Net() {
         cout << "ERRNO = " << strerror(errno) << endl;
         throw;
     }
-
     srand( seed );
+
+    this->steps = (unsigned int)(T/dt);
 }
 
 int Net::count_populations() {
@@ -32,13 +33,24 @@ int Net::numPopulations() {
     return populations.size();
 }
 
+int Net::populationFromID(const string ID) {
+
+	for (unsigned int p=0; p < populations.size(); p++) { // Loop over populations
+        if (populations.at(p).ID == ID) return (int)p;
+    }
+    return Net::NOT_FOUND;
+}
+
+bool Net::accept_input(const string ID) {
+    int pop = this->populationFromID(ID);
+    return (pop != Net::NOT_FOUND && this->populations[pop].accept_input);
+}
+
+
 void Net::finalizePopulations() {	
 	
 	const int num = numPopulations();
-	
-    vector<vector<double> > weights(num, vector<double> (num, 0.0) );
-    this->weights = weights;
-
+	this->weights = vector<vector<double> >(num, vector<double> (num, 0.0) );
     vector<vector<double> > delays(num, vector<double> (num, 1.0) );
     this->delays = delays;
 	
@@ -51,8 +63,8 @@ void Net::initSimulation() {
     initAlpha((double)1000.0, this->alphaTauE, alphaE);
     initAlpha((double)1000.0, this->alphaTauI, alphaI);
 
-	for (unsigned int p=0; p < populations.size(); p++) { // Loop over populations
-		for (unsigned int n=0; n < populations.at(p).neurons.size(); n++) { // Loop over neurons
+	for (unsigned int p=0; p < populations.size(); ++p) { // Loop over populations
+		for (unsigned int n=0; n < populations.at(p).neurons.size(); ++n) { // Loop over neurons
 			populations.at(p).neurons.at(n).init(steps);
 		}
 	}
@@ -63,8 +75,8 @@ void Net::connectPopulations(int from, int to, double weight, double delay) {
     this->delays[from][to] = delay;
 }
 
-void Net::connectInput(int to, vector<double> input) {
-    inputs[to] = vector<double> (input);
+void Net::linkinput(vector<double> &input, const string popID) {
+    inputs[populationFromID(popID)] = vector<double> (input);
 }
 
 void Net::initAlpha(double q, double tau, vector<double> &vals) {
@@ -386,18 +398,53 @@ bool Net::parseXML(string filename, string &error)
                     
                // Found a Parameter Element With A Range Element
 				} else if (pElemParam->FirstChild()->Type() == TiXmlNode::ELEMENT) {
-                    //TODO: Handle range element
-				}
 				
-				
+                }	
 			} // Parameter Loop            
             createPopulation(pop_name, pop_id, pop_size, accept_input, np);
         }
 
+        this->finalizePopulations();
         // Load Each Connection
  		pElem = hRoot.FirstChild( "connection" ).Element();
 		for( /***/; pElem; pElem = pElem->NextSiblingElement("connection")) {
+            int from = -1;
+            int to = -1;
+            double weight = 0;
+            double delay = 1;
+            double density = 1;
+            double sigma = 0;
+            bool symmetric = false;
+			hConnection = pElem;
 
+            pElemParam = hConnection.FirstChild( "param" ).Element();
+            for ( /***/; pElemParam; pElemParam = pElemParam->NextSiblingElement( "param" )) {
+
+                hParam = pElemParam;
+               // Found a Parameter Element With Text
+                if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
+                    if (strcmp(pElemParam->Attribute("name"), "from") == 0) {
+                        from = this->populationFromID(pElemParam->FirstChild()->Value());
+                    } 
+                    if (strcmp(pElemParam->Attribute("name"), "to") == 0) {
+                        to = this->populationFromID(pElemParam->FirstChild()->Value());
+                    } 
+                    if (strcmp(pElemParam->Attribute("name"), "weight") == 0) {
+                        weight = (double)atof(pElemParam->FirstChild()->Value());
+                        pElem->QueryDoubleAttribute("sigma", &sigma);
+                    } 
+                    if (strcmp(pElemParam->Attribute("name"), "delay") == 0) {
+                        delay = (double)atof(pElemParam->FirstChild()->Value());
+                    } 
+                    if (strcmp(pElemParam->Attribute("name"), "density") == 0) {
+                        density = (double)atof(pElemParam->FirstChild()->Value());
+                    } 
+                    if (strcmp(pElemParam->Attribute("name"), "symmetric") == 0) {
+                        symmetric = (strcmp(pElemParam->FirstChild()->Value(),"true") == 0);
+                    } 
+                } 
+            }
+            if (from != -1 && to != -1) connectPopulations(from, to, weight, delay);
 		}
 
         return true;
@@ -408,107 +455,3 @@ bool Net::parseXML(string filename, string &error)
 
 }
 
-
-/*
-void Net::loadNetwork(string filename) 
-{
-    if (verbose) cout << "...Loading Network From " << filename << endl;
-
-    
-
-	using namespace libconfig;	
-	
-	Config cfg;
-	cfg.readFile(filename.c_str());
-
-    int T = 70;    
-    cfg.lookupValue("simulation.T", T);
-    this->T = T;
-
-    double dt = 0.05;
-    cfg.lookupValue("simulation.dt", dt);
-    this->dt = dt;
-
-    this->steps = (unsigned int)(T/dt);
-
-    double alphaTauE = 0.7;
-    double alphaTauI = 1.1;
-    cfg.lookupValue("simulation.alphaTauE", alphaTauE);
-    cfg.lookupValue("simulation.alphaTauI", alphaTauI);
-    this->alphaTauE = alphaTauE;
-    this->alphaTauI = alphaTauI;
-
-	cfg.lookup("populations.names");
-	Setting& popCodes = cfg.lookup("populations.names");
-    int popNumber = popCodes.getLength();
-	int popSize[popNumber];
-	int population[popNumber];
-	int extinput[popNumber];
-    map<string, int> popID;
-	vector<string> popNames(popNumber);
-	
-	// Setup neuron parameters
-	for (int i = 0; i < popNumber; i++) {		
-		// Setup config file base string
-		const char* name = popCodes[i];	
-		string mu = "";	
-		string base = "populations.";
-		base += name;
-		base += ".";
-		
-		// Default values
-		NeuronParams np = Neuron::defaultParams();
-		bool usePoisson = false;
-		popSize[i] = 1;
-		extinput[i] = 0;
-		
-		// Load population size
-		cfg.lookupValue(base+"size", popSize[i]);
-		
-		// Load population name
-		cfg.lookupValue(base+"name", popNames[i]);
-		
-		// Load population type
-		cfg.lookupValue(base+"Poisson", usePoisson);
-		if (usePoisson) np.type = NeuronParams::POISSON;
-		
-		// Load population parameters
-		cfg.lookupValue(base+"C", np.C);
-		cfg.lookupValue(base+"gL", np.gL);
-		cfg.lookupValue(base+"EL", np.EL);
-		cfg.lookupValue(base+"VT", np.VT);
-		cfg.lookupValue(base+"deltaT", np.deltaT);
-		cfg.lookupValue(base+"tauw", np.tauw);
-		cfg.lookupValue(base+"a", np.a);
-		cfg.lookupValue(base+"b", np.b);
-		cfg.lookupValue(base+"VR", np.VR);
-		cfg.lookupValue(base+"jC", np.jC);
-		cfg.lookupValue(base+"jgL", np.jgL);
-		cfg.lookupValue(base+"jEL", np.jEL);
-		cfg.lookupValue(base+"jVT", np.jVT);
-		cfg.lookupValue(base+"jdeltaT", np.jdeltaT);
-		cfg.lookupValue(base+"jtauw", np.jtauw);
-		cfg.lookupValue(base+"ja", np.ja);
-		cfg.lookupValue(base+"jb", np.jb);
-		cfg.lookupValue(base+"jVR", np.jVR);
-		population[i] = createPopulation(popNames[i], popSize[i], np);
-        popID[popCodes[i]] = population[i];
-	}	
-	finalizePopulations();
-
-    // Connect the populations
-	Setting& network = cfg.lookup("network");
-    for (int i=0; i < network.getLength(); i++)
-    {
-        if (popID.find((const char *)network[i][0]) == popID.end()) {
-            cout << "Error: " << (const char *)network[i][0] << " is in network table but is not defined." << endl;
-            throw;
-        }
-        if (popID.find((const char *)network[i][1]) == popID.end()) {
-            cout << "Error: " << (const char *)network[i][1] << " is in network table but is not defined." << endl;
-            throw;
-        }
-        //connectPopulations(popID[(const char *)network[i][0]], popID[(const char *)network[i][1]], (double)network[i][2], (double)network[i][3]);
-    }
-}
-*/

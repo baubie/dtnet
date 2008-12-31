@@ -1,8 +1,7 @@
 trial = loadtrial("inputs/input.xml")
 net = loadnetwork("networks/network.xml")
-
-print(trial)
-print(net)
-
+sim = initsimulation(net)
+sim = linktrial(trial, sim, "CN")
 graphinputs(trial, "inputs.eps")
+graphnetwork(sim, "network.ps")
 quit()

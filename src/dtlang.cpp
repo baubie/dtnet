@@ -119,7 +119,6 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
         for (iter = var_params.begin(); iter != var_params.end(); ++iter) {
             dtlang::delete_variable(*iter);
         } 
-		if (run_result == false) return false;
         if (func.name == "quit") { end_input = true; }
         return true;
     }
@@ -176,8 +175,16 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
                 case dtlang::TYPE_NET:
                     var.obj = new Net(*(static_cast<Net*>(oldvar.obj)));
                     break;
+					
+				case dtlang::TYPE_SIMULATION:
+					var.obj = new Simulation(*(static_cast<Simulation*>(oldvar.obj)));
+					break;
 
-                default:
+				case dtlang::TYPE_POPULATION:
+					var.obj = new Population(*(static_cast<Population*>(oldvar.obj)));
+					break;
+
+				default:
                     cout << "Unable to determine variable type for copying." << endl;
                     return false;
                     break;
@@ -207,6 +214,7 @@ void dtlang::initialize_variables()
     dtlang::type_names[dtlang::TYPE_STRING] = "String";
     dtlang::type_names[dtlang::TYPE_TRIAL] = "Trial";
     dtlang::type_names[dtlang::TYPE_NET] = "Net";
+	dtlang::type_names[dtlang::TYPE_SIMULATION] = "Simulation";
 
     v.type = dtlang::TYPE_DOUBLE;
     v.obj = new double(0.05);
@@ -219,6 +227,14 @@ void dtlang::initialize_variables()
     v.type = dtlang::TYPE_DOUBLE;
     v.obj = new double(10);
     dtlang::vars["delay"] = v;
+
+    v.type = dtlang::TYPE_DOUBLE;
+    v.obj = new double(8.5);
+    dtlang::vars["graph_width"] = v;
+
+    v.type = dtlang::TYPE_DOUBLE;
+    v.obj = new double(5.0);
+    dtlang::vars["graph_height"] = v;
 }
 
 void dtlang::initialize_functions()
@@ -265,6 +281,16 @@ void dtlang::initialize_functions()
     f.params["multiplier"] = p;
     dtlang::functions["benchmark"] = f;
 
+    // initsimulation()
+	f.help = "Initalize a simulation with a particular network.";
+	f.return_type = dtlang::TYPE_SIMULATION;
+	f.params.clear();
+	p.type = dtlang::TYPE_NET;
+	p.help = "Network loaded from an XML file.";
+	p.optional = false;
+	f.params["network"] = p;
+	dtlang::functions["initsimulation"] = f;	
+	
     // loadtrial()
     f.help = "Load and return a trial from a trial XML file. This function must be assigned to a variable.";
     f.return_type = dtlang::TYPE_TRIAL;
@@ -285,8 +311,18 @@ void dtlang::initialize_functions()
     f.params["filename"] = p;
     dtlang::functions["loadnetwork"] = f;
 
+    // run()
+    f.help = "Run the current simulation. Will only work if at least one population has an input connected.";
+    f.return_type = dtlang::TYPE_VOID;
+    f.params.clear();
+	p.type = dtlang::TYPE_SIMULATION;
+	p.help = "The simulation you wish to run.";
+	p.optional = false;
+	f.params["simulation"] = p;
+    dtlang::functions["run"] = f;
+
     // graphinputs()
-    f.help = "Display a graph showing some or all of the inputs from a trial.";
+    f.help = "Display a graph showing some or all of the inputs from a trial. Uses the graph_width and graph_height variables.";
     f.return_type = dtlang::TYPE_VOID;
     f.params.clear();
     p.type = dtlang::TYPE_TRIAL;
@@ -296,9 +332,42 @@ void dtlang::initialize_functions()
     p.type = dtlang::TYPE_STRING;
     p.help = "Filename to save the generated postscript file to.";
     p.optional = true;
-    p.def = "inputs.ps";
+    p.def = "inputs.eps";
     f.params["filename"] = p;
     dtlang::functions["graphinputs"] = f;
+
+	// graphnetwork()
+	f.help = "Produce a network flow diagram of the network.";
+	f.return_type = dtlang::TYPE_VOID;
+	f.params.clear();
+	p.type = dtlang::TYPE_SIMULATION;
+	p.help = "A simulation.";
+	p.optional = false;
+	f.params["network"] = p;
+	p.type = dtlang::TYPE_STRING;
+	p.help = "Filename to save the generated postscript file to.";
+	p.optional = true;
+	p.def = "network.eps";
+	f.params["filename"] = p;
+	dtlang::functions["graphnetwork"] = f;
+	
+    // linktrial()
+    f.help = "Link a trial to a population that accepts input.";
+    f.return_type = dtlang::TYPE_SIMULATION;
+    f.params.clear();
+    p.type = dtlang::TYPE_TRIAL;
+    p.help = "A trial loaded from an XML file.";
+    p.optional = false;
+    f.params["trial"] = p;
+    p.type = dtlang::TYPE_SIMULATION;
+    p.help = "A simulation variable.";
+    p.optional = false;
+    f.params["simulation"] = p;
+    p.type = dtlang::TYPE_STRING;
+    p.help = "Population ID to link the trial to.";
+    p.optional = false;
+    f.params["populationID"] = p;
+    dtlang::functions["linktrial"] = f;
 
     // external()
     f.help = "Execute a series of commands as stored in an external file.";
@@ -364,9 +433,17 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
 	if (name == "graphinputs") {
         if (params.size() == 1) {
-            return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), "inputs.ps");
+            return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), "inputs.eps");
         } else if (params.size() == 2) {
             return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
+        }
+	} 
+
+	if (name == "graphnetwork") {
+        if (params.size() == 1) {
+            return dtlang::f_graphnetwork(*(static_cast<Simulation*>(params[0].obj)), "network.eps");
+        } else if (params.size() == 2) {
+            return dtlang::f_graphnetwork(*(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
         }
 	} 
 
@@ -376,6 +453,10 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	
 	if (name == "funcs") {
         return dtlang::f_funcs();
+	} 
+
+	if (name == "run") {
+        return dtlang::f_runsimulation( *(static_cast<Simulation*>(params[0].obj)));
 	} 
 
 	if (name == "print") {
@@ -394,12 +475,32 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         return dtlang::f_external(*(static_cast<string*>(params[0].obj)), tp, end_input);
 	}
 
+    if (name == "linktrial") {
+		if (r_type == dtlang::NO_RETURN) {
+			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
+			return false;
+		}
+		r = new Simulation(*(static_cast<Simulation*>(params[1].obj))); // Assign the return value to the second parameter, assuming that is is a Simulation*.
+		return dtlang::f_linktrial(*(static_cast<Trial*>(params[0].obj)), *(static_cast<Simulation*>(r)), *(static_cast<string*>(params[2].obj)));
+    }
+	
+	if (name == "initsimulation") {
+		if (r_type == dtlang::NO_RETURN) {
+			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
+			return false;
+		}		
+		r = new Simulation(*(static_cast<Net*>(params[0].obj)));
+		return true;
+	}
+
     if (name == "loadnetwork") {
         if (r_type == dtlang::NO_RETURN) {
             cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
             return false;
         }
-        r = new Net();
+        if (dtlang::vars.find("T") == dtlang::vars.end() || dtlang::vars["T"].type != dtlang::TYPE_DOUBLE) { cout << "Error: T must be a double!" << endl; return false;}
+        if (dtlang::vars.find("dt") == dtlang::vars.end() || dtlang::vars["dt"].type != dtlang::TYPE_DOUBLE) { cout << "Error: dt must be a double!" << endl; return false;}
+        r = new Net(*(static_cast<double*>(dtlang::vars["T"].obj)), *(static_cast<double*>(dtlang::vars["dt"].obj)));
         return dtlang::f_loadnetwork(*(static_cast<string*>(params[0].obj)), static_cast<Net*>(r));
     }
 
@@ -516,7 +617,7 @@ bool dtlang::f_help(string name) {
     cout << f.help << endl;
 
     for (iter_param = f.params.begin(); iter_param != f.params.end(); ++iter_param) {
-        cout << "<" << iter_param->first << ":" << iter_param->second.type << ">";
+        cout << "<" << iter_param->first << ":" << dtlang::type_names[iter_param->second.type] << ">";
         if (iter_param->second.optional) {
             cout << "\t*Optional* (Default: " << iter_param->second.def << ")" << endl;
         } else {
@@ -563,7 +664,15 @@ bool dtlang::delete_variable(variable_def var) {
         case dtlang::TYPE_NET:
             delete static_cast<Net*>(var.obj);
             break;
-
+        
+		case dtlang::TYPE_SIMULATION:
+			delete static_cast<Simulation*>(var.obj);
+			break;
+		
+		case dtlang::TYPE_POPULATION:
+			delete static_cast<Population*>(var.obj);
+			break;
+			
         default:
             cout << "Attempted to free an unknown variable type.  MEMORY LEAK!" << endl;
             return false;
@@ -573,9 +682,8 @@ bool dtlang::delete_variable(variable_def var) {
 }
 
 
-bool dtlang::f_runsimulation(Input input, Net net) {
-
-    return true;
+bool dtlang::f_runsimulation(Simulation &sim) {
+    return sim.run();
 }
 
 
@@ -657,6 +765,10 @@ bool dtlang::f_loadtrial(const string filename, Trial *trial) {
     return true;
 }
 
+bool dtlang::f_linktrial(Trial &trial, Simulation &sim, const string popID) {
+    return sim.linktrial(trial, popID); 
+}
+
 bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
     vector<vector<double> >* signals = trial.signals();
     vector<double>* timesteps = trial.timeSteps();
@@ -671,10 +783,59 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
     plotProperties.first = start;
     gle.plot(*timesteps, *signals, plotProperties);
 
-    gle.canvasProperties.width = 8.5;
-    gle.canvasProperties.height = 7;
+    gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
+    gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
     gle.draw(filename);
     return true;
+}
+
+bool dtlang::f_graphnetwork(Simulation &sim, string const &filename) {
+	    
+	char data_filename[] = "/tmp/dtnet_dot_XXXXXX";
+	int pTemp = mkstemp(data_filename);
+	boost::iostreams::file_descriptor_sink sink( pTemp );
+	boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
+	if (!of) 
+	{
+		cout << "[X] Unable to create temporary file." << endl;
+		return false;
+	}
+	
+	of << "digraph G {" << endl;
+	
+	// Loop over inputs
+	map<string, Trial>::iterator iter;
+	for (iter = sim.trials.begin(); iter != sim.trials.end(); ++iter) {
+		of << iter->second.ID << " [shape=box];" << endl;
+		of << iter->second.ID << " -> " << iter->first << ";" << endl;
+	}
+			
+	for (int a = 0; a < (int)sim.net.weights.size(); a++) {
+		for (int b = 0; b < (int)sim.net.weights.size(); b++) {									
+			if (sim.net.weights.at(a).at(b) != 0) {
+				of << sim.net.populations.at(a).ID << " -> " << sim.net.populations.at(b).ID << ";" << endl;
+			}			
+			
+		}
+	}
+	
+	of << "}" << endl;
+	
+	string command = "dot -Tps " + string(data_filename) + " -o " + filename;
+	int r = system(command.c_str());
+	if (r != 0) {
+		cout << "[X] Error running dot." << endl;
+	} else { cout << "Saved to " << filename << endl; }
+	
+	if (GLE::gv) {
+		string command = string("gv ") + filename + " &"; // Try to run ghostview in the background.
+		int r = system(command.c_str());
+		if (r != 0) {
+			cout << "[X] Ghostview preview is unavailable." << endl;
+		}
+	}
+	remove(data_filename);		
+	return true;
 }
 
 bool dtlang::f_print(void* ptr, int const type)
@@ -692,7 +853,11 @@ bool dtlang::f_print(void* ptr, int const type)
         case dtlang::TYPE_NET:
             cout << static_cast<Net*>(ptr)->toString();
             break;    
-
+			
+		case dtlang::TYPE_SIMULATION:
+			cout << static_cast<Simulation*>(ptr)->toString();
+			break;    
+			
         case dtlang::TYPE_INT:
             cout << *(static_cast<int*>(ptr)) << endl;
             break;    
@@ -707,6 +872,5 @@ bool dtlang::f_print(void* ptr, int const type)
             break;
     }
     return true;
-
 }
 

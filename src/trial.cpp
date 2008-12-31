@@ -2,12 +2,7 @@
 
 using namespace std;
 
-Trial::Trial(double T, double dt, double delay)
-{
-    this->T = T;
-    this->dt = dt;
-    this->delay = delay;
-}
+Trial::Trial(double T, double dt, double delay) : T(T), dt(dt), delay(delay) {}
 
 bool Trial::load(string filename, string &error)
 {
@@ -129,8 +124,9 @@ bool Trial::parseXML(string filename, string &error) {
 		pElem->QueryDoubleAttribute("dt", &this->dt); 
 		pElem->QueryDoubleAttribute("delay", &this->delay); 
 		pElem->QueryValueAttribute("name", &this->name);
+		pElem->QueryValueAttribute("ID", &this->ID);
 
-        // Load Each Input
+		// Load Each Input
 		pElem = hRoot.FirstChild( "input" ).Element();
 		for( /***/; pElem; pElem = pElem->NextSiblingElement("input")) {
 

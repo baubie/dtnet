@@ -7,9 +7,15 @@ funcs()
 trial1 = loadtrial(file)
 trial2 = loadtrial("inputs/input.xml")
 net = loadnetwork("networks/network.xml")
+sim = initsimulation(net)
+sim2 = initsimulation(loadnetwork("networks/network.xml"))
+sim = linktrial(trial1,sim,"CN")
 print(trial2)
 print(loadtrial("inputs/input.xml"))
 graphinputs(trial1)
+graphinputs(trial1,"inputs2.eps")
+graphnetwork(sim)
+graphnetwork(sim,"network2.eps")
 tmp = trial1
 trial2 = trial2
 tmp = D

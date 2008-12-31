@@ -73,7 +73,7 @@ GLE::PanelID GLE::plot(vector<double> const &x, vector<double> const &y, GLE::Pl
 
 bool GLE::draw()
 {
-    return this->draw("output.ps");
+    return this->draw("output.eps");
 }
 
 bool GLE::draw(string const &filename)

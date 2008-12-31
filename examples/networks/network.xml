@@ -4,13 +4,12 @@
 <network name="Simple Network">
 
     <connection>
-        <param name="from" value="CN" /> 
-        <param name="to" value="SI" />
-        <param name="weight" value="6" />
-        <param name="delay" value="1" />
-        <param name="sigma" value="5" />
-        <param name="density" value="1" />
-        <param name="bidirectional" value="false" />
+        <param name="from">CN</param> 
+        <param name="to">SI</param>
+        <param name="weight">6</param>
+        <param name="delay">1</param>
+        <param name="density">1</param>
+        <param name="symmetric">false</param>
     </connection>
 
     <population id="CN" name="Cochlear Nucleus" type="Poisson">

@@ -12,11 +12,14 @@
 #include <boost/fusion/include/io.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
+#include <boost/iostreams/stream.hpp>
 #include "lib/threadpool/threadpool.hpp"
 #include "GLE.h"
 #include "net.h"
 #include "trial.h"
 #include "vt100.h"
+#include "simulation.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -38,6 +41,7 @@ namespace dtlang
     static const int TYPE_TRIAL = 5;
     static const int TYPE_NET = 6;
     static const int TYPE_POPULATION = 7;
+	static const int TYPE_SIMULATION = 8;
 
     // Runtime parameters
     static bool verbose;
@@ -47,10 +51,8 @@ namespace dtlang
     using namespace boost::spirit::qi;
     using namespace boost::spirit::arg_names;
     using namespace std;
-
     namespace phoenix = boost::phoenix;
     namespace fusion = boost::fusion;
-
     using phoenix::at_c;
     using phoenix::push_back;
 
@@ -112,10 +114,12 @@ namespace dtlang
     bool f_funcs();
     bool f_quit(boost::threadpool::pool &tp);
     bool f_benchmark(boost::threadpool::pool &tp, double mult);
-    bool f_runsimulation(Input input, Net net);
+    bool f_runsimulation(Simulation &sim);
     bool f_graphinputs(Trial &trial, string const &filename);
+	bool f_graphnetwork(Simulation &sim, string const &filename);
     bool f_loadtrial(const string filename, Trial *trial);
     bool f_loadnetwork(const string filename, Net *net);
+	bool f_linktrial(Trial &trial, Simulation &sim, const string popID);
     bool f_external(string filename, boost::threadpool::pool &tp, bool &end_input);
     bool f_print(void* ptr, int const type);
 
