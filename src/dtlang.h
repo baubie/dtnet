@@ -145,8 +145,9 @@ namespace dtlang
         function_parser(): function_parser::base_type(expr)
         {
             expr        %= name >> "(" >> -param >> *("," > param) >> ")";
-            param       %= raw[lexeme[(lit('"') >> *(print - lit('"')) >> lit('"')) | (+(alnum|'_'|'.') >> -('(' >> *(print - ')' - '(') >> ')'))]];
-            name        %= raw[lexeme[+(alnum|'_')]];
+            param       %= raw[lexeme[(lit('"') >> *(print - lit('"')) >> lit('"'))] 
+                               | lexeme[+(alnum|'_'|'.')] >> -('(' >> -param >> *("," > param)  >> ')')];
+            name        %= raw[lexeme[+(alnum|'_'|'.')]];
         }
         rule<Iter, function_call(), space_type> expr;
         rule<Iter, string(), space_type> name;
