@@ -12,13 +12,16 @@ class Simulation
 {
     public:
 		Simulation(Net &net);
-        bool linktrial(const Trial &trial, const std::string popID);
-        bool run();
+        bool linktrial(Trial &trial, const std::string popID);
+        bool run(std::string filename, int number_of_trials);
 		std::string toString();
-		Net net;                                     /**< The network used in this simulation. */
-        std::map< std::string, Trial > trials;        /**< Collection of trials linked to specific populations. */
-        std::map< int, std::vector<Net> > results;    /**< Collection of the networks post-simulation indexed by input. */
-	
+		Net net;                                    /**< The network used in this simulation. */
+        std::map<std::string, Trial> trials;      /**< Collection of trials linked to specific populations. */
+        std::vector<std::vector<Net> > results;     /**< Collection of the networks post-simulation indexed by input. */
+
+
+    private:
+        std::string dynamicTrial;           /**< Key to the trial with >1 inputs. */
 };
 
 

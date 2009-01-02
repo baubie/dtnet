@@ -48,14 +48,10 @@ bool Net::accept_input(const string ID) {
 
 
 void Net::finalizePopulations() {	
-	
 	const int num = numPopulations();
 	this->weights = vector<vector<double> >(num, vector<double> (num, 0.0) );
-    vector<vector<double> > delays(num, vector<double> (num, 1.0) );
-    this->delays = delays;
-	
-    vector<vector<double> > inputs(num, vector<double> (steps, 0.0) );
-    this->inputs = inputs;
+    this->delays = vector<vector<double> >(num, vector<double> (num, 1.0) );
+    this->inputs = vector<vector<double> >(num, vector<double> (steps, 0.0) );
 }
 
 void Net::initSimulation() {

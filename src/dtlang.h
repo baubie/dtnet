@@ -114,13 +114,13 @@ namespace dtlang
     bool f_funcs();
     bool f_quit(boost::threadpool::pool &tp);
     bool f_benchmark(boost::threadpool::pool &tp, double mult);
-    bool f_runsimulation(Simulation &sim);
+    bool f_run(Simulation &sim, std::string filename, int number_of_trials);
     bool f_graphinputs(Trial &trial, string const &filename);
 	bool f_graphnetwork(Simulation &sim, string const &filename);
     bool f_loadtrial(const string filename, Trial *trial);
     bool f_loadnetwork(const string filename, Net *net);
 	bool f_linktrial(Trial &trial, Simulation &sim, const string popID);
-    bool f_external(string filename, boost::threadpool::pool &tp, bool &end_input);
+    bool f_external(const string filename, boost::threadpool::pool &tp, bool &end_input);
     bool f_print(void* ptr, int const type);
 
     /**

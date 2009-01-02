@@ -41,8 +41,8 @@ bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::vari
     return true;
 }
 
-bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_input)
-{
+bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_input) {
+
 	if (str == "") return true;
 
     bool r;
@@ -94,8 +94,8 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_inp
 }
 
 
-bool dtlang::parse_statement(const string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input)
-{
+bool dtlang::parse_statement(const string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input) {
+
     bool r;
 
     // Is it a function?
@@ -319,6 +319,14 @@ void dtlang::initialize_functions()
 	p.help = "The simulation you wish to run.";
 	p.optional = false;
 	f.params["simulation"] = p;
+	p.type = dtlang::TYPE_STRING;
+	p.help = "Filename to save results to.";
+	p.optional = false;
+	f.params["filename"] = p;
+	p.type = dtlang::TYPE_INT;
+	p.help = "Number of simulations to run for each input vector.";
+	p.optional = false;
+	f.params["number_of_trials"] = p;
     dtlang::functions["run"] = f;
 
     // graphinputs()
@@ -456,7 +464,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	} 
 
 	if (name == "run") {
-        return dtlang::f_runsimulation( *(static_cast<Simulation*>(params[0].obj)));
+        return dtlang::f_run( *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), *(static_cast<int*>(params[2].obj)) );
 	} 
 
 	if (name == "print") {
@@ -474,6 +482,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	if (name == "external") {
         return dtlang::f_external(*(static_cast<string*>(params[0].obj)), tp, end_input);
 	}
+
 
     if (name == "linktrial") {
 		if (r_type == dtlang::NO_RETURN) {
@@ -682,8 +691,8 @@ bool dtlang::delete_variable(variable_def var) {
 }
 
 
-bool dtlang::f_runsimulation(Simulation &sim) {
-    return sim.run();
+bool dtlang::f_run(Simulation &sim, string filename, int number_of_trials) {
+    return sim.run(filename, number_of_trials);
 }
 
 

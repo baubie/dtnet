@@ -28,6 +28,7 @@ class Net {
 		bool load(std::string filename, std::string &error);	
         int count_populations();
         std::string toString();
+		void runSimulation();
 		
         bool accept_input( const std::string popID );
         static const int NOT_FOUND = -999;
@@ -66,8 +67,6 @@ class Net {
 		void finalizePopulations();
 		void connectPopulations(int from, int to, double weight, double delay);
 		void geninput(std::vector<double>* input, double duration, double mu, double delay);		
-		void runSimulation();
-
         bool parseXML(std::string filename, std::string &error);
 
 };
