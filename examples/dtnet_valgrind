@@ -1,2 +1,2 @@
 #!/bin/bash
-valgrind --leak-check=full dtnet -s units.dtnet -v -gv
+valgrind --leak-check=full dtnet -s units.dtnet -v

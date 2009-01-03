@@ -3,8 +3,16 @@
 
 using namespace std;
 
-Net::Net(double T, double dt) {
 
+Net::Net() : T(50), dt(0.05) {
+    this->initialize();
+}
+
+Net::Net(double T, double dt) : T(T), dt(dt) {
+    this->initialize();
+}
+
+void Net::initialize() {
     unsigned int seed = time(NULL);
 
     struct timespec ts;
@@ -18,6 +26,9 @@ Net::Net(double T, double dt) {
     srand( seed );
 
     this->steps = (unsigned int)(T/dt);
+
+    this->alphaTauE = 0.7;
+    this->alphaTauI = 1.1;
 }
 
 int Net::count_populations() {
@@ -310,7 +321,7 @@ bool Net::parseXML(string filename, string &error)
             string pop_id;
     		int pop_size = 0;
             bool accept_input = false;
-            NeuronParams np;
+            NeuronParams np = Neuron::defaultParams();
             hPopulation = pElem;        
 
             if (strcmp(pElem->Attribute("type"), "Poisson") == 0) {

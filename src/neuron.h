@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <boost/random.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 
 struct NeuronParams {
 
@@ -17,6 +21,15 @@ struct NeuronParams {
 
     struct POISSON {
         double mu;
+        bool spontaneous;
+
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & mu;
+            ar & spontaneous;
+        }
     } Poisson;
 
     struct AEIF {
@@ -45,7 +58,46 @@ struct NeuronParams {
         double jdeltaT;
         double jb;
         double jVR;
+
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & jitter;
+            ar & VT;
+            ar & C;
+            ar & hypTau;
+            ar & alpha_q;
+            ar & gL;
+            ar & EL;
+            ar & tauw;
+            ar & a;
+            ar & deltaT;
+            ar & b;
+            ar & VR;
+
+            // The sigma value of each parameter
+            ar & jVT;
+            ar & jC;
+            ar & jhypTau;
+            ar & jalpha_q;
+            ar & jgL;
+            ar & jEL;
+            ar & jtauw;
+            ar & ja;
+            ar & jdeltaT;
+            ar & jb;
+            ar & jVR;
+        }
     } aEIF;
+
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & Poisson;
+        ar & aEIF;
+    }
 };
 
 class Neuron {
@@ -58,12 +110,22 @@ class Neuron {
 		
 		// Methods
 		Neuron(NeuronParams params);
+        Neuron();
 		static NeuronParams defaultParams();
 		void init(int steps);
 		void jitter();
 		void update(double current, int position, double dt);
 
 	private:
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & voltage;
+            ar & spikes;
+            ar & params;
+        }
+
 		double V;    // Voltage (mV)
 		double w;
 		
@@ -82,5 +144,7 @@ class Neuron {
 	
 		// Calculuate poisson spikes
 		void Poisson(double current, int position, double dt);
+
+        void initialize();
 };
 #endif

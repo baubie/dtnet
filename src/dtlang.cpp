@@ -313,7 +313,7 @@ void dtlang::initialize_functions()
 
     // run()
     f.help = "Run the current simulation. Will only work if at least one population has an input connected.";
-    f.return_type = dtlang::TYPE_VOID;
+    f.return_type = dtlang::TYPE_SIMULATION;
     f.params.clear();
 	p.type = dtlang::TYPE_SIMULATION;
 	p.help = "The simulation you wish to run.";
@@ -328,6 +328,16 @@ void dtlang::initialize_functions()
 	p.optional = false;
 	f.params["number_of_trials"] = p;
     dtlang::functions["run"] = f;
+
+    // load()
+    f.help = "Load a simulation that has already been run.";
+    f.return_type = dtlang::TYPE_SIMULATION;
+    f.params.clear();
+    p.type = dtlang::TYPE_STRING;
+    p.help = "The filename where the simulation was saved.";
+    p.optional = false;
+    f.params["filename"] = p;
+    dtlang::functions["load"] = f;
 
     // graphinputs()
     f.help = "Display a graph showing some or all of the inputs from a trial. Uses the graph_width and graph_height variables.";
@@ -358,6 +368,28 @@ void dtlang::initialize_functions()
 	p.def = "network.eps";
 	f.params["filename"] = p;
 	dtlang::functions["graphnetwork"] = f;
+
+    // graphtrial_voltage()
+    f.help = "Produce a plot of the voltage traces for each neuron in each population.";
+    f.return_type = dtlang::TYPE_VOID;
+    f.params.clear();
+    p.type = dtlang::TYPE_SIMULATION;
+    p.help = "A simulation that has been run.";
+    p.optional = false;
+    f.params["simulation"] = p;
+    p.type = dtlang::TYPE_INT;
+    p.help = "The index of the input vector (zero based).";
+    p.optional = false;
+    f.params["input"] = p;
+    p.type = dtlang::TYPE_INT;
+    p.help = "The trial number (zero based).";
+    p.optional = false;
+    f.params["trial_number"] = p;
+    p.type == dtlang::TYPE_STRING;
+    p.help = "Filename to save the graph to.";
+    p.optional = false;
+    f.params["filename"] = p;
+    dtlang::functions["graphtrial_voltage"] = f;
 	
     // linktrial()
     f.help = "Link a trial to a population that accepts input.";
@@ -455,6 +487,10 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         }
 	} 
 
+    if (name == "graphtrial_voltage") {
+        return dtlang::f_graphtrial_voltage(*(static_cast<Simulation*>(params[0].obj)), *(static_cast<int*>(params[1].obj)), *(static_cast<int*>(params[2].obj)), *(static_cast<string*>(params[3].obj)));
+    }
+
 	if (name == "vars") {
         return dtlang::f_vars();
 	} 
@@ -464,8 +500,23 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	} 
 
 	if (name == "run") {
-        return dtlang::f_run( *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), *(static_cast<int*>(params[2].obj)) );
+		if (r_type == dtlang::NO_RETURN) {
+			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
+			return false;
+		}
+        r = new Simulation(*(static_cast<Simulation*>(params[0].obj)));
+        return dtlang::f_run( *(static_cast<Simulation*>(r)), *(static_cast<string*>(params[1].obj)), *(static_cast<int*>(params[2].obj)) );
 	} 
+
+    if (name == "load") {
+		if (r_type == dtlang::NO_RETURN) {
+			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
+			return false;
+		}
+        Net tmp;
+        r = new Simulation(tmp);
+        return dtlang::f_load(*(static_cast<Simulation*>(r)), *(static_cast<string*>(params[0].obj)));
+    }
 
 	if (name == "print") {
         return dtlang::f_print(params[0].obj, params[0].type);
@@ -533,6 +584,10 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
 
 
+
+bool dtlang::f_load(Simulation &sim, const string filename) {
+    return Simulation::load(sim, filename);
+}
 
 
 bool dtlang::f_vars() {
@@ -847,8 +902,55 @@ bool dtlang::f_graphnetwork(Simulation &sim, string const &filename) {
 	return true;
 }
 
-bool dtlang::f_print(void* ptr, int const type)
-{
+bool dtlang::f_graphtrial_voltage(Simulation &sim, int input, int trial, string const &filename)  {
+
+    vector<double> timesteps;
+    vector< vector<double> > signals;
+    if (sim.trials.size() > 0) { 
+        Trial tmp = sim.trials.begin()->second;
+        timesteps = tmp.timesteps;
+    } else { // Generate our own timeseries
+        unsigned int steps = (int)(sim.net.T/sim.net.dt);
+        timesteps.resize(steps);
+        for (unsigned int i = 0; i < steps; ++i) {
+            timesteps.at(i) = i * sim.net.dt;
+        }
+    }
+
+    if (sim.results.empty()) {
+        cout << "[X] No results are found in this simulation." << endl;
+        return false;
+    }
+
+    Net net_result = sim.results[input][trial];
+
+    GLE gle;
+    GLE::PlotProperties plotProperties;
+    GLE::Color start;
+
+    start.r = 0.5;
+    start.g = 0.5;
+    start.b = 0.5;
+    plotProperties.first = start; 
+    
+    vector<Population>::iterator pop_iter;
+    vector<Neuron>::iterator neuron_iter;
+    for (pop_iter = net_result.populations.begin(); pop_iter != net_result.populations.end(); ++pop_iter) {
+        signals.clear();
+        for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
+            signals.push_back(neuron_iter->voltage);
+        } 
+        gle.plot(timesteps, signals, plotProperties);
+    }
+
+    gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
+    gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
+    gle.draw(filename);
+    return true;
+}
+
+
+bool dtlang::f_print(void* ptr, int const type) {
     switch(type)
     {
         case dtlang::TYPE_STRING:

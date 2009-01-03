@@ -26,4 +26,6 @@ trial2 = "Another String"
 benchmark(0.001)
 help("help")
 help()
+sim=run(sim,"unit_simulation",2)
+graphtrial_voltage(sim,0,0,"trial.eps")
 quit()

@@ -10,7 +10,7 @@ bool GLE::verifyData(GLE::Plot &plot)
     {
         if (iter->size() != plot.x.size())
         {
-            cout << "[GLE++] Error: x and y vector sizes do not all match!" << endl;
+            cout << "[GLE++] Error: x and y vector sizes do not all match (x: " << plot.x.size() << " y: " << iter->size() << ")." << endl;
             return false;
         }
     }
@@ -122,17 +122,18 @@ bool GLE::data_to_file()
     vector<double>::iterator y_iter;
     vector<vector<double> >::iterator all_y_iter;
     map<double, vector<double> > y;
-    vector<double>::iterator y_map_iter;
+    vector<double>::iterator values_y_iter;
+    map<double, vector<double> >::iterator values_iter;
 
     for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter) 
-    {
+    { /**< Loop over each panel. */
         for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
-        {
+        { /**< Loop over each plot in this panel. */
             for ( all_y_iter = plot_iter->y.begin(); all_y_iter != plot_iter->y.end(); ++all_y_iter)
-            {
+            { /**< Loop over each trace in this plot. */
                 x_iter = plot_iter->x.begin(); // We assume x and y are the same size since verifyData() returned true.
                 for ( y_iter = all_y_iter->begin(); y_iter != all_y_iter->end(); ++y_iter)
-                {
+                { /**< Loop over each y value in this trace. */
                     y[*x_iter].push_back(*y_iter);
                     ++x_iter;
                 }
@@ -148,12 +149,10 @@ bool GLE::data_to_file()
                return false;
             }
             plot_iter->data_file = string(data_filename);
-            for ( x_iter = plot_iter->x.begin(); x_iter != plot_iter->x.end(); ++x_iter)
-            {
-                of << fixed << setprecision(3) << *x_iter;
-                for ( y_map_iter = y[*x_iter].begin(); y_map_iter != y[*x_iter].end(); ++y_map_iter)
-                {
-                    of << fixed << setprecision(3) << "," << *y_map_iter;
+            for (values_iter = y.begin(); values_iter != y.end(); ++values_iter) {
+                of << fixed << setprecision(3)  << values_iter->first;
+                for ( values_y_iter = values_iter->second.begin(); values_y_iter != values_iter->second.end(); ++values_y_iter ) {
+                    of << fixed << setprecision(3) << "," << *values_y_iter;
                 }
                 of << endl;
             }

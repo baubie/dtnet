@@ -10,6 +10,10 @@
 #include <vector>
 #include <map>
 
+#include <boost/serialization/vector.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 
 class Input {
 	
@@ -22,6 +26,15 @@ class Input {
             float start;
             float end;
             float step;
+
+            friend class boost::serialization::access;
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & start;
+                ar & end;
+                ar & step;
+            }
         };
 
         std::string name;
@@ -36,6 +49,18 @@ class Input {
 
 
 	private:
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & name;
+            ar & type;
+            ar & duration;
+            ar & amplitude;
+            ar & delay;
+            ar & signals;
+        }
+
         std::vector< std::vector<double> > signals;
         void generateSignals(double T, double dt, double delay);
 };

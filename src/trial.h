@@ -7,9 +7,13 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include <map>
 #include "input.h"
 #include "lib/tinyxml/tinyxml.h"
+
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 /** Load and generate the input signal vectors from an XML file. */
 class Trial {
@@ -19,6 +23,7 @@ class Trial {
 		std::string ID;											/**< A unique ID for this trial. */
 
         Trial(double T, double dt, double delay);               /**< Constructor for a new trial. */
+        Trial();
 
 		bool load(std::string filename, std::string &error);    /**< Load a trial from an XML file. */
 
@@ -26,12 +31,29 @@ class Trial {
         std::vector<double>* timeSteps();                       /**< Provide a pointer to the timesteps vector. */
         int count();                                            /**< Provide the number of input signals generated in this trial. */
 
+        std::vector<double> timesteps;                          /**< A vector of the timesteps. */
+
         std::string toString();                                 /**< Provide a string representation of this trial. */
 	
 	private:
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & name;
+            ar & ID;
+            ar & inputs;
+            ar & inputSignals;
+            ar & timesteps;
+            ar & T;
+            ar & dt;
+            ar & delay;
+            ar & filename;
+        }
+
+
         std::vector<Input> inputs;                              /**< Collection of input signal definitions to generate vectors from. */
         std::vector<std::vector<double> > inputSignals;         /**< Collection of generated input signals. */
-        std::vector<double> timesteps;                          /**< A vector of the timesteps. */
 
 		bool parseXML(std::string filename, std::string &error);    /**< Parse the XML file. */
         void genSignal(std::vector<Input>::iterator inputsPos);     /**< Generate input signals from the collection of input definitions. */

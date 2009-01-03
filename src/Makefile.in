@@ -52,7 +52,7 @@ dtnet_OBJECTS = $(am_dtnet_OBJECTS)
 dtnet_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
 dtnet_DEPENDENCIES = lib/tinyxml/libtinyxml.a $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -91,6 +91,7 @@ BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
 BOOST_DATE_TIME_LIB = @BOOST_DATE_TIME_LIB@
 BOOST_IOSTREAMS_LIB = @BOOST_IOSTREAMS_LIB@
 BOOST_LDFLAGS = @BOOST_LDFLAGS@
+BOOST_SERIALIZATION_LIB = @BOOST_SERIALIZATION_LIB@
 BOOST_THREAD_LIB = @BOOST_THREAD_LIB@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
@@ -200,7 +201,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dtnet_SOURCES = dtnet.cpp dtlang.cpp GLE.cpp net.cpp population.cpp neuron.cpp simulation.cpp trial.cpp input.cpp parseargs.cpp
 SUBDIRS = lib/tinyxml
-LDADD = lib/tinyxml/libtinyxml.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB)
+LDADD = lib/tinyxml/libtinyxml.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB)
 AM_CXXFLAGS = $(BOOST_CPPFLAGS)
 AM_LDFLAGS = $(BOOST_LDFLAGS)
 all: all-recursive

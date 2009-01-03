@@ -7,7 +7,6 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include <map>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
@@ -16,9 +15,15 @@
 #include "neuron.h"
 #include "lib/tinyxml/tinyxml.h"
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
+
 class Net {
 
     public:
+        Net();
         Net(double T, double dt);
         bool verbose;
         std::string name; // A name for this network
@@ -28,10 +33,17 @@ class Net {
 		bool load(std::string filename, std::string &error);	
         int count_populations();
         std::string toString();
+		void initSimulation();
 		void runSimulation();
 		
         bool accept_input( const std::string popID );
         static const int NOT_FOUND = -999;
+
+		double dt;
+		double T;
+
+		double alphaTauE;
+        double alphaTauI;
 
 		std::vector<Population> populations;
 		std::vector< std::vector<double> > delays;
@@ -42,15 +54,30 @@ class Net {
 		
 		
     private:
-		double dt;
-		double T;
+
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & dt;
+            ar & T;
+            ar & steps;
+            ar & name;
+            ar & filename;
+            ar & populations;
+            ar & delays;
+            ar & weights;
+            ar & sigmas;
+            ar & density;
+            ar & inputs;
+            ar & alphaTauE;
+            ar & alphaTauI;            
+        }
 
         static const int ALPHA_WIDTH = 20; // 20 ms is MORE than enough width for the alpha function
         static const int CONSTANT_INPUT = 999;
 
 		unsigned int steps;
-		double alphaTauE;
-        double alphaTauI;
 		
 
         std::vector<double> alphaE;
@@ -63,11 +90,10 @@ class Net {
         int populationFromID(const std::string popID);
         void initAlpha(double q, double tau, std::vector<double> &vals);
 		double alpha(double t, std::vector<double> &spikes, double delay, double weight);
-		void initSimulation();
 		void finalizePopulations();
 		void connectPopulations(int from, int to, double weight, double delay);
 		void geninput(std::vector<double>* input, double duration, double mu, double delay);		
         bool parseXML(std::string filename, std::string &error);
-
+        void initialize();
 };
 #endif

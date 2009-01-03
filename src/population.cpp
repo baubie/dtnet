@@ -3,11 +3,13 @@
 
 using namespace std;
 
-Population::Population(string name, string ID, int size, bool accept_input, NeuronParams params) {
-    this->name = name;
-    this->ID = ID;
-    this->accept_input = accept_input;
-	
+Population::Population(string name, string ID, int size, bool accept_input, NeuronParams params) : name(name), ID(ID), accept_input(accept_input) 
+{ this->initialize(size, params); }
+
+Population::Population() : name(""), ID(""), accept_input(false) 
+{ this->initialize(1, Neuron::defaultParams()); }
+
+void Population::initialize(int size, NeuronParams params) {
 	for( int i = 0; i < size; i++ ) {
 		neurons.push_back(Neuron(params));
 	}

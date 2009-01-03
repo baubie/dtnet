@@ -7,11 +7,20 @@
 #include "trial.h"
 #include "net.h"
 
+#include <fstream>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
+
 /** Container class for holding multiple simulation runs. */
 class Simulation
 {
     public:
+
 		Simulation(Net &net);
+        Simulation();
         bool linktrial(Trial &trial, const std::string popID);
         bool run(std::string filename, int number_of_trials);
 		std::string toString();
@@ -19,9 +28,22 @@ class Simulation
         std::map<std::string, Trial> trials;      /**< Collection of trials linked to specific populations. */
         std::vector<std::vector<Net> > results;     /**< Collection of the networks post-simulation indexed by input. */
 
+        void save(std::string filename);
+        static bool load(Simulation &sim, std::string filename);        
 
     private:
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & net;
+            ar & trials;
+            ar & results;
+            ar & dynamicTrial;
+        }
+    
         std::string dynamicTrial;           /**< Key to the trial with >1 inputs. */
+
 };
 
 

@@ -3,6 +3,7 @@
 using namespace std;
 
 Trial::Trial(double T, double dt, double delay) : T(T), dt(dt), delay(delay) {}
+Trial::Trial() : T(50), dt(0.05), delay(10) {}
 
 bool Trial::load(string filename, string &error)
 {

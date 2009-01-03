@@ -1,11 +1,16 @@
 
 #include "neuron.h"
 
-Neuron::Neuron(NeuronParams params) {
-	
-	// Setup default model parameters
-	this->params = params;
+Neuron::Neuron(NeuronParams params) : params(params) {
+    this->initialize();	
+}
 
+Neuron::Neuron() {
+    this->params = Neuron::defaultParams();
+    this->initialize();
+}
+
+void Neuron::initialize() {
 	// Do some other setup stuff
 	switch (params.type) {
 		case NeuronParams::AEIF:
@@ -19,43 +24,46 @@ Neuron::Neuron(NeuronParams params) {
 	this->w = 0;
 }
 
-    NeuronParams Neuron::defaultParams() {
-		NeuronParams p;
-        
-        // Global Parameters
-		p.type = NeuronParams::AEIF;
-		p.integrator = NeuronParams::RungeKutta;
-        
-        // Poisson
-		p.Poisson.mu = 300; // In Hz
-        
-        // AEIF
-		p.aEIF.jitter = true;
-		p.aEIF.VT = -52;
-		p.aEIF.C	= 281;
-		p.aEIF.hypTau = 5;
-		p.aEIF.alpha_q = 1;
-		p.aEIF.gL = 30;
-		p.aEIF.EL = -63;
-		p.aEIF.tauw = 200;
-		p.aEIF.a = 1500;
-		p.aEIF.deltaT = 2;
-		p.aEIF.b = 80.5;
-		p.aEIF.VR = -63;	
 
-		p.aEIF.jC	= 0;
-		p.aEIF.jVT = 0;
-		p.aEIF.jhypTau = 0;
-		p.aEIF.jalpha_q = 0;
-		p.aEIF.jgL = 0;
-		p.aEIF.jEL = 0;
-		p.aEIF.jtauw = 0;
-		p.aEIF.ja = 0;
-		p.aEIF.jdeltaT = 0;
-		p.aEIF.jb = 0;
-		p.aEIF.jVR = 0;
-		return p;
-	}
+
+NeuronParams Neuron::defaultParams() {
+    NeuronParams p;
+    
+    // Global Parameters
+    p.type = NeuronParams::AEIF;
+    p.integrator = NeuronParams::RungeKutta;
+    
+    // Poisson
+    p.Poisson.mu = 300; // In Hz
+    p.Poisson.spontaneous = false;
+        
+    // AEIF
+    p.aEIF.jitter = true;
+    p.aEIF.VT = -52;
+    p.aEIF.C	= 281;
+    p.aEIF.hypTau = 5;
+    p.aEIF.alpha_q = 1;
+    p.aEIF.gL = 30;
+    p.aEIF.EL = -63;
+    p.aEIF.tauw = 200;
+    p.aEIF.a = 1500;
+    p.aEIF.deltaT = 2;
+    p.aEIF.b = 80.5;
+    p.aEIF.VR = -63;	
+
+    p.aEIF.jC	= 0;
+    p.aEIF.jVT = 0;
+    p.aEIF.jhypTau = 0;
+    p.aEIF.jalpha_q = 0;
+    p.aEIF.jgL = 0;
+    p.aEIF.jEL = 0;
+    p.aEIF.jtauw = 0;
+    p.aEIF.ja = 0;
+    p.aEIF.jdeltaT = 0;
+    p.aEIF.jb = 0;
+    p.aEIF.jVR = 0;
+    return p;
+}
 
     void Neuron::init(int steps) {
         this->voltage.resize(steps);
@@ -173,18 +181,18 @@ Neuron::Neuron(NeuronParams params) {
 	}
 
 	void Neuron::Spike(int position, double dt) {
-		switch(params.type) {
+		switch(this->params.type) {
 			case NeuronParams::AEIF:
-				if (V >= 20) {
-					V = params.aEIF.VR;
-					w += params.aEIF.b;
+				if (this->V >= 20) {
+					this->V = this->params.aEIF.VR;
+					this->w += this->params.aEIF.b;
 					voltage[position] = spikeHeight; // Artificial spike
 					spikes.push_back(position*dt); // Save the actual spike time
 				}
 				break;
 			case NeuronParams::POISSON:
 			// We assume this is only called when a spike actually occurred.
-				voltage[position] = spikeHeight; // Artificial spike
+				this->voltage[position] = spikeHeight; // Artificial spike
 				spikes.push_back(position*dt);
 				break;
 		}

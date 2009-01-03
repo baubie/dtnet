@@ -17,6 +17,23 @@ bool Simulation::linktrial(Trial &trial, const string popID) {
     return false;
 }
 
+void Simulation::save(string filename) {
+    ofstream ofs(filename.c_str());
+    boost::archive::text_oarchive oa(ofs);
+    oa << *this;    
+}
+
+bool Simulation::load(Simulation &sim, string filename) {
+    ifstream ifs(filename.c_str());
+    if (ifs.fail()) {
+        cout << "[X] Error opening " << filename << ".  Sorry." << endl;
+        return false;
+    }
+    boost::archive::text_iarchive ia(ifs);
+    ia >> sim;    
+    return true;
+}
+
 bool Simulation::run(string filename, int number_of_trials) {
 
     // Pick a population to loop over all the trials with.
@@ -32,11 +49,20 @@ bool Simulation::run(string filename, int number_of_trials) {
     Trial dynTrial(this->trials.find(this->dynamicTrial)->second);
     vector<vector<double> >::iterator signalIter;   
     map<string,Trial>::iterator trialIter;
+    vector< vector<Net> >::iterator resultIter;
 
-    // Loop over trials
-    for (int i = 0; i < number_of_trials; ++i) {
-        // Loop over the dynamicTrial
-        for (signalIter = dynTrial.signals()->begin(); signalIter != dynTrial.signals()->end(); ++signalIter) {
+    int total = number_of_trials * dynTrial.signals()->size();
+    int count = 0;
+
+
+    // Loop over the dynamicTrial
+    for (signalIter = dynTrial.signals()->begin(); signalIter != dynTrial.signals()->end(); ++signalIter) {
+        vector<Net> new_trials;
+        this->results.push_back( new_trials );
+
+        // Loop over trials
+        for (int i = 0; i < number_of_trials; ++i) {
+            
             Net new_net(this->net); // Create a new network from our existing one.
             for (trialIter = this->trials.begin(); trialIter != this->trials.end(); ++trialIter) {
                 if (trialIter->first != this->dynamicTrial) {
@@ -46,10 +72,17 @@ bool Simulation::run(string filename, int number_of_trials) {
             } 
             new_net.linkinput( *signalIter, this->dynamicTrial );
 
+            // Set everything up
+            new_net.initSimulation();
+
             // Inputs are all loaded up so lets run the trial
             new_net.runSimulation();
+            this->results.back().push_back(new_net);
+            ++count;
+            cout << "[Progress] " << count << "/" << total << endl;
         }
     }
+    Simulation::save(filename);
     return true;
 }
 
