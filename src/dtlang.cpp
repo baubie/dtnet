@@ -747,7 +747,12 @@ bool dtlang::delete_variable(variable_def var) {
 
 
 bool dtlang::f_run(Simulation &sim, string filename, int number_of_trials, boost::threadpool::pool &tp) {
-    return sim.run(filename, number_of_trials, tp);
+    boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
+    bool r = sim.run(filename, number_of_trials, tp);
+    boost::posix_time::ptime end(boost::posix_time::microsec_clock::local_time());
+    boost::posix_time::time_duration dur = end - start;
+    cout << "Completed in " << dur << endl;
+    return r;
 }
 
 

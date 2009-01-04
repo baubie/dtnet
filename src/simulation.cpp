@@ -91,8 +91,10 @@ bool Simulation::run(string filename, int number_of_trials, boost::threadpool::p
     }
 
     tp.wait();
-    cout << "Saving simulation..." << endl;
-    Simulation::save(filename);
+    if (filename != "") {
+        cout << "Saving simulation..." << endl;
+        Simulation::save(filename);
+    } else { cout << "[WARNING] Simulation WAS NOT SAVED!" << endl; }
     return true;
 }
 
