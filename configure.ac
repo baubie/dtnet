@@ -13,7 +13,7 @@ AC_ARG_WITH(readline,
     [ READLINE_lib_check="$withval/lib"])
 if test "$READLINE_lib_check" != ""
 then
-    add_ldflags="-L$READLINE_lib_check"
+    add_ldflags="-L$READLINE_lib_check -lncurses"
 fi
 
 
