@@ -6,6 +6,7 @@ AC_PROG_CXX
 AC_PROG_LIBTOOL
 
 AC_CHECK_LIB([readline], [readline])
+AC_CHECK_LIB([ncurses], [ncurses])
 AC_CHECK_LIB([rt], [clock_gettime])
 
 AX_BOOST_BASE(1.37)
