@@ -5,7 +5,7 @@ AM_INIT_AUTOMAKE(dtnet,2.0)
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 
-AC_CHECK_LIB([readline], [main])
+AC_CHECK_LIB([readline], [readline])
 AC_CHECK_LIB([ncurses], [main])
 AC_CHECK_LIB([rt], [clock_gettime])
 
