@@ -14919,9 +14919,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-{ echo "$as_me:$LINENO: checking for readline in -lreadline" >&5
-echo $ECHO_N "checking for readline in -lreadline... $ECHO_C" >&6; }
-if test "${ac_cv_lib_readline_readline+set}" = set; then
+{ echo "$as_me:$LINENO: checking for main in -lreadline" >&5
+echo $ECHO_N "checking for main in -lreadline... $ECHO_C" >&6; }
+if test "${ac_cv_lib_readline_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -14933,17 +14933,11 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char readline ();
+
 int
 main ()
 {
-return readline ();
+return main ();
   ;
   return 0;
 }
@@ -14966,21 +14960,21 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_readline_readline=yes
+  ac_cv_lib_readline_main=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_lib_readline_readline=no
+	ac_cv_lib_readline_main=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_readline_readline" >&5
-echo "${ECHO_T}$ac_cv_lib_readline_readline" >&6; }
-if test $ac_cv_lib_readline_readline = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_readline_main" >&5
+echo "${ECHO_T}$ac_cv_lib_readline_main" >&6; }
+if test $ac_cv_lib_readline_main = yes; then
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBREADLINE 1
 _ACEOF
@@ -14990,9 +14984,9 @@ _ACEOF
 fi
 
 
-{ echo "$as_me:$LINENO: checking for ncurses in -lncurses" >&5
-echo $ECHO_N "checking for ncurses in -lncurses... $ECHO_C" >&6; }
-if test "${ac_cv_lib_ncurses_ncurses+set}" = set; then
+{ echo "$as_me:$LINENO: checking for main in -lncurses" >&5
+echo $ECHO_N "checking for main in -lncurses... $ECHO_C" >&6; }
+if test "${ac_cv_lib_ncurses_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -15004,17 +14998,11 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char ncurses ();
+
 int
 main ()
 {
-return ncurses ();
+return main ();
   ;
   return 0;
 }
@@ -15037,21 +15025,21 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_ncurses_ncurses=yes
+  ac_cv_lib_ncurses_main=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_lib_ncurses_ncurses=no
+	ac_cv_lib_ncurses_main=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_ncurses_ncurses" >&5
-echo "${ECHO_T}$ac_cv_lib_ncurses_ncurses" >&6; }
-if test $ac_cv_lib_ncurses_ncurses = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_ncurses_main" >&5
+echo "${ECHO_T}$ac_cv_lib_ncurses_main" >&6; }
+if test $ac_cv_lib_ncurses_main = yes; then
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBNCURSES 1
 _ACEOF
