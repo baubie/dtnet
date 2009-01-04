@@ -3,6 +3,10 @@
 
 using namespace std;
 
+/** Random Number Generator **/
+boost::mt19937 random_engine;
+
+
 Simulation::Simulation(Net &net) : net(net) {}
 
 bool Simulation::linktrial(Trial &trial, const string popID) {
@@ -34,7 +38,12 @@ bool Simulation::load(Simulation &sim, string filename) {
     return true;
 }
 
-bool Simulation::run(string filename, int number_of_trials) {
+void runSimulation(Net &net)
+{
+    net.runSimulation();
+}
+
+bool Simulation::run(string filename, int number_of_trials, boost::threadpool::pool &tp) {
 
     // Pick a population to loop over all the trials with.
     // If one population has multiple input signals we pick that one.
@@ -53,7 +62,6 @@ bool Simulation::run(string filename, int number_of_trials) {
 
     int total = number_of_trials * dynTrial.signals()->size();
     int count = 0;
-
 
     // Loop over the dynamicTrial
     for (signalIter = dynTrial.signals()->begin(); signalIter != dynTrial.signals()->end(); ++signalIter) {
@@ -75,13 +83,15 @@ bool Simulation::run(string filename, int number_of_trials) {
             // Set everything up
             new_net.initSimulation();
 
-            // Inputs are all loaded up so lets run the trial
-            new_net.runSimulation();
+            // Inputs are all loaded up so lets schedul the trial
             this->results.back().push_back(new_net);
+            tp.schedule(boost::bind(&runSimulation, this->results.back().back()));
             ++count;
-            cout << "[Progress] " << count << "/" << total << endl;
         }
     }
+
+    tp.wait();
+    cout << "Saving simulation..." << endl;
     Simulation::save(filename);
     return true;
 }

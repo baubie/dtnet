@@ -8,11 +8,11 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
+#include <boost/random/normal_distribution.hpp>
 #include <boost/random.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-
 
 struct NeuronParams {
 
@@ -132,7 +132,8 @@ class Neuron {
 		static const int spikeHeight = -20;
 			
 		// Model Parameters
-		NeuronParams params;		
+		NeuronParams params;        /**< Parameters to run simulation with after jitter(). **/
+		NeuronParams def_params;    /**< Parameters passed in before jittering. **/	
 		
 		// Calculate next voltage change with different methods
 		double V_update(double V, double current, int position);

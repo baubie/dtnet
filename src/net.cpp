@@ -23,7 +23,6 @@ void Net::initialize() {
         cout << "ERRNO = " << strerror(errno) << endl;
         throw;
     }
-    srand( seed );
 
     this->steps = (unsigned int)(T/dt);
 
@@ -350,57 +349,57 @@ bool Net::parseXML(string filename, string &error)
          
                     if (strcmp(pElemParam->Attribute("name"),"VT") == 0) {
                         np.aEIF.VT = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jVT);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jVT);                    
                     }
                     
                     if (strcmp(pElemParam->Attribute("name"),"C") == 0) {
                         np.aEIF.C = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jC);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jC);                    
                     }
                     
                     if (strcmp(pElemParam->Attribute("name"),"hypTau") == 0) {
                         np.aEIF.hypTau = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jhypTau);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jhypTau);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"alpha_q") == 0) {
                         np.aEIF.alpha_q = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jalpha_q);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jalpha_q);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"gL") == 0) {
                         np.aEIF.gL = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jgL);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jgL);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"EL") == 0) {
                         np.aEIF.EL = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jEL);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jEL);                    
                     }
                                         
                     if (strcmp(pElemParam->Attribute("name"),"tauw") == 0) {
                         np.aEIF.tauw = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jtauw);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jtauw);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"a") == 0) {
                         np.aEIF.a = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.ja);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.ja);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"b") == 0) {
                         np.aEIF.b = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jb);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jb);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"deltaT") == 0) {
                         np.aEIF.deltaT = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jdeltaT);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jdeltaT);                    
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"VR") == 0) {
                         np.aEIF.VR = (double)atof(pElemParam->FirstChild()->Value());
-                		pElem->QueryDoubleAttribute("sigma", &np.aEIF.jVR);                    
+                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jVR);                    
                     }
                     
                // Found a Parameter Element With A Range Element

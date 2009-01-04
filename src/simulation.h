@@ -8,6 +8,9 @@
 #include "net.h"
 
 #include <fstream>
+#include "lib/threadpool/threadpool.hpp"
+#include <boost/random.hpp>
+#include <boost/bind.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -22,7 +25,7 @@ class Simulation
 		Simulation(Net &net);
         Simulation();
         bool linktrial(Trial &trial, const std::string popID);
-        bool run(std::string filename, int number_of_trials);
+        bool run(std::string filename, int number_of_trials, boost::threadpool::pool &tp);
 		std::string toString();
 		Net net;                                    /**< The network used in this simulation. */
         std::map<std::string, Trial> trials;      /**< Collection of trials linked to specific populations. */
@@ -43,7 +46,6 @@ class Simulation
         }
     
         std::string dynamicTrial;           /**< Key to the trial with >1 inputs. */
-
 };
 
 

@@ -11,15 +11,7 @@ Neuron::Neuron() {
 }
 
 void Neuron::initialize() {
-	// Do some other setup stuff
-	switch (params.type) {
-		case NeuronParams::AEIF:
-			if (params.aEIF.jitter) { jitter(); }
-			break;
-		case NeuronParams::POISSON:
-			break;
-	}
-
+    this->def_params = this->params;
 	this->V = this->params.aEIF.EL; //mV
 	this->w = 0;
 }
@@ -67,39 +59,33 @@ NeuronParams Neuron::defaultParams() {
 
     void Neuron::init(int steps) {
         this->voltage.resize(steps);
+        this->jitter();
+    }
+
+    double n(double mean, double sigma) {
+        if (sigma <= 0) return mean;
+        extern boost::mt19937 random_engine;
+        boost::normal_distribution<double> norm_dist(mean, sigma);
+        boost::variate_generator<boost::mt19937&, boost::normal_distribution<double> > generator(random_engine, norm_dist);
+        return generator(); 
     }
 
 	void Neuron::jitter() {
-       
-        //TODO: Replace this jitter with a Gaussian distribution 
-        
-        // Jitter by a percentage
-        // [-x,+x] = rand() % (2x+1) - x
-        /*
-		double jit_C = rand() % (this->params.jC*2+1) - this->params.jC;
-		double jit_VT = rand() % (this->params.jVT*2+1) - this->params.jVT;
-		double jit_hypTau = rand() % (this->params.jhypTau*2+1) - this->params.jhypTau;
-		double jit_alpha_q = rand() % (this->params.jalpha_q*2+1) - this->params.jalpha_q;
-		double jit_gL = rand() % (this->params.jgL*2+1) - this->params.jgL;
-		double jit_EL = rand() % (this->params.jEL*2+1) - this->params.jEL;
-		double jit_tauw = rand() % (this->params.jtauw*2+1) - this->params.jtauw;
-		double jit_a = rand() % (this->params.ja*2+1) - this->params.ja;
-		double jit_deltaT = rand() % (this->params.jdeltaT*2+1) - this->params.jdeltaT;
-		double jit_b = rand() % (this->params.jb*2+1) - this->params.jb;
-		double jit_VR = rand() % (this->params.jVR*2+1) - this->params.jVR;
-
-		this->params.C *= jit_C/100.0+1.0;
-		this->params.VT *= jit_VT/100.0+1.0;
-		this->params.hypTau *= jit_hypTau/100.0+1.0;
-		this->params.alpha_q *= jit_alpha_q/100.0+1.0;
-		this->params.gL *= jit_gL/100.0+1.0;
-		this->params.EL *= jit_EL/100.0+1.0;
-		this->params.tauw *= jit_tauw/100.0+1.0;
-		this->params.a *= (jit_a/100.0+1.0);
-		this->params.deltaT *= (jit_deltaT/100.0+1.0);
-		this->params.b *= (jit_b/100.0+1.0);
-		this->params.VR *= (jit_VR/100.0+1.0);
-        */
+        switch(this->params.type) {
+            case NeuronParams::AEIF:
+                this->params.aEIF.C = n(this->def_params.aEIF.C, this->def_params.aEIF.jC);
+                this->params.aEIF.VT = n(this->def_params.aEIF.VT, this->def_params.aEIF.jVT);
+                this->params.aEIF.hypTau = n(this->def_params.aEIF.hypTau, this->def_params.aEIF.jhypTau);
+                this->params.aEIF.alpha_q = n(this->def_params.aEIF.alpha_q, this->def_params.aEIF.jalpha_q);
+                this->params.aEIF.gL = n(this->def_params.aEIF.gL, this->def_params.aEIF.jgL);    
+                this->params.aEIF.EL = n(this->def_params.aEIF.EL, this->def_params.aEIF.jEL);
+                this->params.aEIF.tauw = n(this->def_params.aEIF.tauw, this->def_params.aEIF.jtauw);
+                this->params.aEIF.a = n(this->def_params.aEIF.a, this->def_params.aEIF.ja);
+                this->params.aEIF.deltaT = n(this->def_params.aEIF.deltaT, this->def_params.aEIF.jdeltaT);
+                this->params.aEIF.b = n(this->def_params.aEIF.b, this->def_params.aEIF.jb);
+                this->params.aEIF.VR = n(this->def_params.aEIF.VR, this->def_params.aEIF.jVR);
+            break;
+        }
 	}
 
 	void Neuron::update(double current, int position, double dt) {

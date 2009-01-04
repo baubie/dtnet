@@ -505,7 +505,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 			return false;
 		}
         r = new Simulation(*(static_cast<Simulation*>(params[0].obj)));
-        return dtlang::f_run( *(static_cast<Simulation*>(r)), *(static_cast<string*>(params[1].obj)), *(static_cast<int*>(params[2].obj)) );
+        return dtlang::f_run( *(static_cast<Simulation*>(r)), *(static_cast<string*>(params[1].obj)), *(static_cast<int*>(params[2].obj)), tp);
 	} 
 
     if (name == "load") {
@@ -746,8 +746,8 @@ bool dtlang::delete_variable(variable_def var) {
 }
 
 
-bool dtlang::f_run(Simulation &sim, string filename, int number_of_trials) {
-    return sim.run(filename, number_of_trials);
+bool dtlang::f_run(Simulation &sim, string filename, int number_of_trials, boost::threadpool::pool &tp) {
+    return sim.run(filename, number_of_trials, tp);
 }
 
 
