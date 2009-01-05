@@ -7,6 +7,11 @@ AC_PROG_LIBTOOL
 
 CXXFLAGS="-O3"
 
+
+AC_ARG_ENABLE(debug,
+    [ --enable-debug    Enable debugging symbols ],
+    [ CXXFLAGS="$CXXFLAGS -g"])
+
 add_ldflags=""
 READLINE_lib_check=""
 AC_ARG_WITH(readline, 
