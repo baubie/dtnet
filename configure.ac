@@ -5,6 +5,7 @@ AM_INIT_AUTOMAKE(dtnet,2.0)
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 
+CXXFLAGS="-O3"
 
 add_ldflags=""
 READLINE_lib_check=""

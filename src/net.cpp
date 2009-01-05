@@ -98,26 +98,25 @@ void Net::initAlpha(double q, double tau, vector<double> &vals) {
 }
 
 double Net::alpha(double t, vector<double> &spikes, double delay, double weight) {
+
 	double current = 0;
 	double spike;
     int step;
-    unsigned int numSpikes = spikes.size();
+    unsigned int numSpikes = spikes.size(); /* Only look at the past 10 spikes. */
 
-	for (unsigned int s=0; s < numSpikes; s++) {
+	for (unsigned int s=0; s < numSpikes; ++s) {
 		spike = t-spikes[s]-delay;
-
 		if (spike > 0) {
             step = (int)(spike/this->dt);
             if (spike < ALPHA_WIDTH) {
-                if (weight >= 0) {
+                if (weight > 0) {
                     current += this->alphaE[step];
                 } else {
                     current += this->alphaI[step];
                 }
-            }
+            } else { break; }
 		}
 	}
-	
 	return weight*current;
 }
 
@@ -126,31 +125,28 @@ void Net::runSimulation() {
 	double input;
     double new_input;
 	
-    ostringstream stm;
-		
-	for (unsigned int ts=0; ts < steps; ts++) { // Loop over time steps
-		for (int p=0; p < (int)populations.size(); p++) { // Loop over populations
-			for (int n=0; n < (int)populations.at(p).neurons.size(); n++) { // Loop over neurons	
+	for (unsigned int ts=0; ts < steps; ++ts) { // Loop over time steps
+		for (int p=0; p < (int)populations.size(); ++p) { // Loop over populations
+			for (int n=0; n < (int)populations[p].neurons.size(); ++n) { // Loop over neurons	
 					
 				input = 0.0;
 				
 				// Find spikes into our population				
-				for (int from=0; from < numPopulations(); from++) {
+				for (int from=0; from < numPopulations(); ++from) {
                     new_input = 0;
 					if (weights[from][p] != 0) {
-						for (unsigned int from_n=0; from_n < populations.at(from).neurons.size(); from_n++){
-							new_input += alpha(ts*dt, populations.at(from).neurons.at(from_n).spikes,delays[from][p],weights[from][p]);
+						for (unsigned int from_n=0; from_n < populations[from].neurons.size(); ++from_n){
+							new_input += alpha(ts*dt, populations[from].neurons[from_n].spikes,delays[from][p],weights[from][p]);
 						}
-						new_input /= (double)populations.at(from).neurons.size();
+                        input += new_input / (double)populations[from].neurons.size();
 					}
-                    input += new_input;
 				}
 				
 				// Add our input signal in
 				input += inputs[p][ts];
 
 				// Update our neuron
-				populations.at(p).neurons.at(n).update(input, ts, dt);
+				populations[p].neurons[n].update(input, ts, dt);
 			}
 		}
 	}

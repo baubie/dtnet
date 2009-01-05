@@ -3,6 +3,7 @@
 #define NET_H
 
 #include <string>
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <fstream>

@@ -63,6 +63,9 @@ bool Simulation::run(string filename, int number_of_trials, boost::threadpool::p
     int total = number_of_trials * dynTrial.signals()->size();
     int count = 0;
 
+    // Initialize the base simulation
+    this->net.initSimulation();
+
     // Loop over the dynamicTrial
     for (signalIter = dynTrial.signals()->begin(); signalIter != dynTrial.signals()->end(); ++signalIter) {
         vector<Net> new_trials;
@@ -80,12 +83,12 @@ bool Simulation::run(string filename, int number_of_trials, boost::threadpool::p
             } 
             new_net.linkinput( *signalIter, this->dynamicTrial );
 
-            // Set everything up
-            new_net.initSimulation();
-
             // Inputs are all loaded up so lets schedul the trial
             this->results.back().push_back(new_net);
-            tp.schedule(boost::bind(&runSimulation, this->results.back().back()));
+
+            if (tp.size() == 1) runSimulation(this->results.back().back()); // Don't bother with threads
+            else tp.schedule(boost::bind(&runSimulation, this->results.back().back()));
+
             ++count;
         }
     }
