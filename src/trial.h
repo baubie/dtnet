@@ -9,11 +9,7 @@
 #include <vector>
 #include "input.h"
 #include "lib/tinyxml/tinyxml.h"
-
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include "serialization.h"
 
 /** Load and generate the input signal vectors from an XML file. */
 class Trial {

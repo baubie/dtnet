@@ -42,14 +42,6 @@ int main(int argc, char* argv[]) {
     SReadline   Reader(history, 32);
     dtlang::initialize(); 
 
-    // Register the built in functions for autocomplete
-    vector<string> Completers;
-    map<string, dtlang::function_def>::iterator iter;
-    for (iter = dtlang::functions.begin(); iter != dtlang::functions.end(); ++iter) {
-        Completers.push_back( iter->first );
-    }
-    Reader.RegisterCompletions( Completers );
-
     bool EndOfInput = false; 
     // Run an external script from the command line
     if (script != "") {

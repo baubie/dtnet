@@ -38,9 +38,11 @@ bool Simulation::load(Simulation &sim, string filename) {
     return true;
 }
 
-void runSimulation(Net &net)
-{
-    net.runSimulation();
+void runSimulation(Net &net) { net.runSimulation(); }
+
+bool simulationProgress(int &count, boost::threadpool::pool &tp) {
+    cout << "\r Progress: " << (100*(count - tp.pending())/count) << "%" << flush;
+    return tp.empty();
 }
 
 bool Simulation::run(string filename, int number_of_trials, boost::threadpool::pool &tp) {
@@ -59,17 +61,19 @@ bool Simulation::run(string filename, int number_of_trials, boost::threadpool::p
     vector<vector<double> >::iterator signalIter;   
     map<string,Trial>::iterator trialIter;
     vector< vector<Net> >::iterator resultIter;
+    vector<Net>::iterator resultIter2;
 
     int total = number_of_trials * dynTrial.signals()->size();
     int count = 0;
 
+    cout << "Initializing Simulations..." << endl;
     // Initialize the base simulation
     this->net.initSimulation();
+    this->results.clear();
 
     // Loop over the dynamicTrial
     for (signalIter = dynTrial.signals()->begin(); signalIter != dynTrial.signals()->end(); ++signalIter) {
         vector<Net> new_trials;
-        this->results.push_back( new_trials );
 
         // Loop over trials
         for (int i = 0; i < number_of_trials; ++i) {
@@ -84,12 +88,21 @@ bool Simulation::run(string filename, int number_of_trials, boost::threadpool::p
             new_net.linkinput( *signalIter, this->dynamicTrial );
 
             // Inputs are all loaded up so lets schedul the trial
-            this->results.back().push_back(new_net);
-
-            if (tp.size() == 1) runSimulation(this->results.back().back()); // Don't bother with threads
-            else tp.schedule(boost::bind(&runSimulation, this->results.back().back()));
-
+            new_trials.push_back(new_net);
             ++count;
+        }
+        this->results.push_back(new_trials);
+    }
+
+    /*
+    tp.schedule(boost::threadpool::looped_task_func::looped_task_func(
+                    boost::bind(&simulationProgress,count,tp), 100)
+                );
+*/
+    cout << "Running Simulations..." << endl;
+    for (resultIter = this->results.begin(); resultIter != this->results.end(); ++resultIter) {
+        for (resultIter2 = resultIter->begin(); resultIter2 != resultIter->end(); ++ resultIter2) {
+            tp.schedule(boost::bind(&runSimulation, this->results.back().back()));
         }
     }
 

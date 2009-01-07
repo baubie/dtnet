@@ -3,6 +3,20 @@
 
 using namespace std;
 
+
+bool GLE::setPanelProperties(PanelProperties props, PanelID ID) {
+    if (ID >= panels.size()) return false;
+    panels[ID].properties = props;
+    return true;
+}
+bool GLE::setPanelProperties(PanelProperties props) {
+    vector<Panel>::iterator iter;
+    for (iter = panels.begin(); iter != panels.end(); ++iter) {
+        iter->properties = props;
+    }
+    return true;
+}
+
 bool GLE::verifyData(GLE::Plot &plot)
 {
     vector<vector<double> >::iterator iter;
@@ -78,7 +92,6 @@ bool GLE::draw()
 
 bool GLE::draw(string const &filename)
 {
-    this->data_to_file();
     string gle_script_file = this->gle_script_to_file();
     string command = string("gle -output ") + filename + " " + gle_script_file;
 
@@ -166,6 +179,8 @@ bool GLE::data_to_file()
 
 string GLE::gle_script_to_file()
 {
+    this->data_to_file();
+
     char filename[] = "/tmp/gle_script_XXXXXX";
     int pTemp = mkstemp(filename);
     boost::iostreams::file_descriptor_sink sink( pTemp );

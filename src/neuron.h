@@ -10,9 +10,7 @@
 #include <time.h>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include "serialization.h"
 
 struct NeuronParams {
 

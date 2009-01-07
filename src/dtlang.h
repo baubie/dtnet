@@ -68,6 +68,7 @@ namespace dtlang
     struct function_param
     {
         int type;
+        string name;
         string help;
         bool optional;
         string def;
@@ -77,7 +78,7 @@ namespace dtlang
     {
         string help;
         int return_type;
-        map<string, function_param> params;
+        vector<function_param> params;
     };
 
     struct variable_def
@@ -91,10 +92,6 @@ namespace dtlang
         string name;
         string value;
     };
-
-    extern map<string, function_def> functions;
-    extern map<string, variable_def> vars;
-    extern map<int, string> type_names;
 
     /**
      * Function Templates

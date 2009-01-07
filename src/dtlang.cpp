@@ -13,7 +13,6 @@ namespace dtlang {
     map<int, std::string> type_names;
 }
 
-
 void dtlang::initialize() 
 {
     dtlang::initialize_variables();
@@ -108,7 +107,7 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
         if (func.first_param != "") { func.params.insert(func.params.begin(), (string)func.first_param); }
         void *ret;
         int r_type = dtlang::NO_RETURN;
-        if (assignment) r_type = NULL;
+        if (assignment) r_type = dtlang::TYPE_VOID;
         vector<dtlang::variable_def> var_params; 
         if (!dtlang::params_to_variables(func.params, var_params, tp, end_input)) return false;
         bool run_result = dtlang::runFunction(func.name, var_params, tp, ret, r_type, end_input);
@@ -132,15 +131,6 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
     if (r && iter == end) { var.type = dtlang::TYPE_STRING; var.obj = str_val; return true; }
     delete str_val;
 
-    // Is it an integer?
-    dtlang::integer_parser<string::const_iterator> pInteger;
-    iter = str.begin();
-    end = str.end();
-    int *int_val = new int();
-    r = phrase_parse(iter, end, pInteger, *int_val, boost::spirit::ascii::space);
-    if (r && iter == end) { var.type = dtlang::TYPE_INT; var.obj = int_val; return true; }
-    delete int_val;
-
     // Is it a double?
     dtlang::double_parser<string::const_iterator> pDouble;
     iter = str.begin();
@@ -149,6 +139,15 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
     r = phrase_parse(iter, end, pDouble, *double_val, boost::spirit::ascii::space);
     if (r && iter == end) { var.type = dtlang::TYPE_DOUBLE; var.obj = double_val; return true; }
     delete double_val;
+
+    // Is it an integer?
+    dtlang::integer_parser<string::const_iterator> pInteger;
+    iter = str.begin();
+    end = str.end();
+    int *int_val = new int();
+    r = phrase_parse(iter, end, pInteger, *int_val, boost::spirit::ascii::space);
+    if (r && iter == end) { var.type = dtlang::TYPE_INT; var.obj = int_val; return true; }
+    delete int_val;
 
     // We'll assume it's a variable
     if (dtlang::vars.find(str) != dtlang::vars.end()) {
@@ -252,10 +251,13 @@ void dtlang::initialize_functions()
     f.help = "Display general usage information or help for a particular function.";
     f.return_type = dtlang::TYPE_VOID; 
     f.params.clear();
+
     p.type = dtlang::TYPE_STRING;
     p.help = "Name of the function to get help for.";
     p.optional = true;
-    f.params["name"] = p;
+    p.name = "name";
+    f.params.push_back(p);
+
     dtlang::functions["help"] = f;
 
     // vars()
@@ -274,139 +276,186 @@ void dtlang::initialize_functions()
     f.help = "Run a simple, multi-threaded benchmarking function.";
     f.return_type = dtlang::TYPE_VOID;
     f.params.clear();
+
     p.type = dtlang::TYPE_DOUBLE;
     p.help = "Number of times to run the benchmark.  Higher numbers result in longer benchmark times.";
     p.optional = true;
     p.def = "1";
-    f.params["multiplier"] = p;
+    p.name="multiplier";
+    f.params.push_back(p);
+
     dtlang::functions["benchmark"] = f;
 
     // initsimulation()
 	f.help = "Initalize a simulation with a particular network.";
 	f.return_type = dtlang::TYPE_SIMULATION;
 	f.params.clear();
+
 	p.type = dtlang::TYPE_NET;
 	p.help = "Network loaded from an XML file.";
 	p.optional = false;
-	f.params["network"] = p;
+    p.name = "network";
+	f.params.push_back(p);
+
 	dtlang::functions["initsimulation"] = f;	
 	
     // loadtrial()
     f.help = "Load and return a trial from a trial XML file. This function must be assigned to a variable.";
     f.return_type = dtlang::TYPE_TRIAL;
     f.params.clear();
+
     p.type = dtlang::TYPE_STRING;
     p.help = "Filename of the trial XML file.";
     p.optional = false;
-    f.params["filename"] = p;
+    p.name = "filename";
+    f.params.push_back(p);
+
     dtlang::functions["loadtrial"] = f;
 
     // loadnetwork()
     f.help = "Load and return a network from a network XML file. This function must be assigned to a variable.";
     f.return_type = dtlang::TYPE_NET;
     f.params.clear();
+
     p.type = dtlang::TYPE_STRING;
     p.help = "Filename of the network XML file.";
     p.optional = false;
-    f.params["filename"] = p;
+    p.name = "filename";
+    f.params.push_back(p);
+
     dtlang::functions["loadnetwork"] = f;
 
     // run()
     f.help = "Run the current simulation. Will only work if at least one population has an input connected.";
     f.return_type = dtlang::TYPE_SIMULATION;
     f.params.clear();
+
 	p.type = dtlang::TYPE_SIMULATION;
 	p.help = "The simulation you wish to run.";
 	p.optional = false;
-	f.params["simulation"] = p;
+    p.name="simulation";
+    f.params.push_back(p);
+
 	p.type = dtlang::TYPE_STRING;
 	p.help = "Filename to save results to.";
 	p.optional = false;
-	f.params["filename"] = p;
+    p.name="filename";
+    f.params.push_back(p);
+
 	p.type = dtlang::TYPE_INT;
 	p.help = "Number of simulations to run for each input vector.";
 	p.optional = false;
-	f.params["number_of_trials"] = p;
+    p.name = "number_of_trials";
+    f.params.push_back(p);
+
     dtlang::functions["run"] = f;
 
     // load()
     f.help = "Load a simulation that has already been run.";
     f.return_type = dtlang::TYPE_SIMULATION;
     f.params.clear();
+
     p.type = dtlang::TYPE_STRING;
     p.help = "The filename where the simulation was saved.";
     p.optional = false;
-    f.params["filename"] = p;
+    p.name = "filename";
+    f.params.push_back(p);
+
     dtlang::functions["load"] = f;
 
     // graphinputs()
     f.help = "Display a graph showing some or all of the inputs from a trial. Uses the graph_width and graph_height variables.";
     f.return_type = dtlang::TYPE_VOID;
     f.params.clear();
+
     p.type = dtlang::TYPE_TRIAL;
     p.help = "A trial variable from an already loaded trial.";
     p.optional = false;
-    f.params["trial"] = p;
+    p.name = "trial";
+    f.params.push_back(p);
+
     p.type = dtlang::TYPE_STRING;
     p.help = "Filename to save the generated postscript file to.";
     p.optional = true;
     p.def = "inputs.eps";
-    f.params["filename"] = p;
+    p.name = "filename";
+    f.params.push_back( p );
+
     dtlang::functions["graphinputs"] = f;
 
 	// graphnetwork()
 	f.help = "Produce a network flow diagram of the network.";
 	f.return_type = dtlang::TYPE_VOID;
 	f.params.clear();
+
 	p.type = dtlang::TYPE_SIMULATION;
 	p.help = "A simulation.";
 	p.optional = false;
-	f.params["network"] = p;
+    p.name = "network";
+	f.params.push_back(p);
+
 	p.type = dtlang::TYPE_STRING;
 	p.help = "Filename to save the generated postscript file to.";
 	p.optional = true;
 	p.def = "network.eps";
-	f.params["filename"] = p;
+    p.name = "filename";
+	f.params.push_back(p);
 	dtlang::functions["graphnetwork"] = f;
 
     // graphtrial_voltage()
     f.help = "Produce a plot of the voltage traces for each neuron in each population.";
     f.return_type = dtlang::TYPE_VOID;
     f.params.clear();
+
     p.type = dtlang::TYPE_SIMULATION;
     p.help = "A simulation that has been run.";
     p.optional = false;
-    f.params["simulation"] = p;
+    p.name = "simulation";
+    f.params.push_back(p);
+
     p.type = dtlang::TYPE_INT;
     p.help = "The index of the input vector (zero based).";
     p.optional = false;
-    f.params["input"] = p;
+    p.name = "input";
+    f.params.push_back(p);
+
     p.type = dtlang::TYPE_INT;
     p.help = "The trial number (zero based).";
     p.optional = false;
-    f.params["trial_number"] = p;
+    p.name = "trial_number";
+    f.params.push_back(p);
+
     p.type == dtlang::TYPE_STRING;
     p.help = "Filename to save the graph to.";
     p.optional = false;
-    f.params["filename"] = p;
+    p.name = "filename";
+    f.params.push_back(p);
+
     dtlang::functions["graphtrial_voltage"] = f;
 	
     // linktrial()
     f.help = "Link a trial to a population that accepts input.";
     f.return_type = dtlang::TYPE_SIMULATION;
     f.params.clear();
+
     p.type = dtlang::TYPE_TRIAL;
     p.help = "A trial loaded from an XML file.";
     p.optional = false;
-    f.params["trial"] = p;
+    p.name = "trial";
+    f.params.push_back(p);
+
     p.type = dtlang::TYPE_SIMULATION;
     p.help = "A simulation variable.";
     p.optional = false;
-    f.params["simulation"] = p;
+    p.name = "simulation";
+    f.params.push_back(p);
+
     p.type = dtlang::TYPE_STRING;
     p.help = "Population ID to link the trial to.";
     p.optional = false;
-    f.params["populationID"] = p;
+    p.name = "populationID";
+    f.params.push_back(p);
+
     dtlang::functions["linktrial"] = f;
 
     // external()
@@ -416,17 +465,19 @@ void dtlang::initialize_functions()
     p.type = dtlang::TYPE_STRING;
     p.help = "Filename of the external file.";
     p.optional = false;
-    f.params["filename"] = p;
+    p.name = "filename";
+    f.params.push_back(p);
     dtlang::functions["external"] = f;
 
     // print()
-    f.help = "Print the contents of the variable by either simply printing it or calling the corresponding C++ function \"toString()\", depending on the type.";
+    f.help = "Print the contents of the variable.";
     f.return_type = dtlang::TYPE_VOID;
     f.params.clear();
     p.type = dtlang::TYPE_ANY;
     p.help = "Variable to print.";
     p.optional = false;
-    f.params["variable"] = p;
+    p.name = "variable";
+    f.params.push_back(p);
     dtlang::functions["print"] = f;
 }
 
@@ -443,10 +494,10 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
     unsigned int req = 0;
     unsigned int opt = 0;
-    map<string, function_param>::iterator iter_param;
+    vector<function_param>::iterator iter_param;
     for (iter_param = f.params.begin(); iter_param != f.params.end(); ++iter_param) {
-        if (iter_param->second.optional == false) ++req;
-        if (iter_param->second.optional == true)  ++opt;
+        if (iter_param->optional == false) ++req;
+        if (iter_param->optional == true)  ++opt;
     }
     if (params.size() < req || params.size() > req+opt) {
         cout << "Error: Incorrect number of function parameters.\nType \"help(\"" << name << "\")\" for more information." << endl;
@@ -488,7 +539,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	} 
 
     if (name == "graphtrial_voltage") {
-        return dtlang::f_graphtrial_voltage(*(static_cast<Simulation*>(params[0].obj)), *(static_cast<int*>(params[1].obj)), *(static_cast<int*>(params[2].obj)), *(static_cast<string*>(params[3].obj)));
+        return dtlang::f_graphtrial_voltage(*(static_cast<Simulation*>(params[0].obj)), (int)*(static_cast<double*>(params[1].obj)), (int)*(static_cast<double*>(params[2].obj)), *(static_cast<string*>(params[3].obj)));
     }
 
 	if (name == "vars") {
@@ -505,7 +556,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 			return false;
 		}
         r = new Simulation(*(static_cast<Simulation*>(params[0].obj)));
-        return dtlang::f_run( *(static_cast<Simulation*>(r)), *(static_cast<string*>(params[1].obj)), *(static_cast<int*>(params[2].obj)), tp);
+        return dtlang::f_run( *(static_cast<Simulation*>(r)), *(static_cast<string*>(params[1].obj)), (int)*(static_cast<double*>(params[2].obj)), tp);
 	} 
 
     if (name == "load") {
@@ -667,27 +718,27 @@ bool dtlang::f_help(string name) {
         return false;
     } 
     f = iter->second;
-    map<string, function_param>::iterator iter_param;
+    vector<function_param>::iterator iter_param;
 
     cout << endl << name << "(";
     int opt = 0;
     for (iter_param = f.params.begin(); iter_param != f.params.end(); ++iter_param) {
         if (iter_param != f.params.begin()) cout << ", ";
-        if (iter_param->second.optional) { ++opt; cout << '['; }
-        cout << "<" << iter_param->first << ":" << dtlang::type_names[iter_param->second.type] << ">";
+        if (iter_param->optional) { ++opt; cout << '['; }
+        cout << "<" << iter_param->name << ":" << dtlang::type_names[iter_param->type] << ">";
     }
     for (int i = 0; i < opt; ++i) { cout << "]"; };
     cout << ")" << endl;
     cout << f.help << endl;
 
     for (iter_param = f.params.begin(); iter_param != f.params.end(); ++iter_param) {
-        cout << "<" << iter_param->first << ":" << dtlang::type_names[iter_param->second.type] << ">";
-        if (iter_param->second.optional) {
-            cout << "\t*Optional* (Default: " << iter_param->second.def << ")" << endl;
+        cout << "<" << iter_param->name << ":" << dtlang::type_names[iter_param->type] << ">";
+        if (iter_param->optional) {
+            cout << "\t*Optional* (Default: " << iter_param->def << ")" << endl;
         } else {
             cout << "\t[Required]" << endl;
         }
-        cout << "\t" << iter_param->second.help << endl; 
+        cout << "\t" << iter_param->help << endl; 
     } 
     cout << endl;
     return true;
@@ -909,6 +960,12 @@ bool dtlang::f_graphnetwork(Simulation &sim, string const &filename) {
 
 bool dtlang::f_graphtrial_voltage(Simulation &sim, int input, int trial, string const &filename)  {
 
+    if (sim.results.empty()) {
+        cout << "[X] No results are found in this simulation." << endl;
+        return false;
+    }
+
+
     vector<double> timesteps;
     vector< vector<double> > signals;
     if (sim.trials.size() > 0) { 
@@ -922,12 +979,12 @@ bool dtlang::f_graphtrial_voltage(Simulation &sim, int input, int trial, string 
         }
     }
 
-    if (sim.results.empty()) {
-        cout << "[X] No results are found in this simulation." << endl;
-        return false;
-    }
 
+    cout << "sim.results.size()=" << sim.results.size() << endl;
+    cout << "sim.results[0].size()=" << sim.results[0].size() << endl;
+    cout << "Requesting sim.results[" << input << "][" << trial << "]" << endl;
     Net net_result = sim.results[input][trial];
+
 
     GLE gle;
     GLE::PlotProperties plotProperties;
@@ -938,14 +995,21 @@ bool dtlang::f_graphtrial_voltage(Simulation &sim, int input, int trial, string 
     start.b = 0.5;
     plotProperties.first = start; 
     
+    GLE::PanelID panelID;
     vector<Population>::iterator pop_iter;
     vector<Neuron>::iterator neuron_iter;
+
     for (pop_iter = net_result.populations.begin(); pop_iter != net_result.populations.end(); ++pop_iter) {
         signals.clear();
         for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
             signals.push_back(neuron_iter->voltage);
         } 
-        gle.plot(timesteps, signals, plotProperties);
+        panelID = gle.plot(timesteps, signals, plotProperties);
+        GLE::PanelProperties props;
+        props.x_title = "Time (ms)";
+        props.y_title = "Voltage (mV)";
+        props.title = pop_iter->name;
+        bool r = gle.setPanelProperties(props, panelID);
     }
 
     gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));

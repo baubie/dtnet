@@ -11,11 +11,7 @@
 #include "lib/threadpool/threadpool.hpp"
 #include <boost/random.hpp>
 #include <boost/bind.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/map.hpp>
+#include "serialization.h"
 
 /** Container class for holding multiple simulation runs. */
 class Simulation
@@ -29,6 +25,8 @@ class Simulation
 		std::string toString();
 		Net net;                                    /**< The network used in this simulation. */
         std::map<std::string, Trial> trials;      /**< Collection of trials linked to specific populations. */
+
+        /** Accessed as results[ input index ][ trial index ] **/
         std::vector<std::vector<Net> > results;     /**< Collection of the networks post-simulation indexed by input. */
 
         void save(std::string filename);

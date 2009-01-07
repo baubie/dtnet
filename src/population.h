@@ -6,11 +6,7 @@
 #include <sstream>
 #include <vector>
 #include "neuron.h"
-
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/string.hpp>
+#include "serialization.h"
 
 class Population {
 
