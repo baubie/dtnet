@@ -64,14 +64,15 @@ void Net::finalizePopulations() {
     this->inputs = vector<vector<double> >(num, vector<double> (steps, 0.0) );
 }
 
-void Net::initSimulation() {
+void Net::initSimulation(double delay) {
 
     initAlpha((double)1000.0, this->alphaTauE, alphaE);
     initAlpha((double)1000.0, this->alphaTauI, alphaI);
+    this->delay = delay;
 
 	for (unsigned int p=0; p < populations.size(); ++p) { // Loop over populations
 		for (unsigned int n=0; n < populations.at(p).neurons.size(); ++n) { // Loop over neurons
-			populations.at(p).neurons.at(n).init(steps);
+			populations.at(p).neurons.at(n).init(steps, delay);
 		}
 	}
 }
@@ -105,7 +106,8 @@ double Net::alpha(double t, vector<double> &spikes, double delay, double weight)
     unsigned int numSpikes = spikes.size(); /* Only look at the past 10 spikes. */
 
 	for (unsigned int s=0; s < numSpikes; ++s) {
-		spike = t-spikes[s]-delay;
+        // delay is the axonal delay and this->delay is the global time zero delay
+		spike = t-spikes[s]- delay - this->delay;
 		if (spike > 0) {
             step = (int)(spike/this->dt);
             if (spike < ALPHA_WIDTH) {
@@ -150,49 +152,6 @@ void Net::runSimulation() {
 			}
 		}
 	}
-}
-
-void Net::saveVoltages(string filename) {
-	
-	ofstream fout (filename.c_str(), ios::out | ios::binary);
-		
-	// Output the number of steps as an int
-	fout.write((char*)&steps,sizeof(int));
-	
-	// Output the number of populations
-	int pops = populations.size();
-	fout.write((char*)&pops, sizeof(int));
-	
-	// Next write out the timesteps
-	double t;
-	for (unsigned int ts=0; ts < steps; ts++) {		
-		t = ts*dt - 10;
-		fout.write((char*)&t, sizeof(double));
-	}
-	
-	for (unsigned int p=0; p < populations.size(); p++) { // Loop over populations
-        
-		
-		// Write out the size of this population
-		int popsize = populations.at(p).neurons.size();
-		fout.write((char*)&popsize, sizeof(int));
-				
-		// Write out the name
-		const char* name;
-		name = populations.at(p).name.c_str();
-		int namesize = populations.at(p).name.size();
-		fout.write((char*)&namesize, sizeof(int));
-		fout.write(const_cast<char*>(name), sizeof(char)*namesize);
-		for (unsigned int n=0; n < populations.at(p).neurons.size(); n++) { // Loop over neurons
-            fout.write((char*)&populations.at(p).neurons.at(n).voltage[0], sizeof(double)*steps);
-			// Write out the spike times
-			int numspikes = populations.at(p).neurons.at(n).spikes.size();
-			fout.write((char*)&numspikes, sizeof(int));
-			fout.write((char*)&populations.at(p).neurons.at(n).spikes[0],sizeof(double)*numspikes);
-		}
-	}
-	
-	fout.close();
 }
 
 void Net::geninput(vector<double>* input, double duration, double mu, double delay) {

@@ -17,6 +17,9 @@ class Trial {
 	public:	
         std::string name;                                       /**< A name for this trial. */
 		std::string ID;											/**< A unique ID for this trial. */
+        double T;                   /**< Total time of the trial simulation. */
+        double dt;                  /**< The width of a single time step. */
+        double delay;               /**< A delay before time 0 in the trial. */
 
         Trial(double T, double dt, double delay);               /**< Constructor for a new trial. */
         Trial();
@@ -55,9 +58,6 @@ class Trial {
         void genSignal(std::vector<Input>::iterator inputsPos);     /**< Generate input signals from the collection of input definitions. */
         void genTimeSeries();                                       /**< Generate a time series based on T, dt, and delay. */
 
-        double T;                   /**< Total time of the trial simulation. */
-        double dt;                  /**< The width of a single time step. */
-        double delay;               /**< A delay before time 0 in the trial. */
         std::string filename;       /**< XML from which this Trial was read from. */
 };
 #endif

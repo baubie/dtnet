@@ -432,6 +432,9 @@ void dtlang::initialize_functions()
     f.params.push_back(p);
 
     dtlang::functions["graphtrial_voltage"] = f;
+
+    // graphtrial_spikes()
+    dtlang::functions["graphtrial_spikes"] = dtlang::functions["graphtrial_voltage"];
 	
     // linktrial()
     f.help = "Link a trial to a population that accepts input.";
@@ -539,7 +542,10 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	} 
 
     if (name == "graphtrial_voltage") {
-        return dtlang::f_graphtrial_voltage(*(static_cast<Simulation*>(params[0].obj)), (int)*(static_cast<double*>(params[1].obj)), (int)*(static_cast<double*>(params[2].obj)), *(static_cast<string*>(params[3].obj)));
+        return dtlang::f_graphtrial(dtlang::PLOT_VOLTAGE, *(static_cast<Simulation*>(params[0].obj)), (int)*(static_cast<double*>(params[1].obj)), (int)*(static_cast<double*>(params[2].obj)), *(static_cast<string*>(params[3].obj)));
+    }
+    if (name == "graphtrial_spikes") {
+        return dtlang::f_graphtrial(dtlang::PLOT_SPIKES, *(static_cast<Simulation*>(params[0].obj)), (int)*(static_cast<double*>(params[1].obj)), (int)*(static_cast<double*>(params[2].obj)), *(static_cast<string*>(params[3].obj)));
     }
 
 	if (name == "vars") {
@@ -901,6 +907,7 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
     start.g = 0.5;
     start.b = 0.5;
     plotProperties.first = start;
+    plotProperties.zeros = false;
     gle.plot(*timesteps, *signals, plotProperties);
 
     gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
@@ -958,7 +965,7 @@ bool dtlang::f_graphnetwork(Simulation &sim, string const &filename) {
 	return true;
 }
 
-bool dtlang::f_graphtrial_voltage(Simulation &sim, int input, int trial, string const &filename)  {
+bool dtlang::f_graphtrial(int type, Simulation &sim, int input, int trial, string const &filename)  {
 
     if (sim.results.empty()) {
         cout << "[X] No results are found in this simulation." << endl;
@@ -979,12 +986,7 @@ bool dtlang::f_graphtrial_voltage(Simulation &sim, int input, int trial, string 
         }
     }
 
-
-    cout << "sim.results.size()=" << sim.results.size() << endl;
-    cout << "sim.results[0].size()=" << sim.results[0].size() << endl;
-    cout << "Requesting sim.results[" << input << "][" << trial << "]" << endl;
     Net net_result = sim.results[input][trial];
-
 
     GLE gle;
     GLE::PlotProperties plotProperties;
@@ -1002,12 +1004,30 @@ bool dtlang::f_graphtrial_voltage(Simulation &sim, int input, int trial, string 
     for (pop_iter = net_result.populations.begin(); pop_iter != net_result.populations.end(); ++pop_iter) {
         signals.clear();
         for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
-            signals.push_back(neuron_iter->voltage);
+            switch(type) {
+                case dtlang::PLOT_VOLTAGE:
+                    signals.push_back(neuron_iter->voltage);
+                    plotProperties.pointSize = 0;
+                    break;
+                case dtlang::PLOT_SPIKES:
+                    signals.push_back(neuron_iter->spikes);
+                    plotProperties.no_y = true;
+                    break;
+            }
         } 
         panelID = gle.plot(timesteps, signals, plotProperties);
-        GLE::PanelProperties props;
-        props.x_title = "Time (ms)";
-        props.y_title = "Voltage (mV)";
+        GLE::PanelProperties props=gle.getPanelProperties(panelID);
+        switch(type) {
+            case dtlang::PLOT_VOLTAGE:
+                props.x_title = "Time (ms)";
+                props.y_title = "Voltage (mV)";
+                props.y_max = -20;
+                break;
+            case dtlang::PLOT_SPIKES:
+                props.x_title = "Time (ms)";
+                props.y_title = "Cell Spikes";
+                break;
+        }
         props.title = pop_iter->name;
         bool r = gle.setPanelProperties(props, panelID);
     }

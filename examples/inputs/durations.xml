@@ -6,10 +6,10 @@ Each trial can have a maximum of ONE range over delay.
 Each trial can have any number of inputs
 -->
 
-<trials name="pure" ID="pure" T="50" dt="0.05" delay="0">
+<trials name="pure" ID="pure" T="50" dt="0.05" delay="10">
     <input type="pure">
-        <param name="delay"><range start="1" end="25" step="1" /></param>
+        <param name="delay">0</param>
         <param name="amplitude">1</param> 
-        <param name="duration">2</param>
+        <param name="duration"><range start="1" end="25" step="1" /></param>
     </input>
 </trials>

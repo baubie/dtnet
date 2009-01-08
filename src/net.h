@@ -25,12 +25,11 @@ class Net {
         bool verbose;
         std::string name; // A name for this network
 
-		void saveVoltages(std::string filename);
         void linkinput( std::vector<double> &input, const std::string popID );  
 		bool load(std::string filename, std::string &error);	
         int count_populations();
         std::string toString();
-		void initSimulation();
+		void initSimulation(double delay);
 		void runSimulation();
 		
         bool accept_input( const std::string popID );
@@ -38,6 +37,7 @@ class Net {
 
 		double dt;
 		double T;
+        double delay;
 
 		double alphaTauE;
         double alphaTauI;
@@ -58,6 +58,7 @@ class Net {
         {
             ar & dt;
             ar & T;
+            ar & delay;
             ar & steps;
             ar & name;
             ar & filename;
@@ -76,7 +77,6 @@ class Net {
 
 		unsigned int steps;
 		
-
         std::vector<double> alphaE;
         std::vector<double> alphaI;
         

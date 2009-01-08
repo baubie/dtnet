@@ -15,6 +15,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iomanip>
+#include <algorithm>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <math.h>
@@ -24,11 +25,8 @@ class GLE
     public:
         
         typedef int PanelID;
-        typedef int StyleID;
-
-        static const int STYLE_LINE = 100;
-        static const int STYLE_POINT = 101;
         static const int NEW_PANEL = -1;
+        static const double UNDEFINED = -91348434;
 
         static bool gv;
 
@@ -65,14 +63,18 @@ class GLE
         struct PlotProperties {
             float lineWidth;
             float pointSize;
-            StyleID style;
+            std::string shape;
+            bool zeros;
+            bool no_y;
             Color first;
             Color last;
 
             PlotProperties() :
-                lineWidth(4),
-                pointSize(5),
-                style(STYLE_LINE)
+                lineWidth(0.001),
+                pointSize(0.1),
+                shape("fcircle"),
+                zeros(true),
+                no_y(false)
             {}
         };
 
@@ -82,8 +84,13 @@ class GLE
             std::string x_title;
             std::string y_title;
             std::string z_title;
+            bool y_labels;
+            bool x_labels;
+            double y_min;
+            double y_max;
 
             // Only used when the canvas has autoplacement turned off
+            // Not yet implemented
             int pos_x;
             int pos_y;
             int width;
@@ -94,20 +101,26 @@ class GLE
                 title("Some Plot"),
                 x_title("x"),
                 y_title("y"),
-                z_title("z")
+                z_title("z"),
+                y_labels(true),
+                x_labels(true),
+                y_min(UNDEFINED),
+                y_max(UNDEFINED)
             {}
         };
         
         CanvasProperties canvasProperties;
 
         // Various different plot functions
-        PanelID plot(std::vector<double> const &x, std::vector<double> const &y, PlotProperties properties); // Plot a single x-y curve
-        PanelID plot(std::vector<double> const &x, std::vector<std::vector<double> > const &y, PlotProperties properties); // Plot a Multiple x-y curves with the same x
-        PanelID plot(std::vector<double> const &x, std::vector<double> const &y, PlotProperties properties, PanelID panel); // Plot a single x-y curve by adding it to an existing panel
-        PanelID plot(std::vector<double> const &x, std::vector<std::vector<double> > const &y, PlotProperties properties, PanelID panel); // Plot a Multiple x-y curves with the same x by adding it to an existing panel
+        PanelID plot(std::vector<double> &x, std::vector<double> &y, PlotProperties properties); // Plot a single x-y curve
+        PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, PlotProperties properties); // Plot a Multiple x-y curves with the same x
+        PanelID plot(std::vector<double> &x, std::vector<double> &y, PlotProperties properties, PanelID panel); // Plot a single x-y curve by adding it to an existing panel
+        PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, PlotProperties properties, PanelID panel); // Plot a Multiple x-y curves with the same x by adding it to an existing panel
 
         bool setPanelProperties(PanelProperties properties, PanelID ID); // Set the panel properties for a particular panel
         bool setPanelProperties(PanelProperties properties); // Set the panel properties for all panels
+
+        PanelProperties getPanelProperties(PanelID ID);
 
         bool draw(std::string const &filename); // Draw the plot to a filename
         bool draw(); // Draw a plot to the default filename

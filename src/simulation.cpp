@@ -38,7 +38,7 @@ bool Simulation::load(Simulation &sim, string filename) {
     return true;
 }
 
-void runSimulation(Net &net) { net.runSimulation(); }
+void runSimulation(Net *net) { net->runSimulation(); }
 
 bool simulationProgress(int &count, boost::threadpool::pool &tp) {
     cout << "\r Progress: " << (100*(count - tp.pending())/count) << "%" << flush;
@@ -68,7 +68,7 @@ bool Simulation::run(string filename, int number_of_trials, boost::threadpool::p
 
     cout << "Initializing Simulations..." << endl;
     // Initialize the base simulation
-    this->net.initSimulation();
+    this->net.initSimulation(dynTrial.delay);
     this->results.clear();
 
     // Loop over the dynamicTrial
@@ -98,15 +98,16 @@ bool Simulation::run(string filename, int number_of_trials, boost::threadpool::p
     tp.schedule(boost::threadpool::looped_task_func::looped_task_func(
                     boost::bind(&simulationProgress,count,tp), 100)
                 );
-*/
+    */
     cout << "Running Simulations..." << endl;
     for (resultIter = this->results.begin(); resultIter != this->results.end(); ++resultIter) {
-        for (resultIter2 = resultIter->begin(); resultIter2 != resultIter->end(); ++ resultIter2) {
-            tp.schedule(boost::bind(&runSimulation, this->results.back().back()));
+        for (resultIter2 = resultIter->begin(); resultIter2 != resultIter->end(); ++resultIter2) {
+            tp.schedule(boost::bind(&runSimulation, &(*resultIter2)));
         }
     }
 
     tp.wait();
+
     if (filename != "") {
         cout << "Saving simulation..." << endl;
         Simulation::save(filename);

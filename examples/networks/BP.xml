@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-
 <network name="Bandpass Network">
     <population id="CN" name="Cochlear Nucleus" type="Poisson">
         <param name="size">25</param>
-		<param name="mu">300</param>
+		<param name="mu">500</param>
         <param name="accept_input">true</param>
     </population>
 
@@ -41,9 +40,9 @@
         <param name="VT" sigma="0">-55</param>
     </population>
 
-    <population id="FL" name="Fixed Latency" type="aEIF">
+    <population id="ONDelay" name="Delayed Onset" type="aEIF">
         <param name="size">10</param>
-        <param name="C" sigma="8">250</param>
+        <param name="C" sigma="10">250</param>
         <param name="a" sigma="2">200</param>
         <param name="b" sigma="0">500</param>
         <param name="tauw" sigma="0">10</param>
@@ -105,14 +104,14 @@
     </connection>
     <connection>
         <param name="from">ON</param> 
-        <param name="to">FL</param>
+        <param name="to">ONDelay</param>
         <param name="weight">-7</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
     </connection>
     <connection>
-        <param name="from">FL</param> 
+        <param name="from">ONDelay</param> 
         <param name="to">DTN</param>
         <param name="weight">5</param>
         <param name="delay">1</param>

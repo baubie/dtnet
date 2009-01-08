@@ -44,7 +44,6 @@ class Input {
         std::vector<std::vector<double> >* inputs(double T, double dt, double delay);
         std::string toString();
 
-
 	private:
         friend class boost::serialization::access;
         template<class Archive>

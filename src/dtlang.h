@@ -120,9 +120,11 @@ namespace dtlang
     bool f_print(void* ptr, int const type);
 
     // Graphing functions
+    static const int PLOT_VOLTAGE = 1;
+    static const int PLOT_SPIKES = 2; 
     bool f_graphinputs(Trial &trial, string const &filename);
 	bool f_graphnetwork(Simulation &sim, string const &filename);
-	bool f_graphtrial_voltage(Simulation &sim, int input, int trial, std::string const &filename);
+	bool f_graphtrial(int type, Simulation &sim, int input, int trial, std::string const &filename);
 
     /**
      * Comment Parser

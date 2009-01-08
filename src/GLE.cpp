@@ -16,6 +16,10 @@ bool GLE::setPanelProperties(PanelProperties props) {
     }
     return true;
 }
+GLE::PanelProperties GLE::getPanelProperties(PanelID ID) {
+    if (ID >= panels.size()) { PanelProperties r; return r; }
+    return panels[ID].properties;
+}
 
 bool GLE::verifyData(GLE::Plot &plot)
 {
@@ -31,22 +35,61 @@ bool GLE::verifyData(GLE::Plot &plot)
     return true;
 }
 
-GLE::PanelID GLE::plot(vector<double> const &x, vector<double> const &y, GLE::PlotProperties properties)
+GLE::PanelID GLE::plot(vector<double> &x, vector<double> &y, GLE::PlotProperties properties)
 {
     return this->plot(x, y, properties, GLE::NEW_PANEL);
 }
 
-GLE::PanelID GLE::plot(vector<double> const &x, vector<vector<double> > const &y, GLE::PlotProperties properties)
+GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotProperties properties)
 {
     return this->plot(x, y, properties, GLE::NEW_PANEL);
 }
 
-GLE::PanelID GLE::plot(vector<double> const &x, vector<vector<double> > const &y, GLE::PlotProperties properties, GLE::PanelID ID)
+GLE::PanelID GLE::plot(vector<double> &x, vector<double> &y, GLE::PlotProperties properties, GLE::PanelID ID)
+{
+    vector<vector<double> > tmp;
+    tmp.push_back(y);
+    return this->plot(x, tmp, properties, ID);
+}
+
+GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotProperties properties, GLE::PanelID ID)
 {
     GLE::Plot plot;
     plot.x = x;
-    plot.y = y;
     plot.properties = properties;
+
+    if (properties.no_y) {
+        /** When no_y = true then the signal values are simply x values.
+         *  Thus, we must transform each signal into (x,y) points. **/
+        plot.properties.zeros = false;
+        plot.properties.lineWidth = 0;
+        vector<vector<double> > new_y;
+        vector<vector<double> >::iterator sigIter;
+        vector<double>::iterator valIter;
+        vector<double>::iterator tsIter;
+        double curY = 1;
+        int tsIndex;
+
+        /** std::find wasn't finding some values for some reason.  Doing manually therefore. **/
+        double front = x.front();
+        double dt = (x[1] - x[0]);
+
+        for (sigIter = y.begin(); sigIter != y.end(); ++sigIter) {
+            vector<double> new_sig(x.size(), 0.0); // Default everything to zero
+            for (valIter = sigIter->begin(); valIter != sigIter->end(); ++valIter) {
+                int index = (int)((*valIter-front)/dt);
+                if (index >= new_sig.size()) cout << "Spike beyond timeseries at " << *valIter << endl;
+                else new_sig[index] = curY;
+            }
+            ++curY;
+            new_y.push_back(new_sig);
+        }
+        plot.y = new_y;
+    } else {
+        plot.y = y;
+    }
+
+
     this->verifyData(plot);
 
     Panel panel;
@@ -74,16 +117,15 @@ GLE::PanelID GLE::plot(vector<double> const &x, vector<vector<double> > const &y
     panel.plots.push_back(plot);
     this->panels.at(ID) = panel;
 
+    if (properties.no_y) {
+        PanelProperties p = this->getPanelProperties(ID);
+        p.y_labels = false;
+        this->setPanelProperties(p, ID);
+    }
+
     return ID;
 }
 
-
-GLE::PanelID GLE::plot(vector<double> const &x, vector<double> const &y, GLE::PlotProperties properties, GLE::PanelID ID)
-{
-    vector<vector<double> > tmp;
-    tmp.push_back(y);
-    return this->plot(x, tmp, properties, ID);
-}
 
 bool GLE::draw()
 {
@@ -165,7 +207,11 @@ bool GLE::data_to_file()
             for (values_iter = y.begin(); values_iter != y.end(); ++values_iter) {
                 of << fixed << setprecision(3)  << values_iter->first;
                 for ( values_y_iter = values_iter->second.begin(); values_y_iter != values_iter->second.end(); ++values_y_iter ) {
-                    of << fixed << setprecision(3) << "," << *values_y_iter;
+                    if (plot_iter->properties.zeros || *values_y_iter != 0) {
+                        of << fixed << setprecision(3) << "," << *values_y_iter;
+                    } else {
+                        of <<  "," << "*"; // Skip this value
+                    }
                 }
                 of << endl;
             }
@@ -228,6 +274,21 @@ string GLE::gle_script_to_file()
                 out << "xtitle \"" << panel_iter->properties.x_title << "\"" << endl;
                 out << "ytitle \"" << panel_iter->properties.y_title << "\"" << endl;
                 out << "title \"" << panel_iter->properties.title << "\"" << endl;
+                out << "xaxis min " << panel_iter->plots[0].x.front() << " max " << panel_iter->plots[0].x.back() << endl;
+
+                if (panel_iter->properties.y_min != GLE::UNDEFINED || panel_iter->properties.y_max != GLE::UNDEFINED) {
+                    out << "yaxis ";
+                    if (panel_iter->properties.y_min != GLE::UNDEFINED) out << "min " << panel_iter->properties.y_min << " ";
+                    if (panel_iter->properties.y_max != GLE::UNDEFINED) out << "max " << panel_iter->properties.y_max << " ";
+                    out << endl;
+                }
+
+                if (panel_iter->properties.x_labels == false) {
+                    out << "xaxis off" << endl;
+                }
+                if (panel_iter->properties.y_labels == false) {
+                    out << "yaxis off" << endl;
+                }
 
                 for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
                 {
@@ -240,7 +301,8 @@ string GLE::gle_script_to_file()
                     plot_num = 1;
                     for ( y_iter = plot_iter->y.begin(); y_iter != plot_iter->y.end(); ++y_iter)
                     {
-                        out << "d" << plot_num << " line color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << endl;
+                        out << "d" << plot_num << " line color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << " lwidth " << plot_iter->properties.lineWidth << endl;
+                        if (plot_iter->properties.pointSize > 0) out << "d" << plot_num << " marker " << plot_iter->properties.shape << " msize " << plot_iter->properties.pointSize << endl; 
                         color.r += diff.r;
                         color.g += diff.g;
                         color.b += diff.b;
