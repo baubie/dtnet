@@ -10,7 +10,7 @@ Input::Input() {
     this->delay = blank;
 }
 
-vector< vector<double> >* Input::inputs(double T, double dt, double global_delay) {
+vector<Input::Signal>* Input::inputs(double T, double dt, double global_delay) {
     generateSignals(T,dt,global_delay);
     return &signals;
 }
@@ -23,33 +23,38 @@ void Input::generateSignals(double T, double dt, double global_delay) {
 
     double rt; // Used to keep track of the "real time" in ms
     unsigned int steps = (int)(T/dt); // Number of time steps in the signal
-    vector<double> signal (steps,0.0);
-
+    vector<double> values (steps,0.0);
 
     switch (this->type) {
 
         case PURE:
-
-            for (float dur = duration.start; dur <= duration.end; dur += duration.step) {
-                for (float amp = amplitude.start; amp <= amplitude.end; amp += amplitude.step) {
-                    for (float del = delay.start; del <= delay.end; del += delay.step) {
+            for (double dur = duration.start; dur <= duration.end; dur += duration.step) {
+                for (double amp = amplitude.start; amp <= amplitude.end; amp += amplitude.step) {
+                    for (double del = delay.start; del <= delay.end; del += delay.step) {
 
                         for (unsigned int step = 0; step < steps; ++step) {
                             // Time zero is defined by the global_delay 
                             rt = step * dt - global_delay;
 
                             if ( (rt-del) >= 0 && (rt-del) <= dur ) {
-                                signal[step] = amp;
+                                values[step] = amp;
                             } else {
-                                signal[step] = 0;
+                                values[step] = 0;
                             }
                         }
 
                         // Add signal to the signal collection
-                        this->signals.push_back(signal);
+                        Signal sig; 
+                        sig.values = values;
+                        sig.duration = dur;
+                        sig.amplitude = amp;
+                        sig.delay = del;
+                        sig.ID = this->ID;
+                        this->signals.push_back(sig);
                     }    
                 }    
             }    
+
         break;
 
     } // switch (this->type)

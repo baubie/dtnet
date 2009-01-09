@@ -22,6 +22,24 @@ class Population {
         Population();
 		std::string toString();
 
+        struct ConstrainedPopulation {
+            std::string ID;
+            NeuronParams params;
+            std::vector<Neuron> neurons;
+            bool accept_input;
+
+            friend class boost::serialization::access;
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & name;
+                ar & ID;
+                ar & accept_input;
+                ar & neurons;
+            }
+        };
+
+        vector<ConstrainedPopulation>* populationFactory();
 
     private:
         friend class boost::serialization::access;
@@ -35,5 +53,6 @@ class Population {
         }
 
         void initialize(int size, NeuronParams params);
+        vector<ConstrainedPopulation> populations;
 };
 #endif

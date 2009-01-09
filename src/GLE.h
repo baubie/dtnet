@@ -66,15 +66,22 @@ class GLE
             std::string shape;
             bool zeros;
             bool no_y;
+
+            /** For use when no_y = true **/
+            double y_start;
+            double y_inc;
+
             Color first;
             Color last;
 
             PlotProperties() :
-                lineWidth(0.001),
+                lineWidth(0.005),
                 pointSize(0.1),
                 shape("fcircle"),
                 zeros(true),
-                no_y(false)
+                no_y(false),
+                y_start(1),
+                y_inc(1)
             {}
         };
 
@@ -88,6 +95,7 @@ class GLE
             bool x_labels;
             double y_min;
             double y_max;
+            int y_nticks;
 
             // Only used when the canvas has autoplacement turned off
             // Not yet implemented
@@ -105,7 +113,8 @@ class GLE
                 y_labels(true),
                 x_labels(true),
                 y_min(UNDEFINED),
-                y_max(UNDEFINED)
+                y_max(UNDEFINED),
+                y_nticks(UNDEFINED)
             {}
         };
         

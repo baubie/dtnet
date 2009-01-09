@@ -67,7 +67,7 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotP
         vector<vector<double> >::iterator sigIter;
         vector<double>::iterator valIter;
         vector<double>::iterator tsIter;
-        double curY = 1;
+        double curY = plot.properties.y_start;
         int tsIndex;
 
         /** std::find wasn't finding some values for some reason.  Doing manually therefore. **/
@@ -78,10 +78,9 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotP
             vector<double> new_sig(x.size(), 0.0); // Default everything to zero
             for (valIter = sigIter->begin(); valIter != sigIter->end(); ++valIter) {
                 int index = (int)((*valIter-front)/dt);
-                if (index >= new_sig.size()) cout << "Spike beyond timeseries at " << *valIter << endl;
-                else new_sig[index] = curY;
+                if (*valIter >= x.front() && *valIter <= x.back()) new_sig[index] = curY;
             }
-            ++curY;
+            curY += plot.properties.y_inc;
             new_y.push_back(new_sig);
         }
         plot.y = new_y;
@@ -281,6 +280,9 @@ string GLE::gle_script_to_file()
                     if (panel_iter->properties.y_min != GLE::UNDEFINED) out << "min " << panel_iter->properties.y_min << " ";
                     if (panel_iter->properties.y_max != GLE::UNDEFINED) out << "max " << panel_iter->properties.y_max << " ";
                     out << endl;
+                }
+                if (panel_iter->properties.y_nticks != GLE::UNDEFINED) {
+                    out << "yaxis nticks " << panel_iter->properties.y_nticks << endl;
                 }
 
                 if (panel_iter->properties.x_labels == false) {

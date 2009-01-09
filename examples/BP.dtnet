@@ -1,16 +1,17 @@
-trial = loadtrial("inputs/durations.xml")
-net = loadnetwork("networks/BP.xml")
-sim = initsimulation(net)
-sim = linktrial(trial, sim, "CN")
-sim=run(sim,"bp.sim",1)
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+##############################
+
+sim = initsimulation("networks/BP.xml", "inputs/durations.xml")
+results = run(sim,"bp.sim",20)
+print(results)
 #sim = load("bp.sim")
 #graphnetwork(sim, "network.eps")
-graph_height = 20
-graph_width = 15
-graphtrial_spikes(sim, 0, 0, "spikes_1ms.eps")
-graphtrial_spikes(sim, 4, 0, "spikes_5ms.eps")
-graphtrial_spikes(sim, 19, 0, "spikes_20ms.eps")
-graphtrial_voltage(sim, 0, 0, "voltage_1ms.eps")
-graphtrial_voltage(sim, 4, 0, "voltage_5ms.eps")
-graphtrial_voltage(sim, 19, 0, "voltage_20ms.eps")
+#graph_height = 20
+#graph_width = 15
+#graphtrial_voltage(sim, 4, 0, "voltage_5ms.eps")
+#graph_height = 10
+#graph_width = 10
+#graphspiketrains(sim, "DTN", "spikes.eps":
 quit()

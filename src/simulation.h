@@ -4,46 +4,32 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include "trial.h"
 #include "net.h"
 
-#include <fstream>
 #include "lib/threadpool/threadpool.hpp"
 #include <boost/random.hpp>
 #include <boost/bind.hpp>
-#include "serialization.h"
+#include "results.h"
 
 /** Container class for holding multiple simulation runs. */
 class Simulation
 {
     public:
 
-		Simulation(Net &net);
+        /** Simulation Parameters **/
+		Net net;            /**< The network used in this simulation. */
+        Trial trial;        /**< The trial used in this simulation. */
+
+		Simulation(Net &net, Trial &trial);
         Simulation();
-        bool linktrial(Trial &trial, const std::string popID);
-        bool run(std::string filename, int number_of_trials, boost::threadpool::pool &tp);
+
+        bool run(Results &r, std::string filename, double T, double dt, double delay, int number_of_trials, boost::threadpool::pool &tp);
 		std::string toString();
-		Net net;                                    /**< The network used in this simulation. */
-        std::map<std::string, Trial> trials;      /**< Collection of trials linked to specific populations. */
-
-        /** Accessed as results[ input index ][ trial index ] **/
-        std::vector<std::vector<Net> > results;     /**< Collection of the networks post-simulation indexed by input. */
-
-        void save(std::string filename);
-        static bool load(Simulation &sim, std::string filename);        
 
     private:
-        friend class boost::serialization::access;
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & net;
-            ar & trials;
-            ar & results;
-            ar & dynamicTrial;
-        }
-    
-        std::string dynamicTrial;           /**< Key to the trial with >1 inputs. */
+        std::vector<double> genTimeSeries(double T, double dt, double delay);
 };
 
 

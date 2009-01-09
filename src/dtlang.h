@@ -20,6 +20,7 @@
 #include "trial.h"
 #include "vt100.h"
 #include "simulation.h"
+#include "results.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -42,6 +43,7 @@ namespace dtlang
     static const int TYPE_NET = 6;
     static const int TYPE_POPULATION = 7;
 	static const int TYPE_SIMULATION = 8;
+    static const int TYPE_RESULTS = 9;
 
     // Runtime parameters
     static bool verbose;
@@ -111,11 +113,9 @@ namespace dtlang
     bool f_funcs();
     bool f_quit(boost::threadpool::pool &tp);
     bool f_benchmark(boost::threadpool::pool &tp, double mult);
-    bool f_run(Simulation &sim, string filename, int number_of_trials, boost::threadpool::pool &tp);
-    bool f_load(Simulation &sim, const string filename);
-    bool f_loadtrial(const string filename, Trial *trial);
-    bool f_loadnetwork(const string filename, Net *net);
-	bool f_linktrial(Trial &trial, Simulation &sim, const string popID);
+    bool f_run(Results &result, Simulation &sim, string filename, int number_of_trials, double delay, boost::threadpool::pool &tp);
+    bool f_load(Results &result, const string filename);
+    bool f_initsimulation(const string net_filename, const string trial_filename, Net *net, Trial *trial);
     bool f_external(const string filename, boost::threadpool::pool &tp, bool &end_input);
     bool f_print(void* ptr, int const type);
 
@@ -124,7 +124,8 @@ namespace dtlang
     static const int PLOT_SPIKES = 2; 
     bool f_graphinputs(Trial &trial, string const &filename);
 	bool f_graphnetwork(Simulation &sim, string const &filename);
-	bool f_graphtrial(int type, Simulation &sim, int input, int trial, std::string const &filename);
+	bool f_graphtrial(int type, Simulation &sim, int input, int trial, string const &filename);
+    bool f_graphspiketrains(Simulation &sim, string const &popID, string const &filename, double const &start, double const &end); 
 
     /**
      * Comment Parser

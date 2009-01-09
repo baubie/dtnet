@@ -4,11 +4,7 @@
 using namespace std;
 
 
-Net::Net() : T(50), dt(0.05) {
-    this->initialize();
-}
-
-Net::Net(double T, double dt) : T(T), dt(dt) {
+Net::Net() {
     this->initialize();
 }
 
@@ -24,8 +20,6 @@ void Net::initialize() {
         throw;
     }
 
-    this->steps = (unsigned int)(T/dt);
-
     this->alphaTauE = 0.7;
     this->alphaTauI = 1.1;
 }
@@ -35,7 +29,6 @@ int Net::count_populations() {
 }
 
 void Net::createPopulation(string name, string ID, int size, bool accept_input, NeuronParams params) {
-    
 	populations.push_back(Population(name, ID, size, accept_input, params));
 }
 
@@ -64,11 +57,14 @@ void Net::finalizePopulations() {
     this->inputs = vector<vector<double> >(num, vector<double> (steps, 0.0) );
 }
 
-void Net::initSimulation(double delay) {
+void Net::initSimulation(double T, double dt, double delay) {
 
     initAlpha((double)1000.0, this->alphaTauE, alphaE);
     initAlpha((double)1000.0, this->alphaTauI, alphaI);
+    this->T = T;
+    this->dt = dt;
     this->delay = delay;
+    this->steps = (int)(T/dt); 
 
 	for (unsigned int p=0; p < populations.size(); ++p) { // Loop over populations
 		for (unsigned int n=0; n < populations.at(p).neurons.size(); ++n) { // Loop over neurons
@@ -275,14 +271,14 @@ bool Net::parseXML(string filename, string &error)
             string pop_id;
     		int pop_size = 0;
             bool accept_input = false;
-            NeuronParams np = Neuron::defaultParams();
+            NeuronParams np;
             hPopulation = pElem;        
 
             if (strcmp(pElem->Attribute("type"), "Poisson") == 0) {
-                np.type = NeuronParams::POISSON;
+                NeuronParams np(POISSON);
             }
             if (strcmp(pElem->Attribute("type"), "aEIF") == 0) {
-                np.type = NeuronParams::AEIF;
+                NeuronParams np(AEIF);
             }
             pElem->QueryValueAttribute("id", &pop_id);             
             pElem->QueryValueAttribute("name", &pop_name);             
@@ -301,60 +297,14 @@ bool Net::parseXML(string filename, string &error)
                     if (strcmp(pElemParam->Attribute("name"),"size") == 0) {
                         pop_size = (int)atoi(pElemParam->FirstChild()->Value());
                     }
-         
-                    if (strcmp(pElemParam->Attribute("name"),"VT") == 0) {
-                        np.aEIF.VT = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jVT);                    
-                    }
-                    
-                    if (strcmp(pElemParam->Attribute("name"),"C") == 0) {
-                        np.aEIF.C = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jC);                    
-                    }
-                    
-                    if (strcmp(pElemParam->Attribute("name"),"hypTau") == 0) {
-                        np.aEIF.hypTau = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jhypTau);                    
-                    }
 
-                    if (strcmp(pElemParam->Attribute("name"),"alpha_q") == 0) {
-                        np.aEIF.alpha_q = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jalpha_q);                    
-                    }
-
-                    if (strcmp(pElemParam->Attribute("name"),"gL") == 0) {
-                        np.aEIF.gL = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jgL);                    
-                    }
-
-                    if (strcmp(pElemParam->Attribute("name"),"EL") == 0) {
-                        np.aEIF.EL = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jEL);                    
-                    }
-                                        
-                    if (strcmp(pElemParam->Attribute("name"),"tauw") == 0) {
-                        np.aEIF.tauw = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jtauw);                    
-                    }
-
-                    if (strcmp(pElemParam->Attribute("name"),"a") == 0) {
-                        np.aEIF.a = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.ja);                    
-                    }
-
-                    if (strcmp(pElemParam->Attribute("name"),"b") == 0) {
-                        np.aEIF.b = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jb);                    
-                    }
-
-                    if (strcmp(pElemParam->Attribute("name"),"deltaT") == 0) {
-                        np.aEIF.deltaT = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jdeltaT);                    
-                    }
-
-                    if (strcmp(pElemParam->Attribute("name"),"VR") == 0) {
-                        np.aEIF.VR = (double)atof(pElemParam->FirstChild()->Value());
-                		pElemParam->QueryDoubleAttribute("sigma", &np.aEIF.jVR);                    
+                    for (map<string,Range>::iterator iter = np.vals.begin(); iter != np.vals.end(); ++iter) {
+                        if (strcmp(pElemParam->Attribute("name"),iter->first) == 0) {
+                            iter->second = (double)atof(pElemParam->FirstChild()->Value());
+                            double sigma = 0;
+                            pElemParam->QueryDoubleAttribute("sigma", &sigma);                    
+                            np.sigmas[iter->first] = sigma;
+                        }
                     }
                     
                // Found a Parameter Element With A Range Element

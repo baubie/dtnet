@@ -16,12 +16,12 @@
 #include "neuron.h"
 #include "lib/tinyxml/tinyxml.h"
 #include "serialization.h"
+#include "range.h"
 
 class Net {
 
     public:
         Net();
-        Net(double T, double dt);
         bool verbose;
         std::string name; // A name for this network
 
@@ -29,11 +29,13 @@ class Net {
 		bool load(std::string filename, std::string &error);	
         int count_populations();
         std::string toString();
-		void initSimulation(double delay);
+		void initSimulation(double T, double dt, double delay);
 		void runSimulation();
 		
         bool accept_input( const std::string popID );
         static const int NOT_FOUND = -999;
+
+        std::vector< std::string > unconstrained;
 
 		double dt;
 		double T;

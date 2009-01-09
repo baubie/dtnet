@@ -214,6 +214,7 @@ void dtlang::initialize_variables()
     dtlang::type_names[dtlang::TYPE_TRIAL] = "Trial";
     dtlang::type_names[dtlang::TYPE_NET] = "Net";
 	dtlang::type_names[dtlang::TYPE_SIMULATION] = "Simulation";
+	dtlang::type_names[dtlang::TYPE_RESULTS] = "Results";
 
     v.type = dtlang::TYPE_DOUBLE;
     v.obj = new double(0.05);
@@ -286,48 +287,30 @@ void dtlang::initialize_functions()
 
     dtlang::functions["benchmark"] = f;
 
+
     // initsimulation()
 	f.help = "Initalize a simulation with a particular network.";
 	f.return_type = dtlang::TYPE_SIMULATION;
 	f.params.clear();
 
-	p.type = dtlang::TYPE_NET;
-	p.help = "Network loaded from an XML file.";
+	p.type = dtlang::TYPE_STRING;
+	p.help = "Filename of a network XML file.";
 	p.optional = false;
     p.name = "network";
 	f.params.push_back(p);
 
+	p.type = dtlang::TYPE_STRING;
+	p.help = "Filename of a trial XML file.";
+	p.optional = false;
+    p.name = "trial";
+	f.params.push_back(p);
+
 	dtlang::functions["initsimulation"] = f;	
 	
-    // loadtrial()
-    f.help = "Load and return a trial from a trial XML file. This function must be assigned to a variable.";
-    f.return_type = dtlang::TYPE_TRIAL;
-    f.params.clear();
-
-    p.type = dtlang::TYPE_STRING;
-    p.help = "Filename of the trial XML file.";
-    p.optional = false;
-    p.name = "filename";
-    f.params.push_back(p);
-
-    dtlang::functions["loadtrial"] = f;
-
-    // loadnetwork()
-    f.help = "Load and return a network from a network XML file. This function must be assigned to a variable.";
-    f.return_type = dtlang::TYPE_NET;
-    f.params.clear();
-
-    p.type = dtlang::TYPE_STRING;
-    p.help = "Filename of the network XML file.";
-    p.optional = false;
-    p.name = "filename";
-    f.params.push_back(p);
-
-    dtlang::functions["loadnetwork"] = f;
 
     // run()
     f.help = "Run the current simulation. Will only work if at least one population has an input connected.";
-    f.return_type = dtlang::TYPE_SIMULATION;
+    f.return_type = dtlang::TYPE_RESULTS;
     f.params.clear();
 
 	p.type = dtlang::TYPE_SIMULATION;
@@ -348,11 +331,18 @@ void dtlang::initialize_functions()
     p.name = "number_of_trials";
     f.params.push_back(p);
 
+	p.type = dtlang::TYPE_DOUBLE;
+	p.help = "Number of milliseconds to delay before time zero and the start of a trial.";
+	p.optional = true;
+    p.def = "10";
+    p.name = "delay";
+    f.params.push_back(p);
+
     dtlang::functions["run"] = f;
 
     // load()
     f.help = "Load a simulation that has already been run.";
-    f.return_type = dtlang::TYPE_SIMULATION;
+    f.return_type = dtlang::TYPE_RESULTS;
     f.params.clear();
 
     p.type = dtlang::TYPE_STRING;
@@ -382,6 +372,32 @@ void dtlang::initialize_functions()
     f.params.push_back( p );
 
     dtlang::functions["graphinputs"] = f;
+
+    // graphspiketrains()
+    f.help = "Display spike trains for every trial of the given population.";
+    f.return_type = dtlang::TYPE_VOID;
+    f.params.clear();
+
+    p.type = dtlang::TYPE_SIMULATION;
+    p.help = "A simulation variable from an already loaded simulation.";
+    p.optional = false;
+    p.name = "simulation";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_STRING;
+    p.help = "Population ID to plot.";
+    p.optional = false;
+    p.name = "populationID";
+    f.params.push_back( p );
+
+    p.type = dtlang::TYPE_STRING;
+    p.help = "Filename to save the generated postscript file to.";
+    p.optional = true;
+    p.def = "spikes.eps";
+    p.name = "filename";
+    f.params.push_back( p );
+
+    dtlang::functions["graphspiketrains"] = f;
 
 	// graphnetwork()
 	f.help = "Produce a network flow diagram of the network.";
@@ -436,31 +452,6 @@ void dtlang::initialize_functions()
     // graphtrial_spikes()
     dtlang::functions["graphtrial_spikes"] = dtlang::functions["graphtrial_voltage"];
 	
-    // linktrial()
-    f.help = "Link a trial to a population that accepts input.";
-    f.return_type = dtlang::TYPE_SIMULATION;
-    f.params.clear();
-
-    p.type = dtlang::TYPE_TRIAL;
-    p.help = "A trial loaded from an XML file.";
-    p.optional = false;
-    p.name = "trial";
-    f.params.push_back(p);
-
-    p.type = dtlang::TYPE_SIMULATION;
-    p.help = "A simulation variable.";
-    p.optional = false;
-    p.name = "simulation";
-    f.params.push_back(p);
-
-    p.type = dtlang::TYPE_STRING;
-    p.help = "Population ID to link the trial to.";
-    p.optional = false;
-    p.name = "populationID";
-    f.params.push_back(p);
-
-    dtlang::functions["linktrial"] = f;
-
     // external()
     f.help = "Execute a series of commands as stored in an external file.";
     f.return_type = dtlang::TYPE_VOID;
@@ -542,10 +533,17 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	} 
 
     if (name == "graphtrial_voltage") {
-        return dtlang::f_graphtrial(dtlang::PLOT_VOLTAGE, *(static_cast<Simulation*>(params[0].obj)), (int)*(static_cast<double*>(params[1].obj)), (int)*(static_cast<double*>(params[2].obj)), *(static_cast<string*>(params[3].obj)));
+        return dtlang::f_graphtrial(dtlang::PLOT_VOLTAGE, *(static_cast<Simulation*>(params[0].obj)), 
+                                                          (int)*(static_cast<double*>(params[1].obj)), 
+                                                          (int)*(static_cast<double*>(params[2].obj)), 
+                                                          *(static_cast<string*>(params[3].obj)));
     }
     if (name == "graphtrial_spikes") {
         return dtlang::f_graphtrial(dtlang::PLOT_SPIKES, *(static_cast<Simulation*>(params[0].obj)), (int)*(static_cast<double*>(params[1].obj)), (int)*(static_cast<double*>(params[2].obj)), *(static_cast<string*>(params[3].obj)));
+    }
+
+    if (name == "graphspiketrains") {
+        return dtlang::f_graphspiketrains(*(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), *(static_cast<string*>(params[2].obj)), 0, 50);
     }
 
 	if (name == "vars") {
@@ -561,8 +559,22 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
 			return false;
 		}
-        r = new Simulation(*(static_cast<Simulation*>(params[0].obj)));
-        return dtlang::f_run( *(static_cast<Simulation*>(r)), *(static_cast<string*>(params[1].obj)), (int)*(static_cast<double*>(params[2].obj)), tp);
+        r = new Results();
+        if (params.size() == 3) {
+            return dtlang::f_run( *(static_cast<Results*>(r)), 
+                                  *(static_cast<Simulation*>(params[0].obj)),
+                                  *(static_cast<string*>(params[1].obj)), 
+                                   (int)*(static_cast<double*>(params[2].obj)), 
+                                  5.0, // Default to 5 ms delay
+                                   tp);
+        } else if (params.size() == 4) {
+            return dtlang::f_run( *(static_cast<Results*>(r)), 
+                                  *(static_cast<Simulation*>(params[0].obj)),
+                                  *(static_cast<string*>(params[1].obj)), 
+                                   (int)*(static_cast<double*>(params[2].obj)), 
+                                  *(static_cast<double*>(params[3].obj)), 
+                                   tp);
+        }
 	} 
 
     if (name == "load") {
@@ -570,9 +582,8 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
 			return false;
 		}
-        Net tmp;
-        r = new Simulation(tmp);
-        return dtlang::f_load(*(static_cast<Simulation*>(r)), *(static_cast<string*>(params[0].obj)));
+        r = new Results();
+        return dtlang::f_load(*(static_cast<Results*>(r)), *(static_cast<string*>(params[0].obj)));
     }
 
 	if (name == "print") {
@@ -592,49 +603,21 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	}
 
 
-    if (name == "linktrial") {
-		if (r_type == dtlang::NO_RETURN) {
-			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
-			return false;
-		}
-		r = new Simulation(*(static_cast<Simulation*>(params[1].obj))); // Assign the return value to the second parameter, assuming that is is a Simulation*.
-		return dtlang::f_linktrial(*(static_cast<Trial*>(params[0].obj)), *(static_cast<Simulation*>(r)), *(static_cast<string*>(params[2].obj)));
-    }
-	
 	if (name == "initsimulation") {
 		if (r_type == dtlang::NO_RETURN) {
 			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
 			return false;
 		}		
-		r = new Simulation(*(static_cast<Net*>(params[0].obj)));
+        Net *network = new Net;
+        Trial *trial = new Trial;
+
+        if (dtlang::f_initsimulation(*(static_cast<string*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), network, trial)) {
+            r = new Simulation(*(static_cast<Net*>(params[0].obj)),*(static_cast<Trial*>(params[1].obj)));
+        } else {
+            return false;
+        }
 		return true;
 	}
-
-    if (name == "loadnetwork") {
-        if (r_type == dtlang::NO_RETURN) {
-            cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
-            return false;
-        }
-        if (dtlang::vars.find("T") == dtlang::vars.end() || dtlang::vars["T"].type != dtlang::TYPE_DOUBLE) { cout << "Error: T must be a double!" << endl; return false;}
-        if (dtlang::vars.find("dt") == dtlang::vars.end() || dtlang::vars["dt"].type != dtlang::TYPE_DOUBLE) { cout << "Error: dt must be a double!" << endl; return false;}
-        r = new Net(*(static_cast<double*>(dtlang::vars["T"].obj)), *(static_cast<double*>(dtlang::vars["dt"].obj)));
-        return dtlang::f_loadnetwork(*(static_cast<string*>(params[0].obj)), static_cast<Net*>(r));
-    }
-
-	if (name == "loadtrial") {
-        if (r_type == dtlang::NO_RETURN) {
-            cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
-            return false;
-        }
-        if (dtlang::vars.find("T") == dtlang::vars.end() || dtlang::vars["T"].type != dtlang::TYPE_DOUBLE) { cout << "Error: T must be a double!" << endl; return false;}
-        if (dtlang::vars.find("dt") == dtlang::vars.end() || dtlang::vars["dt"].type != dtlang::TYPE_DOUBLE) { cout << "Error: dt must be a double!" << endl; return false;}
-        if (dtlang::vars.find("delay") == dtlang::vars.end() || dtlang::vars["delay"].type != dtlang::TYPE_DOUBLE) { cout << "Error: delay must be a double!" << endl; return false;}
-        r = new Trial(*(static_cast<double*>(dtlang::vars["T"].obj)),
-                       *(static_cast<double*>(dtlang::vars["dt"].obj)),
-                       *(static_cast<double*>(dtlang::vars["delay"].obj))
-                      );
-        return dtlang::f_loadtrial(*(static_cast<string*>(params[0].obj)), static_cast<Trial*>(r));
-	} 
 
     return false;
 }
@@ -642,8 +625,8 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
 
 
-bool dtlang::f_load(Simulation &sim, const string filename) {
-    return Simulation::load(sim, filename);
+bool dtlang::f_load(Results &r, const string filename) {
+    return Results::load(r, filename);
 }
 
 
@@ -675,6 +658,10 @@ bool dtlang::f_vars() {
             
             case dtlang::TYPE_NET:
                 cout << "[Net Object]";
+                break;
+
+            case dtlang::TYPE_RESULTS:
+                cout << "[Results Object]";
                 break;
 
             default:
@@ -786,6 +773,10 @@ bool dtlang::delete_variable(variable_def var) {
             delete static_cast<Net*>(var.obj);
             break;
         
+        case dtlang::TYPE_RESULTS:
+            delete static_cast<Results*>(var.obj);
+            break;
+        
 		case dtlang::TYPE_SIMULATION:
 			delete static_cast<Simulation*>(var.obj);
 			break;
@@ -803,9 +794,15 @@ bool dtlang::delete_variable(variable_def var) {
 }
 
 
-bool dtlang::f_run(Simulation &sim, string filename, int number_of_trials, boost::threadpool::pool &tp) {
+bool dtlang::f_run(Results &result, Simulation &sim, string filename, int number_of_trials, double delay, boost::threadpool::pool &tp) {
+
+    if (dtlang::vars.find("T") == dtlang::vars.end() || dtlang::vars["T"].type != dtlang::TYPE_DOUBLE) { cout << "Error: T must be a double!" << endl; return false;}
+    if (dtlang::vars.find("dt") == dtlang::vars.end() || dtlang::vars["dt"].type != dtlang::TYPE_DOUBLE) { cout << "Error: dt must be a double!" << endl; return false;}
+    double T = *(static_cast<double*>(dtlang::vars["T"].obj));
+    double dt = *(static_cast<double*>(dtlang::vars["dt"].obj));
+
     boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
-    bool r = sim.run(filename, number_of_trials, tp);
+    bool r = sim.run(result, filename, T, dt, delay, number_of_trials, tp);
     boost::posix_time::ptime end(boost::posix_time::microsec_clock::local_time());
     boost::posix_time::time_duration dur = end - start;
     cout << "Completed in " << dur << endl;
@@ -860,42 +857,35 @@ bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool
     }
 }
 
-bool dtlang::f_loadnetwork(const string filename, Net *net) {
+bool dtlang::f_initsimulation(const string net_filename, const string trial_filename, Net *net, Trial *trial) {
 
     string error;
     /* Load Network */
-    if (dtlang::verbose) cout << "...Loading network definition from " << filename;
-    if ( net->load(filename, error) == false ) {
+    if (dtlang::verbose) cout << "...Loading network definition from " << net_filename;
+    if ( net->load(net_filename, error) == false ) {
         if (dtlang::verbose) cout << "\t[FAILED]" << endl;
 		cout << "[X] " << error << endl;
         return false;
     }
     if (dtlang::verbose) cout << "\t[OK]" << endl;
     if (dtlang::verbose) cout << "...Loaded " << net->count_populations() << " populations" << endl;
-    return true;
-}
 
 
-bool dtlang::f_loadtrial(const string filename, Trial *trial) {
-
-    string error;
     /* Load Inputs */
-    if (dtlang::verbose) cout << "...Loading input vectors from " << filename;
-    if ( trial->load(filename, error) == false ) {
+    if (dtlang::verbose) cout << "...Loading input vectors from " << trial_filename;
+    if ( trial->load(trial_filename, error) == false ) {
         if (dtlang::verbose) cout << "\t[FAILED]" << endl;
         cout << "[X] " << error << endl;
         return false;
     }
     if (dtlang::verbose) cout << "\t[OK]" << endl;
     if (dtlang::verbose) cout << "...Generated " << trial->count() << " input signals" << endl;
+
     return true;
 }
 
-bool dtlang::f_linktrial(Trial &trial, Simulation &sim, const string popID) {
-    return sim.linktrial(trial, popID); 
-}
-
 bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
+    /*
     vector<vector<double> >* signals = trial.signals();
     vector<double>* timesteps = trial.timeSteps();
 
@@ -913,11 +903,59 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
     gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
     gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
     gle.draw(filename);
+    */
+    return true;
+}
+
+bool dtlang::f_graphspiketrains(Simulation &sim, string const &popID, string const &filename, double const &start, double const &end) {
+
+    /*
+    // Produce the truncated timesteps
+    vector<double>* original_timesteps = trial.timeSteps();
+    vector<double> timesteps;
+    vector<double>::iterator iter;
+    for (iter = original_timesteps->begin(); iter != original_timesteps->end(); ++iter) {
+        if (*iter >= start && *iter <= end) timesteps.push_back(*iter);
+    }
+
+
+    GLE gle;
+    GLE::PlotProperties plotProperties;
+
+    for (pop_iter = net_result.populations.begin(); pop_iter != net_result.populations.end(); ++pop_iter) {
+        signals.clear();
+        for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
+            switch(type) {
+                case dtlang::PLOT_VOLTAGE:
+                    signals.push_back(neuron_iter->voltage);
+                    plotProperties.pointSize = 0;
+                    break;
+                case dtlang::PLOT_SPIKES:
+                    signals.push_back(neuron_iter->spikes);
+                    plotProperties.no_y = true;
+                    break;
+            }
+        } 
+        panelID = gle.plot(timesteps, signals, plotProperties);
+        GLE::PanelProperties props=gle.getPanelProperties(panelID);
+        props.x_title = "Time (ms)";
+        props.y_title = "";
+        props.title = pop_iter->name;
+        bool r = gle.setPanelProperties(props, panelID);
+    }
+    
+
+    gle.plot(timesteps, *signals, plotProperties);
+
+    gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
+    gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
+    gle.draw(filename);
+    */
     return true;
 }
 
 bool dtlang::f_graphnetwork(Simulation &sim, string const &filename) {
-	    
+	/*    
 	char data_filename[] = "/tmp/dtnet_dot_XXXXXX";
 	int pTemp = mkstemp(data_filename);
 	boost::iostreams::file_descriptor_sink sink( pTemp );
@@ -962,11 +1000,12 @@ bool dtlang::f_graphnetwork(Simulation &sim, string const &filename) {
 		}
 	}
 	remove(data_filename);		
+    */
 	return true;
 }
 
 bool dtlang::f_graphtrial(int type, Simulation &sim, int input, int trial, string const &filename)  {
-
+/*
     if (sim.results.empty()) {
         cout << "[X] No results are found in this simulation." << endl;
         return false;
@@ -992,10 +1031,12 @@ bool dtlang::f_graphtrial(int type, Simulation &sim, int input, int trial, strin
     GLE::PlotProperties plotProperties;
     GLE::Color start;
 
-    start.r = 0.5;
-    start.g = 0.5;
-    start.b = 0.5;
-    plotProperties.first = start; 
+    if (type == dtlang::PLOT_VOLTAGE) {
+        start.r = 0.5;
+        start.g = 0.5;
+        start.b = 0.5;
+        plotProperties.first = start; 
+    }
     
     GLE::PanelID panelID;
     vector<Population>::iterator pop_iter;
@@ -1022,6 +1063,8 @@ bool dtlang::f_graphtrial(int type, Simulation &sim, int input, int trial, strin
                 props.x_title = "Time (ms)";
                 props.y_title = "Voltage (mV)";
                 props.y_max = -20;
+                props.y_min = -100;
+                props.y_nticks = 4;
                 break;
             case dtlang::PLOT_SPIKES:
                 props.x_title = "Time (ms)";
@@ -1035,6 +1078,7 @@ bool dtlang::f_graphtrial(int type, Simulation &sim, int input, int trial, strin
     gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
     gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
     gle.draw(filename);
+    */
     return true;
 }
 
@@ -1052,6 +1096,10 @@ bool dtlang::f_print(void* ptr, int const type) {
 
         case dtlang::TYPE_NET:
             cout << static_cast<Net*>(ptr)->toString();
+            break;    
+			
+        case dtlang::TYPE_RESULTS:
+            cout << static_cast<Results*>(ptr)->toString();
             break;    
 			
 		case dtlang::TYPE_SIMULATION:

@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include "serialization.h"
+#include "range.h"
 
 
 class Input {
@@ -18,30 +19,34 @@ class Input {
 		static const int PURE = 1;
 		static const int PULSE = 2;
 
-        struct Range {
-            Range() : start(0),end(0),step(1) {}
-            float start;
-            float end;
-            float step;
-
-            friend class boost::serialization::access;
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                ar & start;
-                ar & end;
-                ar & step;
-            }
-        };
-
         std::string name;
+        std::string ID;
         int type;
         Range duration;
         Range amplitude;
         Range delay;
 
+        /** Defines a single, constrained signal. **/
+        struct Signal {
+            double duration;
+            double amplitude;
+            double delay;
+            std::string ID;
+            std::vector<double> values;
+
+            friend class boost::serialization::access;
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & duration;
+                ar & amplitude;
+                ar & delay;
+                ar & values;
+            }
+        };
+
         Input();
-        std::vector<std::vector<double> >* inputs(double T, double dt, double delay);
+        std::vector<Signal>* inputs(double T, double dt, double delay);
         std::string toString();
 
 	private:
@@ -57,7 +62,7 @@ class Input {
             ar & signals;
         }
 
-        std::vector< std::vector<double> > signals;
+        std::vector< Signal > signals;
         void generateSignals(double T, double dt, double delay);
 };
 #endif

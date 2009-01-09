@@ -15,18 +15,18 @@
         <param name="tauw" sigma="0">250</param>
         <param name="EL" sigma="0">-65</param>
         <param name="VR" sigma="0">-63</param>
-        <param name="VT" sigma="3">-52</param>
+        <param name="VT" sigma="1">-52</param>
     </population>
 
     <population id="ON" name="Onset" type="aEIF">
         <param name="size">10</param>
-        <param name="C" sigma="5">200</param>
+        <param name="C" sigma="2">200</param>
         <param name="a" sigma="0">10</param>
         <param name="b" sigma="0">400</param>
         <param name="tauw" sigma="0">100</param>
         <param name="EL" sigma="0">-55</param>
         <param name="VR" sigma="0">-54</param>
-        <param name="VT" sigma="3">-52</param>
+        <param name="VT" sigma="1">-52</param>
     </population>
 
     <population id="OFF" name="Offset" type="aEIF">

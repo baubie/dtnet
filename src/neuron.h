@@ -11,92 +11,7 @@
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random.hpp>
 #include "serialization.h"
-
-struct NeuronParams {
-
-    enum Integrator { Euler, Euler2, RungeKutta } integrator;
-    enum ModelType { AEIF, POISSON } type;
-
-    struct POISSON {
-        double mu;
-        bool spontaneous;
-
-        friend class boost::serialization::access;
-        template<class Archive>
-        void serialize(Archive &ar, const unsigned int version)
-        {
-            ar & mu;
-            ar & spontaneous;
-        }
-    } Poisson;
-
-    struct AEIF {
-        bool jitter;
-        double VT;
-        double C;
-        double hypTau;
-        double alpha_q;
-        double gL;
-        double EL;
-        double tauw;
-        double a;
-        double deltaT;
-        double b;
-        double VR;
-
-        // The sigma value of each parameter
-        double jVT;
-        double jC;
-        double jhypTau;
-        double jalpha_q;
-        double jgL;
-        double jEL;
-        double jtauw;
-        double ja;
-        double jdeltaT;
-        double jb;
-        double jVR;
-
-        friend class boost::serialization::access;
-        template<class Archive>
-        void serialize(Archive &ar, const unsigned int version)
-        {
-            ar & jitter;
-            ar & VT;
-            ar & C;
-            ar & hypTau;
-            ar & alpha_q;
-            ar & gL;
-            ar & EL;
-            ar & tauw;
-            ar & a;
-            ar & deltaT;
-            ar & b;
-            ar & VR;
-
-            // The sigma value of each parameter
-            ar & jVT;
-            ar & jC;
-            ar & jhypTau;
-            ar & jalpha_q;
-            ar & jgL;
-            ar & jEL;
-            ar & jtauw;
-            ar & ja;
-            ar & jdeltaT;
-            ar & jb;
-            ar & jVR;
-        }
-    } aEIF;
-
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
-        ar & Poisson;
-        ar & aEIF;
-    }
-};
+#include "neuronparams.h"
 
 class Neuron {
 
@@ -108,7 +23,6 @@ class Neuron {
 		// Methods
 		Neuron(NeuronParams params);
         Neuron();
-		static NeuronParams defaultParams();
 		void init(int steps, double delay);
 		void jitter();
 		void update(double current, int position, double dt);

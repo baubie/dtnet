@@ -6,112 +6,56 @@ using namespace std;
 /** Random Number Generator **/
 boost::mt19937 random_engine;
 
-
-Simulation::Simulation(Net &net) : net(net) {}
-
-bool Simulation::linktrial(Trial &trial, const string popID) {
-    if (this->net.accept_input(popID)) {
-        if (trial.count() == 1 || this->dynamicTrial == popID || this->dynamicTrial == "") {
-            this->trials.insert(make_pair(popID, trial));
-            if (trial.count() > 1) this->dynamicTrial = popID;
-        } else { cout << "[X] " << this->dynamicTrial << " already has a trial linked to it with multiple input signals.\n [X]  Only single inputs may be linked to other populations." << endl; }
-        return true;
-    }
-    cout << "[X] " << popID << " does not accept input." << endl;
-    return false;
-}
-
-void Simulation::save(string filename) {
-    ofstream ofs(filename.c_str());
-    boost::archive::text_oarchive oa(ofs);
-    oa << *this;    
-}
-
-bool Simulation::load(Simulation &sim, string filename) {
-    ifstream ifs(filename.c_str());
-    if (ifs.fail()) {
-        cout << "[X] Error opening " << filename << ".  Sorry." << endl;
-        return false;
-    }
-    boost::archive::text_iarchive ia(ifs);
-    ia >> sim;    
-    return true;
-}
+Simulation::Simulation(Net &net, Trial &trial) : net(net), trial(trial) {}
 
 void runSimulation(Net *net) { net->runSimulation(); }
 
-bool simulationProgress(int &count, boost::threadpool::pool &tp) {
-    cout << "\r Progress: " << (100*(count - tp.pending())/count) << "%" << flush;
-    return tp.empty();
-}
+bool Simulation::run(Results &r, string filename, double T, double dt, double delay, int number_of_trials, boost::threadpool::pool &tp) {
 
-bool Simulation::run(string filename, int number_of_trials, boost::threadpool::pool &tp) {
 
-    // Pick a population to loop over all the trials with.
-    // If one population has multiple input signals we pick that one.
-    // Else it doesn't matter.
-    string loopPopulation;
+    vector<Trial::CombinedInputs>* inputs = this->trial.inputFactory(T,dt,delay);
+    vector<double> timesteps = this->genTimeSeries(T, dt, delay);
 
-    if (this->dynamicTrial == "") {
-        cout << "[X] No trial has been linked to this network.\n [X] This is required at this time." << endl;
-        return false;
-    }
-
-    Trial dynTrial(this->trials.find(this->dynamicTrial)->second);
-    vector<vector<double> >::iterator signalIter;   
-    map<string,Trial>::iterator trialIter;
-    vector< vector<Net> >::iterator resultIter;
-    vector<Net>::iterator resultIter2;
-
-    int total = number_of_trials * dynTrial.signals()->size();
+    int total = number_of_trials * inputs->size();
     int count = 0;
 
+    vector<Net> simulations;
+
+
+    /**************************
+     * INITIALIZE SIMULATIONS *
+     **************************/
     cout << "Initializing Simulations..." << endl;
-    // Initialize the base simulation
-    this->net.initSimulation(dynTrial.delay);
-    this->results.clear();
-
-    // Loop over the dynamicTrial
-    for (signalIter = dynTrial.signals()->begin(); signalIter != dynTrial.signals()->end(); ++signalIter) {
-        vector<Net> new_trials;
-
-        // Loop over trials
-        for (int i = 0; i < number_of_trials; ++i) {
-            
-            Net new_net(this->net); // Create a new network from our existing one.
-            for (trialIter = this->trials.begin(); trialIter != this->trials.end(); ++trialIter) {
-                if (trialIter->first != this->dynamicTrial) {
-                    // Link the first input signal
-                    new_net.linkinput( trialIter->second.signals()->at(0), trialIter->first );
-                }
-            } 
-            new_net.linkinput( *signalIter, this->dynamicTrial );
-
-            // Inputs are all loaded up so lets schedul the trial
-            new_trials.push_back(new_net);
-            ++count;
-        }
-        this->results.push_back(new_trials);
+    /** Steal the unconstrained IDs from the trial and network. **/
+    for(vector<string>::iterator iter = this->net.unconstrained.begin(); iter != this->net.unconstrained.end(); ++iter) {
+        r.unconstrained.push_back(*iter);
     }
+    for(vector<string>::iterator iter = this->trial.unconstrained.begin(); iter != this->trial.unconstrained.end(); ++iter) {
+        r.unconstrained.push_back(*iter);
+    }
+    // Initialize the base simulation
+    this->net.initSimulation(T,dt,delay);
 
+
+
+
+
+    /*******************
+     * RUN SIMULATIONS *
+     *******************/
     /*
-    tp.schedule(boost::threadpool::looped_task_func::looped_task_func(
-                    boost::bind(&simulationProgress,count,tp), 100)
-                );
-    */
     cout << "Running Simulations..." << endl;
-    for (resultIter = this->results.begin(); resultIter != this->results.end(); ++resultIter) {
-        for (resultIter2 = resultIter->begin(); resultIter2 != resultIter->end(); ++resultIter2) {
-            tp.schedule(boost::bind(&runSimulation, &(*resultIter2)));
-        }
+    for (vector<Net>::iterator iter=simulations.begin(); iter != simulations.end(); ++iter) {
+        tp.schedule(boost::bind(&runSimulation, &(*iter)));
     }
 
     tp.wait();
 
     if (filename != "") {
         cout << "Saving simulation..." << endl;
-        Simulation::save(filename);
+        r.save(filename);
     } else { cout << "[WARNING] Simulation WAS NOT SAVED!" << endl; }
+    */ cout << "SKIPPING SIMULATION" << endl;
     return true;
 }
 
@@ -119,4 +63,13 @@ string Simulation::toString() {
 	string r;
 	r = "A Simulation";
 	return r;
+}
+
+vector<double> Simulation::genTimeSeries(double T, double dt, double delay) {
+    vector<double> timesteps;
+    unsigned int steps = (int)(T/dt);
+    timesteps.resize(steps);
+    for (unsigned int i = 0; i < steps; ++i) {
+        timesteps[i] = i * dt - delay;
+    }
 }

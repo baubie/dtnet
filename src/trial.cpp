@@ -2,15 +2,16 @@
 
 using namespace std;
 
-Trial::Trial(double T, double dt, double delay) : T(T), dt(dt), delay(delay) {}
-Trial::Trial() : T(50), dt(0.05), delay(10) {}
-
 bool Trial::load(string filename, string &error)
 {
 	if (parseXML(filename, error))
     {
-        genSignal(this->inputs.begin());
-        genTimeSeries();
+        /** Find the unconstrained parameters. **/
+        for (vector<Input>::iterator iter=this->inputs.begin(); iter != this->inputs.end(); ++iter) {
+            if (iter->duration.start != iter->duration.end) this->unconstrained.push_back("trial."+iter->ID+".duration"); 
+            if (iter->amplitude.start != iter->amplitude.end) this->unconstrained.push_back("trial."+iter->ID+".amplitude"); 
+            if (iter->delay.start != iter->delay.end) this->unconstrained.push_back("trial."+iter->ID+".delay"); 
+        }
         this->filename = filename;
         return true;
     }
@@ -18,24 +19,18 @@ bool Trial::load(string filename, string &error)
 }
 
 int Trial::count() {
-    return this->inputSignals.size();
+    return this->signals.size();
 }
 
-vector<vector<double> >* Trial::signals() {
-    return &(this->inputSignals);
+vector<Trial::CombinedInputs>* Trial::inputFactory(double T, double dt, double delay) {
+    this->genSignal( this->inputs.begin(), T, dt, delay );
+    return &this->signals;
 }
 
-void Trial::genTimeSeries() {
-        unsigned int steps = (int)(T/dt);
-        timesteps.resize(steps);
-        for (unsigned int i = 0; i < steps; ++i) {
-            timesteps[i] = i * dt - delay;
-        }
-}
+void Trial::genSignal(vector<Input>::iterator inputsPos, double T, double dt, double delay) {
 
-void Trial::genSignal(vector<Input>::iterator inputsPos) {
-
-    vector< vector<double> >* thisInput = (*inputsPos).inputs(this->T, this->dt, this->delay);
+    // Get the vector of signals from this input.
+    vector<Input::Signal>* thisInput = (*inputsPos).inputs(T, dt, delay);
 
     /** BASE CASE
      *  We are at the last input
@@ -43,9 +38,12 @@ void Trial::genSignal(vector<Input>::iterator inputsPos) {
      */
     if (inputsPos+1 == this->inputs.end()) {
         // If we are in the last one, just add these to the input 
-        vector< vector<double> >::iterator iter;
+        vector< Input::Signal >::iterator iter;
         for (iter = thisInput->begin(); iter < thisInput->end(); ++iter) {
-            this->inputSignals.push_back(*iter); // Add on the input
+            CombinedInputs ci;
+            ci.signals.push_back(*iter); // At the base case, only one input 
+            ci.values = iter->values; // Just takes on the values from this signal.
+            this->signals.push_back(ci);
         } 
     } 
 
@@ -56,36 +54,36 @@ void Trial::genSignal(vector<Input>::iterator inputsPos) {
      *  local signals.
      */ 
     else {
-        genSignal(++inputsPos); // Finish up below
+        genSignal(++inputsPos, T, dt, delay); // Finish up below
 
         unsigned int steps = (int)(T/dt);
 
         // Copy of existing inputs
-        vector< vector<double> > oldInputs (this->inputSignals);
+        vector< CombinedInputs > oldSignals (this->signals);
 
         // We'll be replacing the existing inputs so clear them out
-        this->inputSignals.clear();
+        this->signals.clear();
 
-        vector< vector<double> >::iterator newIter;
-        vector< vector<double> >::iterator oldIter; 
-        vector<double> newSignal;
+        vector< Input::Signal >::iterator newIter; // The new input signals
+        vector< CombinedInputs >::iterator oldIter; // The old combined inputs 
+        vector<double> newValues; // New values
+
         for (newIter = thisInput->begin(); newIter < thisInput->end(); ++newIter) {
-            for (oldIter = oldInputs.begin(); oldIter < oldInputs.end(); ++oldIter) {
-                newSignal.clear();
-                newSignal.resize(steps, 0);
+            for (oldIter = oldSignals.begin(); oldIter < oldSignals.end(); ++oldIter) {
+                newValues.clear();
+                newValues.resize(steps, 0);
                 for (unsigned int t = 0; t < steps; ++t) {
-                    newSignal[t] = newIter->at(t) + oldIter->at(t);
+                    newValues[t] = newIter->values[t] + oldIter->values[t];
                 }
-                this->inputSignals.push_back(newSignal); // Add on the input
+                CombinedInputs ci(*oldIter);
+                ci.signals.push_back(*newIter);
+                ci.values = newValues;
+                this->signals.push_back(ci); // Add on the input
             }
         } 
     }
 
 
-}
-
-vector<double>* Trial::timeSteps() {
-    return &(this->timesteps);
 }
 
 string Trial::toString() {
@@ -120,13 +118,6 @@ bool Trial::parseXML(string filename, string &error) {
 		}
 		hRoot = pElem;
 
-        // Load the trial information
-		pElem->QueryDoubleAttribute("T", &this->T); 
-		pElem->QueryDoubleAttribute("dt", &this->dt); 
-		pElem->QueryDoubleAttribute("delay", &this->delay); 
-		pElem->QueryValueAttribute("name", &this->name);
-		pElem->QueryValueAttribute("ID", &this->ID);
-
 		// Load Each Input
 		pElem = hRoot.FirstChild( "input" ).Element();
 		for( /***/; pElem; pElem = pElem->NextSiblingElement("input")) {
@@ -134,13 +125,13 @@ bool Trial::parseXML(string filename, string &error) {
             Input input;
 			hInput = pElem;
 
-
             if (strcmp(pElem->Attribute("type"), "pure") == 0) {
                 input.type = Input::PURE;
             }
             if (strcmp(pElem->Attribute("type"), "pulse") == 0) {
                 input.type = Input::PULSE;
             }
+            pElem->QueryValueAttribute("ID", &input.ID);
 
 			pElemParam = hInput.FirstChild( "param" ).Element();
 			for ( /***/; pElemParam; pElemParam = pElemParam->NextSiblingElement( "param" )) {
@@ -149,16 +140,16 @@ bool Trial::parseXML(string filename, string &error) {
                // Found a Parameter Element With Text
 				if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
                     if (strcmp(pElemParam->Attribute("name"),"duration") == 0) {
-                        input.duration.start = (float)atof(pElemParam->FirstChild()->Value());
-                        input.duration.end = (float)atof(pElemParam->FirstChild()->Value());
+                        input.duration.start = (double)atof(pElemParam->FirstChild()->Value());
+                        input.duration.end = (double)atof(pElemParam->FirstChild()->Value());
                     }
                     if (strcmp(pElemParam->Attribute("name"),"delay") == 0) {
-                        input.delay.start = (float)atof(pElemParam->FirstChild()->Value());
-                        input.delay.end = (float)atof(pElemParam->FirstChild()->Value());
+                        input.delay.start = (double)atof(pElemParam->FirstChild()->Value());
+                        input.delay.end = (double)atof(pElemParam->FirstChild()->Value());
                     }
                     if (strcmp(pElemParam->Attribute("name"),"amplitude") == 0) {
-                        input.amplitude.start = (float)atof(pElemParam->FirstChild()->Value());
-                        input.amplitude.end = (float)atof(pElemParam->FirstChild()->Value());
+                        input.amplitude.start = (double)atof(pElemParam->FirstChild()->Value());
+                        input.amplitude.end = (double)atof(pElemParam->FirstChild()->Value());
                     }
 
                // Found a Parameter Element With A Range Element
@@ -166,19 +157,19 @@ bool Trial::parseXML(string filename, string &error) {
 
 					if (strcmp(pElemParam->FirstChild()->Value(), "range") == 0) {
                         if (strcmp(pElemParam->Attribute("name"),"duration") == 0) {
-                            hParam.FirstChild().Element()->QueryFloatAttribute("start", &input.duration.start);
-                            hParam.FirstChild().Element()->QueryFloatAttribute("end", &input.duration.end);
-                            hParam.FirstChild().Element()->QueryFloatAttribute("step", &input.duration.step);
+                            hParam.FirstChild().Element()->QueryDoubleAttribute("start", &input.duration.start);
+                            hParam.FirstChild().Element()->QueryDoubleAttribute("end", &input.duration.end);
+                            hParam.FirstChild().Element()->QueryDoubleAttribute("step", &input.duration.step);
                         }
                         if (strcmp(pElemParam->Attribute("name"),"delay") == 0) {
-                            hParam.FirstChild().Element()->QueryFloatAttribute("start", &input.delay.start);
-                            hParam.FirstChild().Element()->QueryFloatAttribute("end", &input.delay.end);
-                            hParam.FirstChild().Element()->QueryFloatAttribute("step", &input.delay.step);
+                            hParam.FirstChild().Element()->QueryDoubleAttribute("start", &input.delay.start);
+                            hParam.FirstChild().Element()->QueryDoubleAttribute("end", &input.delay.end);
+                            hParam.FirstChild().Element()->QueryDoubleAttribute("step", &input.delay.step);
                         }
                         if (strcmp(pElemParam->Attribute("name"),"amplitude") == 0) {
-                            hParam.FirstChild().Element()->QueryFloatAttribute("start", &input.amplitude.start);
-                            hParam.FirstChild().Element()->QueryFloatAttribute("end", &input.amplitude.end);
-                            hParam.FirstChild().Element()->QueryFloatAttribute("step", &input.amplitude.step);
+                            hParam.FirstChild().Element()->QueryDoubleAttribute("start", &input.amplitude.start);
+                            hParam.FirstChild().Element()->QueryDoubleAttribute("end", &input.amplitude.end);
+                            hParam.FirstChild().Element()->QueryDoubleAttribute("step", &input.amplitude.step);
                         }
 					}
 				}

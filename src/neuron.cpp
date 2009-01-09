@@ -6,7 +6,6 @@ Neuron::Neuron(NeuronParams params) : params(params) {
 }
 
 Neuron::Neuron() {
-    this->params = Neuron::defaultParams();
     this->initialize();
 }
 
@@ -16,44 +15,7 @@ void Neuron::initialize() {
 	this->w = 0;
 }
 
-NeuronParams Neuron::defaultParams() {
-    NeuronParams p;
-    
-    // Global Parameters
-    p.type = NeuronParams::AEIF;
-    p.integrator = NeuronParams::RungeKutta;
-    
-    // Poisson
-    p.Poisson.mu = 300; // In Hz
-    p.Poisson.spontaneous = false;
-        
-    // AEIF
-    p.aEIF.jitter = true;
-    p.aEIF.VT = -52;
-    p.aEIF.C	= 281;
-    p.aEIF.hypTau = 5;
-    p.aEIF.alpha_q = 1;
-    p.aEIF.gL = 30;
-    p.aEIF.EL = -63;
-    p.aEIF.tauw = 200;
-    p.aEIF.a = 1500;
-    p.aEIF.deltaT = 2;
-    p.aEIF.b = 80.5;
-    p.aEIF.VR = -63;	
 
-    p.aEIF.jC	= 0;
-    p.aEIF.jVT = 0;
-    p.aEIF.jhypTau = 0;
-    p.aEIF.jalpha_q = 0;
-    p.aEIF.jgL = 0;
-    p.aEIF.jEL = 0;
-    p.aEIF.jtauw = 0;
-    p.aEIF.ja = 0;
-    p.aEIF.jdeltaT = 0;
-    p.aEIF.jb = 0;
-    p.aEIF.jVR = 0;
-    return p;
-}
 
 void Neuron::init(int steps, double delay) {
     this->voltage.resize(steps);
@@ -70,20 +32,10 @@ double n(double mean, double sigma) {
 }
 
 void Neuron::jitter() {
-    switch(this->params.type) {
-        case NeuronParams::AEIF:
-            this->params.aEIF.C = n(this->def_params.aEIF.C, this->def_params.aEIF.jC);
-            this->params.aEIF.VT = n(this->def_params.aEIF.VT, this->def_params.aEIF.jVT);
-            this->params.aEIF.hypTau = n(this->def_params.aEIF.hypTau, this->def_params.aEIF.jhypTau);
-            this->params.aEIF.alpha_q = n(this->def_params.aEIF.alpha_q, this->def_params.aEIF.jalpha_q);
-            this->params.aEIF.gL = n(this->def_params.aEIF.gL, this->def_params.aEIF.jgL);    
-            this->params.aEIF.EL = n(this->def_params.aEIF.EL, this->def_params.aEIF.jEL);
-            this->params.aEIF.tauw = n(this->def_params.aEIF.tauw, this->def_params.aEIF.jtauw);
-            this->params.aEIF.a = n(this->def_params.aEIF.a, this->def_params.aEIF.ja);
-            this->params.aEIF.deltaT = n(this->def_params.aEIF.deltaT, this->def_params.aEIF.jdeltaT);
-            this->params.aEIF.b = n(this->def_params.aEIF.b, this->def_params.aEIF.jb);
-            this->params.aEIF.VR = n(this->def_params.aEIF.VR, this->def_params.aEIF.jVR);
-        break;
+    for(map<string,double>::iterator iter = this->params.vals.begin(); iter != this->params.vals.end(); ++iter) {
+        if (this->params.sigmas.find(iter->first) != this->params.sigmas.end()) {
+            iter->second = n(this->def_params.vals[iter->first], this->def_params.sigmas[iter->first]);
+        }
     }
 }
 
@@ -91,7 +43,6 @@ void Neuron::update(double current, int position, double dt) {
     switch(params.type) {
         
         case NeuronParams::AEIF:
-            
             switch(params.integrator) {
                 case NeuronParams::Euler:
                     Euler(current, position, dt);
@@ -103,7 +54,6 @@ void Neuron::update(double current, int position, double dt) {
                     RungeKutta(current, position, dt);
                     break;
             }
-            
             break;
         
         case NeuronParams::POISSON:
@@ -117,7 +67,7 @@ void Neuron::Poisson(double current, int position, double dt) {
 
     if (current == 0) { this->active = 0; return; }
     this->active += dt;
-    double mu = params.Poisson.mu;
+    double mu = this->params.vals["mu"];
 
     // Initial faster spiking rate
     double maximum = 1000;
@@ -191,8 +141,8 @@ void Neuron::Spike(int position, double dt) {
     switch(this->params.type) {
         case NeuronParams::AEIF:
             if (this->V >= 20) {
-                this->V = this->params.aEIF.VR;
-                this->w += this->params.aEIF.b;
+                this->V = this->params.vals["VR"];
+                this->w += this->params.vals["b"];
                 voltage[position] = spikeHeight; // Artificial spike
                 spikes.push_back(position*dt - this->delay); // Save the actual spike time
             }
@@ -209,13 +159,13 @@ double Neuron::V_update(double V, double current, int position) {
         
     double IL;
     double ILd;	
-    IL = params.aEIF.gL * (V - params.aEIF.EL);
-    ILd = -params.aEIF.gL * params.aEIF.deltaT * exp((V-params.aEIF.VT)/params.aEIF.deltaT);
+    IL = params.vals["gL"] * (V - params.vals["EL"]);
+    ILd = -params.vals["gL"] * params.vals["deltaT"] * exp((V-params.vals["VT"])/params.vals["deltaT"]);
     double r =  (current - IL - ILd - w) / params.aEIF.C;
     if (r > 100000) r = 100000; // Prevent overflows
     return (double)r;
 }
 
 double Neuron::w_update() {
-    return (params.aEIF.a*(V-params.aEIF.EL)-w)/params.aEIF.tauw;
+    return (params.vals["a"]*(V-params.vals["EL"])-w)/params.vals["tauw"];
 }
