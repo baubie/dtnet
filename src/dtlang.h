@@ -118,12 +118,13 @@ namespace dtlang
     bool f_simulation(const string net_filename, const string trial_filename, Net *net, Trial *trial);
     bool f_external(const string filename, boost::threadpool::pool &tp, bool &end_input);
     bool f_print(void* ptr, int const type);
+    bool f_constrain(Results &result, Results &old_results, const string ID, const double value); 
 
     // Graphing functions
     static const int PLOT_VOLTAGE = 1;
     static const int PLOT_SPIKES = 2; 
-    bool f_graphinputs(Trial &trial, string const &filename);
-	bool f_graphnetwork(Simulation &sim, string const &filename);
+   // bool f_graphinputs(Trial &trial, string const &filename); // NO LONGER IMPLEMENTED
+	bool f_graphnetwork(Results &results, string const &filename);
 	bool f_graphtrial(int type, Simulation &sim, int input, int trial, string const &filename);
     bool f_graphspiketrains(Simulation &sim, string const &popID, string const &filename, double const &start, double const &end); 
 

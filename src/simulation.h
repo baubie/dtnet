@@ -29,7 +29,7 @@ class Simulation
 		std::string toString();
 
         static const int ALPHA_WIDTH = 20; // 20 ms is MORE than enough width for the alpha function
-        static double alpha(double t, std::vector<double> &spikes, double tau, double delay, double globalDelay, double dt);
+        static double alpha(double t, std::vector<Neuron> &neurons, double tau, double delay, double globalDelay, double dt);
         static void runSimulation(Results::Result *r, double T, double dt, double delay);
 
     private:

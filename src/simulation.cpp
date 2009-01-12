@@ -8,11 +8,12 @@ boost::mt19937 random_engine;
 
 Simulation::Simulation(Net &net, Trial &trial) : net(net), trial(trial) {}
 
-double Simulation::alpha(double t, vector<double> &spikes, double tau, double delay, double globalDelay, double dt) {
+double Simulation::alpha(double t, vector<Neuron> &neurons, double tau, double delay, double globalDelay, double dt) {
 
     static map<double, vector<double> > alpha;
     static int alpha_steps = (int)(Simulation::ALPHA_WIDTH/dt);
     static double q = 1000.0;
+
 
     if (alpha.find(tau) == alpha.end()) {
         alpha[tau] = vector<double>(alpha_steps,0);
@@ -22,21 +23,24 @@ double Simulation::alpha(double t, vector<double> &spikes, double tau, double de
         }
     }
 
+
 	double current = 0;
 	double spike;
     int step;
-    unsigned int numSpikes = spikes.size(); /* Only look at the past 10 spikes. */
 
-	for (unsigned int s=0; s < numSpikes; ++s) {
-        // delay is the axonal delay and this->delay is the global time zero delay
-		spike = t-spikes[s]- delay - globalDelay;
-		if (spike > 0) {
-            step = (int)(spike/dt);
-            if (spike < Simulation::ALPHA_WIDTH) {
-                    current += alpha[tau][step];
-            } else { break; }
-		}
-	}
+    for (vector<Neuron>::iterator n = neurons.begin(); n != neurons.end(); ++n) {
+        for (vector<double>::iterator s = n->spikes.begin(); s != n->spikes.end(); ++s) {
+            // delay is the axonal delay and this->delay is the global time zero delay
+            spike = t-*s- delay - globalDelay;
+            if (spike > 0) {
+                step = (int)(spike/dt);
+                if (spike < Simulation::ALPHA_WIDTH) {
+                        current += alpha[tau][step];
+                } 
+                else { break; }
+            }
+        }
+    }
 	return current;
 }
 
@@ -60,12 +64,11 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
 				
 				// Find spikes into our population				
                 for (fromIter = r->cNetwork.connections[cpIter->second.ID].begin(); fromIter != r->cNetwork.connections[cpIter->second.ID].end(); ++fromIter) {
+
                     new_input = 0;
-                    for (unsigned int from_n=0; from_n < r->cNetwork.populations[fromIter->first].neurons.size(); ++from_n){
                         if (fromIter->second.weight  > 0) tau = 0.7;
                         else tau = 1.1; 
-                        new_input += Simulation::alpha(ts*dt, cpIter->second.neurons[from_n].spikes, tau, fromIter->second.delay, delay, dt) * fromIter->second.weight;
-                    }
+                        new_input += Simulation::alpha(ts*dt, r->cNetwork.populations[fromIter->first].neurons, tau, fromIter->second.delay, delay, dt) * fromIter->second.weight;
                     input += new_input / (double)(r->cNetwork.populations[fromIter->first].neurons.size());
 				}
 				
@@ -123,7 +126,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
                 r.cNetwork = *n;
                 r.cTrial = *t;
                 r.trial_num = i;
-                results.results.push_back(r);
+                results.add(r);
             }
         }
     }
@@ -131,10 +134,9 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     /*******************
      * RUN SIMULATIONS *
      *******************/
-    /*
     cout << "Running Simulations..." << endl;
-    for (vector<Results::Result>::iterator iter=results.results.begin(); iter != results.results.end(); ++iter) {
-        tp.schedule(boost::bind(&runSimulation, &(*iter), T, dt));
+    for (vector<Results::Result*>::iterator iter=results.get().begin(); iter != results.get().end(); ++iter) {
+        tp.schedule(boost::bind(&runSimulation, *iter, T, dt, delay));
     }
 
     tp.wait();
@@ -143,8 +145,6 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
         cout << "Saving simulation..." << endl;
         results.save(filename);
     } else { cout << "[WARNING] Simulation WAS NOT SAVED!" << endl; }
-    */ 
-    cout << "SKIPPING SIMULATION" << endl;
     return true;
 }
 

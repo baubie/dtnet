@@ -2,11 +2,9 @@ AC_INIT(src/dtnet.cpp)
 
 AM_INIT_AUTOMAKE(dtnet,2.0)
 
-AC_PROG_CXX
-AC_PROG_LIBTOOL
+AC_PROG_RANLIB
 
 CXXFLAGS="-O3"
-
 
 AC_ARG_ENABLE(debug,
     [ --enable-debug    Enable debugging symbols ],

@@ -357,6 +357,31 @@ void dtlang::initialize_functions()
 
     dtlang::functions["load"] = f;
 
+    // constrain()
+    f.help = "Constrain a results object along one of the unconstrained dimensions.";
+    f.return_type = dtlang::TYPE_RESULTS;
+    f.params.clear();
+
+    p.type = dtlang::TYPE_RESULTS;
+    p.help = "The results object that you wish to constrain.";
+    p.optional = false;
+    p.name = "results";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_STRING;
+    p.help = "The ID of the unconstrained dimension. Type print(your_results) to list these.";
+    p.optional = false;
+    p.name = "ID";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_DOUBLE;
+    p.help = "The value you wish to constrain this dimension to.";
+    p.optional = false;
+    p.name = "value";
+    f.params.push_back(p);
+
+    dtlang::functions["constrain"] = f;
+
     // graphinputs()
     f.help = "Display a graph showing some or all of the inputs from a trial. Uses the graph_width and graph_height variables.";
     f.return_type = dtlang::TYPE_VOID;
@@ -375,7 +400,7 @@ void dtlang::initialize_functions()
     p.name = "filename";
     f.params.push_back( p );
 
-    dtlang::functions["graphinputs"] = f;
+    //dtlang::functions["graphinputs"] = f;
 
     // graphspiketrains()
     f.help = "Display spike trains for every trial of the given population.";
@@ -408,8 +433,8 @@ void dtlang::initialize_functions()
 	f.return_type = dtlang::TYPE_VOID;
 	f.params.clear();
 
-	p.type = dtlang::TYPE_SIMULATION;
-	p.help = "A simulation.";
+	p.type = dtlang::TYPE_RESULTS;
+	p.help = "Results from a block of simulations already run.";
 	p.optional = false;
     p.name = "network";
 	f.params.push_back(p);
@@ -520,6 +545,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         }
 	} 
 
+    /*
 	if (name == "graphinputs") {
         if (params.size() == 1) {
             return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), "inputs.eps");
@@ -527,12 +553,13 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
             return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
         }
 	} 
+    */
 
 	if (name == "graphnetwork") {
         if (params.size() == 1) {
-            return dtlang::f_graphnetwork(*(static_cast<Simulation*>(params[0].obj)), "network.eps");
+            return dtlang::f_graphnetwork(*(static_cast<Results*>(params[0].obj)), "network.eps");
         } else if (params.size() == 2) {
-            return dtlang::f_graphnetwork(*(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
+            return dtlang::f_graphnetwork(*(static_cast<Results*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
         }
 	} 
 
@@ -588,6 +615,19 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 		}
         r = new Results();
         return dtlang::f_load(*(static_cast<Results*>(r)), *(static_cast<string*>(params[0].obj)));
+    }
+
+	if (name == "print") {
+        return dtlang::f_print(params[0].obj, params[0].type);
+	} 
+
+    if (name == "constrain") {
+		if (r_type == dtlang::NO_RETURN) {
+			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
+			return false;
+		}
+        r = new Results();
+        return dtlang::f_constrain(*(static_cast<Results*>(r)), *(static_cast<Results*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), *(static_cast<double*>(params[2].obj)));
     }
 
 	if (name == "print") {
@@ -890,8 +930,13 @@ bool dtlang::f_simulation(const string net_filename, const string trial_filename
     return true;
 }
 
+bool dtlang::f_constrain(Results &result, Results &old_results, const string ID, const double value) {
+    result = old_results.constrain(ID, value);
+    return true;
+}
+
+/*
 bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
-    /*
     vector<vector<double> >* signals = trial.signals();
     vector<double>* timesteps = trial.timeSteps();
 
@@ -909,9 +954,9 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
     gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
     gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
     gle.draw(filename);
-    */
     return true;
 }
+*/
 
 bool dtlang::f_graphspiketrains(Simulation &sim, string const &popID, string const &filename, double const &start, double const &end) {
 
@@ -960,41 +1005,42 @@ bool dtlang::f_graphspiketrains(Simulation &sim, string const &popID, string con
     return true;
 }
 
-bool dtlang::f_graphnetwork(Simulation &sim, string const &filename) {
-	/*    
+bool dtlang::f_graphnetwork(Results &results, string const &filename) {
 	char data_filename[] = "/tmp/dtnet_dot_XXXXXX";
 	int pTemp = mkstemp(data_filename);
 	boost::iostreams::file_descriptor_sink sink( pTemp );
 	boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
-	if (!of) 
-	{
+	if (!of) {
 		cout << "[X] Unable to create temporary file." << endl;
 		return false;
 	}
+    if (results.get().empty()) {
+        cout << "[X] At least one results network must be present." << endl;
+        return false;
+    }
+
+    Results::Result *r = results.get().at(0);
 	
 	of << "digraph G {" << endl;
 	
-	// Loop over inputs
-	map<string, Trial>::iterator iter;
-	for (iter = sim.trials.begin(); iter != sim.trials.end(); ++iter) {
-		of << iter->second.ID << " [shape=box];" << endl;
-		of << iter->second.ID << " -> " << iter->first << ";" << endl;
-	}
+	// Setup the input box style
+    of << "Input [shape=box];" << endl;
 			
-	for (int a = 0; a < (int)sim.net.weights.size(); a++) {
-		for (int b = 0; b < (int)sim.net.weights.size(); b++) {									
-			if (sim.net.weights.at(a).at(b) != 0) {
-				of << sim.net.populations.at(a).ID << " -> " << sim.net.populations.at(b).ID << ";" << endl;
-			}			
-			
+    for (map<string, map<string, Net::Connection<double> > >::iterator a = r->cNetwork.connections.begin(); a != r->cNetwork.connections.end(); ++a)
+    {
+        for (map<string, Net::Connection<double> >::iterator b = a->second.begin(); b != a->second.end(); ++b)
+        {
+            of << b->first << " -> " << a->first << ";" << endl;
 		}
+        if (r->cNetwork.populations[a->first].accept_input) {
+            of << "Input -> " << a->first << ";" << endl;
+        }
 	}
-	
 	of << "}" << endl;
 	
 	string command = "dot -Tps " + string(data_filename) + " -o " + filename;
-	int r = system(command.c_str());
-	if (r != 0) {
+	int ret = system(command.c_str());
+	if (ret != 0) {
 		cout << "[X] Error running dot." << endl;
 	} else { cout << "Saved to " << filename << endl; }
 	
@@ -1006,7 +1052,6 @@ bool dtlang::f_graphnetwork(Simulation &sim, string const &filename) {
 		}
 	}
 	remove(data_filename);		
-    */
 	return true;
 }
 
