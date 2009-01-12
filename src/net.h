@@ -8,6 +8,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
@@ -25,74 +26,62 @@ class Net {
         bool verbose;
         std::string name; // A name for this network
 
-        void linkinput( std::vector<double> &input, const std::string popID );  
+        void linkinput( std::vector<double> &input );  
 		bool load(std::string filename, std::string &error);	
         int count_populations();
         std::string toString();
 		void initSimulation(double T, double dt, double delay);
-		void runSimulation();
+
+        template<class T>
+        struct Connection {
+            T delay;
+            T weight;
+            T density;
+            T sigma;
+
+            friend class boost::serialization::access;
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & delay;
+                ar & weight;
+                ar & density;
+                ar & sigma;
+            }
+        };
+
+        struct ConstrainedNetwork {
+            std::map<std::string, Population::ConstrainedPopulation> populations;    
+            std::map< std::string, std::map< std::string, Connection<double> > > connections;
+
+            friend class boost::serialization::access;
+            template<class Archive>
+            void serialize(Archive & ar, const unsigned int version)
+            {
+                ar & populations;
+                ar & connections;
+            }
+        };
+
+        std::vector<ConstrainedNetwork>* networkFactory();
 		
         bool accept_input( const std::string popID );
         static const int NOT_FOUND = -999;
 
-        std::vector< std::string > unconstrained;
+        std::map< std::string, Range > unconstrained;
 
-		double dt;
-		double T;
-        double delay;
+		std::map<std::string, Population> populations;
+        std::map< std::string, std::map< std::string, Connection<Range> > > connections;
 
-		double alphaTauE;
-        double alphaTauI;
-
-		std::vector<Population> populations;
-		std::vector< std::vector<double> > delays;
-		std::vector< std::vector<double> > weights;
-		std::vector< std::vector<double> > sigmas;
-		std::vector< std::vector<double> > density;
-		std::vector< std::vector<double> > inputs;
-		
-		
     private:
 
-        friend class boost::serialization::access;
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & dt;
-            ar & T;
-            ar & delay;
-            ar & steps;
-            ar & name;
-            ar & filename;
-            ar & populations;
-            ar & delays;
-            ar & weights;
-            ar & sigmas;
-            ar & density;
-            ar & inputs;
-            ar & alphaTauE;
-            ar & alphaTauI;            
-        }
+        std::vector<ConstrainedNetwork> cNetworks;
+        void genNetworks();
 
-        static const int ALPHA_WIDTH = 20; // 20 ms is MORE than enough width for the alpha function
-        static const int CONSTANT_INPUT = 999;
-
-		unsigned int steps;
-		
-        std::vector<double> alphaE;
-        std::vector<double> alphaI;
-        
         std::string filename;
-
-        void createPopulation(std::string name, std::string ID, int size, bool accept_input, NeuronParams params);
 		int numPopulations();                
-        int populationFromID(const std::string popID);
-        void initAlpha(double q, double tau, std::vector<double> &vals);
-		double alpha(double t, std::vector<double> &spikes, double delay, double weight);
-		void finalizePopulations();
-		void connectPopulations(int from, int to, double weight, double delay);
-		void geninput(std::vector<double>* input, double duration, double mu, double delay);		
         bool parseXML(std::string filename, std::string &error);
         void initialize();
 };
 #endif
+

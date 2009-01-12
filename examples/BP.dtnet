@@ -1,10 +1,11 @@
 ###############################
 # Coincidence Detection Model #
 # Written by Brandon Aubie    #
-##############################
+###############################
 
-sim = initsimulation("networks/BP.xml", "inputs/durations.xml")
-results = run(sim,"bp.sim",20)
+sim = simulation("networks/BP.xml", "inputs/durations.xml")
+results = run(sim,"bp.sim",1)
+print(sim)
 print(results)
 #sim = load("bp.sim")
 #graphnetwork(sim, "network.eps")

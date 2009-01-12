@@ -175,6 +175,10 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
                     var.obj = new Net(*(static_cast<Net*>(oldvar.obj)));
                     break;
 					
+                case dtlang::TYPE_RESULTS:
+                    var.obj = new Results(*(static_cast<Results*>(oldvar.obj)));
+                    break;
+					
 				case dtlang::TYPE_SIMULATION:
 					var.obj = new Simulation(*(static_cast<Simulation*>(oldvar.obj)));
 					break;
@@ -288,7 +292,7 @@ void dtlang::initialize_functions()
     dtlang::functions["benchmark"] = f;
 
 
-    // initsimulation()
+    // simulation()
 	f.help = "Initalize a simulation with a particular network.";
 	f.return_type = dtlang::TYPE_SIMULATION;
 	f.params.clear();
@@ -305,7 +309,7 @@ void dtlang::initialize_functions()
     p.name = "trial";
 	f.params.push_back(p);
 
-	dtlang::functions["initsimulation"] = f;	
+	dtlang::functions["simulation"] = f;	
 	
 
     // run()
@@ -603,16 +607,17 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	}
 
 
-	if (name == "initsimulation") {
+	if (name == "simulation") {
 		if (r_type == dtlang::NO_RETURN) {
 			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
 			return false;
 		}		
-        Net *network = new Net;
-        Trial *trial = new Trial;
 
-        if (dtlang::f_initsimulation(*(static_cast<string*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), network, trial)) {
-            r = new Simulation(*(static_cast<Net*>(params[0].obj)),*(static_cast<Trial*>(params[1].obj)));
+        Net network;
+        Trial trial;
+
+        if (dtlang::f_simulation(*(static_cast<string*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), &network, &trial)) {
+            r = new Simulation(network,trial);
         } else {
             return false;
         }
@@ -723,6 +728,7 @@ bool dtlang::f_help(string name) {
     for (int i = 0; i < opt; ++i) { cout << "]"; };
     cout << ")" << endl;
     cout << f.help << endl;
+    cout << "Return Type: " << dtlang::type_names[f.return_type] << endl << endl;
 
     for (iter_param = f.params.begin(); iter_param != f.params.end(); ++iter_param) {
         cout << "<" << iter_param->name << ":" << dtlang::type_names[iter_param->type] << ">";
@@ -857,7 +863,7 @@ bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool
     }
 }
 
-bool dtlang::f_initsimulation(const string net_filename, const string trial_filename, Net *net, Trial *trial) {
+bool dtlang::f_simulation(const string net_filename, const string trial_filename, Net *net, Trial *trial) {
 
     string error;
     /* Load Network */

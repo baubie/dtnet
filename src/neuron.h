@@ -8,10 +8,12 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
+#include <map>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random.hpp>
 #include "serialization.h"
 #include "neuronparams.h"
+#include "range.h"
 
 class Neuron {
 

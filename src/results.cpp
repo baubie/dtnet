@@ -3,15 +3,18 @@
 
 using namespace std;
 
+// Empty constructor that is only used for passing a results object to the simulation class.
+Results::Results() { }
+Results::Results(double T, double dt, double delay) : T(T), dt(dt), delay(delay) {}
+
 string Results::toString() {
     stringstream r;
-
     r << "Result Collection" << endl;
     r << "=================" << endl;
     r << this->results.size() << " results found." << endl;
     r << this->unconstrained.size() << " unconstrained variables." << endl;
-    for (vector<string>::iterator i = this->unconstrained.begin(); i != this->unconstrained.end(); ++i) {
-        r << " - " << *i << endl;
+    for (map<string, Range>::iterator i = this->unconstrained.begin(); i != this->unconstrained.end(); ++i) {
+        r << " - " << i->first << " " << i->second.toString() << endl;
     }
     return r.str(); 
 }

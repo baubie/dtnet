@@ -3,25 +3,35 @@
 #define RANGE_H
 
 #include "serialization.h"
+#include <vector>
+#include <string>
+#include <sstream>
 
 class Range {
-    Range() : start(0),end(0),step(1) {}
-    Range(double val) : start(val),end(val),step(1) {}
-    double start;
-    double end;
-    double step;
 
-    double operator=(const Range& obj);
-    Range operator=(const double& val);
+    public:
+        Range();
+        Range(double val);
+        Range(double start, double end, double step);
+        int size();
 
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
-        ar & start;
-        ar & end;
-        ar & step;
-    }
+        Range operator=(const double& val);
+        operator const double() { return this->values.at(0); }
+        std::string toString();
+
+
+        std::vector<double> values;
+
+    private:
+
+        void initialize(double start, double end, double step);
+
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & values;
+        }
 };
 
 #endif

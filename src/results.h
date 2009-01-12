@@ -3,7 +3,9 @@
 
 #include "net.h"
 #include "input.h"
+#include "trial.h"
 #include "serialization.h"
+#include "range.h"
 #include <map>
 #include <string>
 #include <sstream>
@@ -12,24 +14,25 @@
 class Results {
 
     public:
+
         struct Result {
-            std::map< std::string, double > params;     /**< Map of parameters and their values. */
-            std::map< std::string, Input > inputs;      /**< Map of inputs with populations as keys. */
-            Net net;                                    /**< The network with results. */
             int trial_num;                              /**< Keep track of which trial number this is. */
+
+            /** Each result has ONE network and ONE trial. **/
+            Net::ConstrainedNetwork cNetwork; 
+            Trial::ConstrainedTrial cTrial;
 
             friend class boost::serialization::access;
             template<class Archive>
             void serialize(Archive & ar, const unsigned int version)
             {
-                ar & params;
-                ar & inputs;
-                ar & net;
                 ar & trial_num;
+                ar & cNetwork;
+                ar & cTrial;
             }
         };
 
-        std::vector< std::string > unconstrained;       /*<< Collection of unconstrained IDs. */
+        std::map< std::string, Range > unconstrained;       /*<< Collection of unconstrained IDs. */
         std::vector< Result > results;                  /*<< Collection of all results. */
         std::vector<double> timeseries;                 /*<< Common timeseries of all simulations. */
 
@@ -37,6 +40,8 @@ class Results {
         double T;
         double delay;
 
+        Results(double dt, double T, double delay);
+        Results();
         std::string toString(); 
         static bool load(Results &r, std::string filename);
         void save(std::string filename);

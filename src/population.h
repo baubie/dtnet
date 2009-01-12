@@ -16,6 +16,7 @@ class Population {
         std::string ID;
         bool accept_input;
         std::vector<Neuron> neurons;
+        NeuronParams params;
 		
 		// Methods
 		Population(std::string name, std::string ID, int size, bool accept_input, NeuronParams params);
@@ -32,27 +33,18 @@ class Population {
             template<class Archive>
             void serialize(Archive & ar, const unsigned int version)
             {
-                ar & name;
                 ar & ID;
-                ar & accept_input;
+                ar & params;
                 ar & neurons;
+                ar & accept_input;
             }
         };
 
-        vector<ConstrainedPopulation>* populationFactory();
+        std::vector<ConstrainedPopulation>* populationFactory();
 
     private:
-        friend class boost::serialization::access;
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & name;
-            ar & ID;
-            ar & accept_input;
-            ar & neurons;
-        }
-
+        void genPopulations();
         void initialize(int size, NeuronParams params);
-        vector<ConstrainedPopulation> populations;
+        std::vector<ConstrainedPopulation> cPopulations;
 };
 #endif

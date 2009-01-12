@@ -5,7 +5,7 @@ NeuronParams::NeuronParams() : type(POISSON), integrator(Euler) {}
 NeuronParams::NeuronParams(ModelType type) : type(type), integrator(RungeKutta) { initialize(); }
 NeuronParams::NeuronParams(ModelType type, Integrator integrator) : type(type), integrator(integrator) { initialize(); }
 
-void initialize() {
+void NeuronParams::initialize() {
     switch(this->type) {
         case POISSON:
             vals["mu"] = Range(300);

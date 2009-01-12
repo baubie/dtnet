@@ -1,6 +1,8 @@
 
 #include "neuron.h"
 
+using namespace std;
+
 Neuron::Neuron(NeuronParams params) : params(params) {
     this->initialize();	
 }
@@ -11,14 +13,12 @@ Neuron::Neuron() {
 
 void Neuron::initialize() {
     this->def_params = this->params;
-	this->V = this->params.aEIF.EL; //mV
+	this->V = -65; //mV
 	this->w = 0;
 }
 
-
-
 void Neuron::init(int steps, double delay) {
-    this->voltage.resize(steps);
+    this->voltage.resize(steps, 0.0);
     this->delay = delay;
     this->jitter();
 }
@@ -32,7 +32,7 @@ double n(double mean, double sigma) {
 }
 
 void Neuron::jitter() {
-    for(map<string,double>::iterator iter = this->params.vals.begin(); iter != this->params.vals.end(); ++iter) {
+    for(map<string,Range>::iterator iter = this->params.vals.begin(); iter != this->params.vals.end(); ++iter) {
         if (this->params.sigmas.find(iter->first) != this->params.sigmas.end()) {
             iter->second = n(this->def_params.vals[iter->first], this->def_params.sigmas[iter->first]);
         }
@@ -161,7 +161,7 @@ double Neuron::V_update(double V, double current, int position) {
     double ILd;	
     IL = params.vals["gL"] * (V - params.vals["EL"]);
     ILd = -params.vals["gL"] * params.vals["deltaT"] * exp((V-params.vals["VT"])/params.vals["deltaT"]);
-    double r =  (current - IL - ILd - w) / params.aEIF.C;
+    double r =  (current - IL - ILd - w) / params.vals["C"];
     if (r > 100000) r = 100000; // Prevent overflows
     return (double)r;
 }

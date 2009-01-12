@@ -134,7 +134,9 @@ bool GLE::draw()
 bool GLE::draw(string const &filename)
 {
     string gle_script_file = this->gle_script_to_file();
+    cout << "[GLE] Saving data to temporary file...";
     string command = string("gle -output ") + filename + " " + gle_script_file;
+    cout << "DONE" << endl;
 
     int r = system(command.c_str());
 	if (r != 0) {

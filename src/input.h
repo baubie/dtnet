@@ -22,9 +22,6 @@ class Input {
         std::string name;
         std::string ID;
         int type;
-        Range duration;
-        Range amplitude;
-        Range delay;
 
         /** Defines a single, constrained signal. **/
         struct Signal {
@@ -45,9 +42,14 @@ class Input {
             }
         };
 
+        Range duration;
+        Range amplitude;
+        Range delay;
+
         Input();
         std::vector<Signal>* inputs(double T, double dt, double delay);
         std::string toString();
+        std::map< std::string, Range > unconstrained;       /*<< Collection of unconstrained IDs. */
 
 	private:
         friend class boost::serialization::access;
