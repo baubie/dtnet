@@ -62,6 +62,11 @@ class Results {
         {
             ar & unconstrained;
             ar & results;
+            ar & use_external;
+            ar & dt;
+            ar & T;
+            ar & delay;
+            ar & filter;
         }
 };
 

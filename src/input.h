@@ -39,6 +39,7 @@ class Input {
                 ar & amplitude;
                 ar & delay;
                 ar & values;
+                ar & ID;
             }
         };
 

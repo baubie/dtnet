@@ -9,6 +9,8 @@ results = run(sim,"bp.sim",1)
 print(results)
 durs = constrain(results,"trial.main.duration",6)
 print(durs)
+amp = constrain(durs,"trial.main.amplitude",1.5)
+print(amp)
 #graphnetwork(results, "network.eps")
 #graph_height = 20
 #graph_width = 15

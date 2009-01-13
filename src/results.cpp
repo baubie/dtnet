@@ -13,7 +13,7 @@ string Results::toString() {
     r << "=================" << endl;
     if (this->use_external) r << "Constrained from a previous results collection." << endl;
     else r << "Original, unconstrained results collection." << endl;
-    r << this->filter.size() << " results found." << endl;
+    r << this->get().size() << " results found." << endl;
     r << "=================" << endl;
     r << this->unconstrained.size() << " unconstrained variables." << endl;
     for (map<string, Range>::iterator i = this->unconstrained.begin(); i != this->unconstrained.end(); ++i) {
@@ -54,7 +54,7 @@ Results Results::constrain(std::string ID, const double value) {
     Results r(this->T, this->dt, this->delay);
     r.use_external = true;
 
-    if (this->use_external = false) {
+    if (this->use_external == false) {
         r.setExternal(&(this->results)); // Point the new results to these results.
     } else {
         r.setExternal(this->external_results); // Point the new results to the same as this one.
