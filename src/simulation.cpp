@@ -55,7 +55,6 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
     vector<Neuron>::iterator nIter;
     map<string, Net::Connection<double> >::iterator fromIter; 
     
-	
 	for (unsigned int ts=0; ts < steps; ++ts) { // Loop over time steps
         for (cpIter = r->cNetwork.populations.begin(); cpIter != r->cNetwork.populations.end(); ++cpIter) {
             for (nIter = cpIter->second.neurons.begin(); nIter != cpIter->second.neurons.end(); ++nIter) { // Loop over neurons
@@ -63,8 +62,9 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
 				input = 0.0;
 				
 				// Find spikes into our population				
-                for (fromIter = r->cNetwork.connections[cpIter->second.ID].begin(); fromIter != r->cNetwork.connections[cpIter->second.ID].end(); ++fromIter) {
-
+                for (fromIter = r->cNetwork.connections[cpIter->second.ID].begin(); 
+                     fromIter != r->cNetwork.connections[cpIter->second.ID].end(); 
+                     ++fromIter) {
                     new_input = 0;
                         if (fromIter->second.weight  > 0) tau = 0.7;
                         else tau = 1.1; 
@@ -100,6 +100,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
      **************************/
     cout << "Initializing Simulations..." << endl;
     cout << "Generated " << inputs->size() << " signals" << endl;
+    cout << "Generated " << networks->size() << " networks each with " << networks->at(0).populations.size()  << " populations." << endl;
     // Steal the unconstrained IDs from the trial and network.
     for(map<string, Range>::iterator iter = this->net.unconstrained.begin(); iter != this->net.unconstrained.end(); ++iter) {
         results.unconstrained[iter->first] = iter->second;
@@ -131,11 +132,13 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
         }
     }
 
+
     /*******************
      * RUN SIMULATIONS *
      *******************/
     cout << "Running Simulations..." << endl;
-    for (vector<Results::Result*>::iterator iter=results.get().begin(); iter != results.get().end(); ++iter) {
+    vector<Results::Result*> results_to_run = results.get();
+    for (vector<Results::Result*>::iterator iter=results_to_run.begin(); iter != results_to_run.end(); ++iter) {
         tp.schedule(boost::bind(&runSimulation, *iter, T, dt, delay));
     }
 

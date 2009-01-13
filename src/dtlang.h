@@ -118,7 +118,7 @@ namespace dtlang
     bool f_simulation(const string net_filename, const string trial_filename, Net *net, Trial *trial);
     bool f_external(const string filename, boost::threadpool::pool &tp, bool &end_input);
     bool f_print(void* ptr, int const type);
-    bool f_constrain(Results &result, Results &old_results, const string ID, const double value); 
+    bool f_constrain(Results &result, Results *old_results, const string ID, const double value); 
 
     // Graphing functions
     static const int PLOT_VOLTAGE = 1;

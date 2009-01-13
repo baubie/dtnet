@@ -627,7 +627,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 			return false;
 		}
         r = new Results();
-        return dtlang::f_constrain(*(static_cast<Results*>(r)), *(static_cast<Results*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), *(static_cast<double*>(params[2].obj)));
+        return dtlang::f_constrain(*(static_cast<Results*>(r)), static_cast<Results*>(params[0].obj), *(static_cast<string*>(params[1].obj)), *(static_cast<double*>(params[2].obj)));
     }
 
 	if (name == "print") {
@@ -930,8 +930,8 @@ bool dtlang::f_simulation(const string net_filename, const string trial_filename
     return true;
 }
 
-bool dtlang::f_constrain(Results &result, Results &old_results, const string ID, const double value) {
-    result = old_results.constrain(ID, value);
+bool dtlang::f_constrain(Results &result, Results *old_results, const string ID, const double value) {
+    result = old_results->constrain(ID, value);
     return true;
 }
 

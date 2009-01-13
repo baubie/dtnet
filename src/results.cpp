@@ -5,13 +5,16 @@ using namespace std;
 
 // Empty constructor that is only used for passing a results object to the simulation class.
 Results::Results() : use_external(false) { }
-Results::Results(double T, double dt, double delay) : T(T), dt(dt), delay(delay) {}
+Results::Results(double T, double dt, double delay) : T(T), dt(dt), delay(delay), use_external(false) {}
 
 string Results::toString() {
     stringstream r;
     r << "Result Collection" << endl;
     r << "=================" << endl;
-    r << this->results.size() << " results found." << endl;
+    if (this->use_external) r << "Constrained from a previous results collection." << endl;
+    else r << "Original, unconstrained results collection." << endl;
+    r << this->filter.size() << " results found." << endl;
+    r << "=================" << endl;
     r << this->unconstrained.size() << " unconstrained variables." << endl;
     for (map<string, Range>::iterator i = this->unconstrained.begin(); i != this->unconstrained.end(); ++i) {
         r << " - " << i->first << " " << i->second.toString() << endl;
@@ -21,21 +24,16 @@ string Results::toString() {
 
 vector< Results::Result* > Results::get() {
     vector< Result* > r;
-    if (use_external == false) {
-        // If we are local, then we haven't gone through constrain().
-        // So we can assume that we want the entire vector.
-        for (vector<Result>::iterator i = this->results.begin(); i != this->results.end(); ++i) {
-            r.push_back(&(*i));
-        }
-    } else {
-        // Since we are external, we have gone through constrain().
-        // Therefore, we must use the filter.
-        for (vector<int>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
+    for (vector<int>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
+        if (this->use_external == false) {
+            r.push_back(&(this->results.at(*i)));
+        } else {
             r.push_back(&(this->external_results->at(*i)));
         }
     }
     return r;
 }
+
 void Results::add(Result &r) {
     this->results.push_back(r); // Add it to the pile.
     this->filter.push_back(this->results.size() - 1); // Add on the last index
@@ -79,20 +77,25 @@ Results Results::constrain(std::string ID, const double value) {
 
     // Loop over all the results in this collection.
     // Add them onto the new one only if the constraint matches
-    vector<Result*> old = this->get();
-    for (vector<Result*>::iterator i = old.begin(); i != old.end(); ++i) {
+    vector<Result>* master;
+    if (this->use_external == true) master = this->external_results;
+    else master = &(this->results);
+
+    for (vector<int>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
         bool add = false;
         if (type_ID == "trial") {
-            for (vector<Input::Signal>::iterator input = i->cTrial.signals.begin(); input != i->cTrial.signals.end(); ++input) {
-
+            for (vector<Input::Signal>::iterator input = master->at(*i).cTrial.signals.begin(); input != master->at(*i).cTrial.signals.end(); ++input) {
+                if (input->ID == item_ID) {
+                    if (param_ID == "duration" && input->duration == value) add = true;
+                    if (param_ID == "amplitude" && input->amplitude == value) add = true;
+                    if (param_ID == "delay" && input->delay == value) add = true;
+                } 
             }
         } 
-
         if (add) {
-            r.filter.push_
+            r.filter.push_back(*i);
         }
     }
-
     return r;
 }
 

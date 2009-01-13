@@ -3,9 +3,9 @@
 # Written by Brandon Aubie    #
 ###############################
 
-#sim = simulation("networks/BP.xml", "inputs/durations.xml")
-#results = run(sim,"bp.sim",1)
-results = load("bp.sim")
+sim = simulation("networks/BP.xml", "inputs/durations.xml")
+results = run(sim,"bp.sim",1)
+#results = load("bp.sim")
 print(results)
 durs = constrain(results,"trial.main.duration",6)
 print(durs)
