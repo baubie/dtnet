@@ -208,6 +208,7 @@ bool GLE::data_to_file()
             for (values_iter = y.begin(); values_iter != y.end(); ++values_iter) {
                 of << fixed << setprecision(3)  << values_iter->first;
                 for ( values_y_iter = values_iter->second.begin(); values_y_iter != values_iter->second.end(); ++values_y_iter ) {
+                    if (plot_iter->properties.zeros == false) cout << "NO ZEROS" << endl;
                     if (plot_iter->properties.zeros || *values_y_iter != 0) {
                         of << fixed << setprecision(3) << "," << *values_y_iter;
                     } else {

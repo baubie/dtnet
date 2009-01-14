@@ -75,7 +75,7 @@ class GLE
             Color last;
 
             PlotProperties() :
-                lineWidth(0.005),
+                lineWidth(0.010),
                 pointSize(0.1),
                 shape("fcircle"),
                 zeros(true),
