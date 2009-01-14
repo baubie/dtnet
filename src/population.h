@@ -25,6 +25,7 @@ class Population {
 
         struct ConstrainedPopulation {
             std::string ID;
+            std::string name;
             NeuronParams params;
             std::vector<Neuron> neurons;
             bool accept_input;
@@ -34,6 +35,7 @@ class Population {
             void serialize(Archive & ar, const unsigned int version)
             {
                 ar & ID;
+                ar & name;
                 ar & params;
                 ar & neurons;
                 ar & accept_input;

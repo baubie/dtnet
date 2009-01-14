@@ -34,7 +34,7 @@ double n(double mean, double sigma) {
 void Neuron::jitter() {
     for(map<string,Range>::iterator iter = this->params.vals.begin(); iter != this->params.vals.end(); ++iter) {
         if (this->params.sigmas.find(iter->first) != this->params.sigmas.end()) {
-            iter->second = n(this->def_params.vals[iter->first], this->def_params.sigmas[iter->first]);
+            this->params.vals[iter->first] = Range(n(this->def_params.vals[iter->first], this->def_params.sigmas[iter->first]));
         }
     }
 }
@@ -64,6 +64,7 @@ void Neuron::update(double current, int position, double dt) {
 }
 
 void Neuron::Poisson(double current, int position, double dt) {
+
 
     if (current == 0) { this->active = 0; return; }
     this->active += dt;

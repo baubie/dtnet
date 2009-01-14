@@ -3,7 +3,7 @@
 <network name="Bandpass Network">
     <population id="CN" name="Cochlear Nucleus" type="Poisson">
         <param name="size">25</param>
-		<param name="mu">500</param>
+		<param name="mu">400</param>
         <param name="accept_input">true</param>
     </population>
 

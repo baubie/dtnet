@@ -32,16 +32,14 @@ class Results {
             }
         };
 
-        std::map< std::string, Range > unconstrained;       /*<< Collection of unconstrained IDs. */
+        std::map< std::string, Range > unconstrained;   /*<< Collection of unconstrained IDs. */
         std::vector<double> timeseries;                 /*<< Common timeseries of all simulations. */
 
         double dt;
         double T;
         double delay;
 
-        bool use_external;
         std::vector< Result* > get();
-        void setExternal(std::vector< Result> *ext);
         void add(Result &r);
         std::vector<int> filter;
 
@@ -50,19 +48,18 @@ class Results {
         std::string toString(); 
         static bool load(Results &r, std::string filename);
         void save(std::string filename);
-        Results constrain(std::string ID, const double value);
+        bool constrain(Results &r, std::string ID, const double value);
 
+        static std::vector<Result> results;                  /*<< Collection of all results. */
     private:
-        std::vector< Result > results;                  /*<< Collection of all results. */
-        std::vector< Result > *external_results;
 
         friend class boost::serialization::access;
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version)
         {
             ar & unconstrained;
+            ar & timeseries;
             ar & results;
-            ar & use_external;
             ar & dt;
             ar & T;
             ar & delay;

@@ -1,7 +1,7 @@
 
 #include "neuronparams.h"
 
-NeuronParams::NeuronParams() : type(POISSON), integrator(Euler) {}
+NeuronParams::NeuronParams() : type(POISSON), integrator(RungeKutta) {}
 NeuronParams::NeuronParams(ModelType type) : type(type), integrator(RungeKutta) { initialize(); }
 NeuronParams::NeuronParams(ModelType type, Integrator integrator) : type(type), integrator(integrator) { initialize(); }
 

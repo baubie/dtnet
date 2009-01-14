@@ -65,18 +65,17 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
                 for (fromIter = r->cNetwork.connections[cpIter->second.ID].begin(); 
                      fromIter != r->cNetwork.connections[cpIter->second.ID].end(); 
                      ++fromIter) {
-                    new_input = 0;
-                        if (fromIter->second.weight  > 0) tau = 0.7;
+                        new_input = 0;
+                        if (fromIter->second.weight > 0) tau = 0.7;
                         else tau = 1.1; 
                         new_input += Simulation::alpha(ts*dt, r->cNetwork.populations[fromIter->first].neurons, tau, fromIter->second.delay, delay, dt) * fromIter->second.weight;
-                    input += new_input / (double)(r->cNetwork.populations[fromIter->first].neurons.size());
+                        input += new_input / (double)(r->cNetwork.populations[fromIter->first].neurons.size());
 				}
 				
 				// Add our input signal in
                 if (cpIter->second.accept_input) {
                     input += r->cTrial.values[ts];
                 }
-
 				// Update our neuron
                 nIter->update(input, ts, dt);
 			}
@@ -95,6 +94,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     int count = 0;
 
     results = Results(T,dt,delay);
+    results.timeseries = timesteps;
     /**************************
      * INITIALIZE SIMULATIONS *
      **************************/
@@ -136,6 +136,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     /*******************
      * RUN SIMULATIONS *
      *******************/
+    boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
     cout << "Running Simulations..." << endl;
     vector<Results::Result*> results_to_run = results.get();
     for (vector<Results::Result*>::iterator iter=results_to_run.begin(); iter != results_to_run.end(); ++iter) {
@@ -143,6 +144,9 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     }
 
     tp.wait();
+    boost::posix_time::ptime end(boost::posix_time::microsec_clock::local_time());
+    boost::posix_time::time_duration dur = end - start;
+    cout << "Completed in " << dur << endl;
 
     if (filename != "") {
         cout << "Saving simulation..." << endl;

@@ -125,7 +125,7 @@ namespace dtlang
     static const int PLOT_SPIKES = 2; 
    // bool f_graphinputs(Trial &trial, string const &filename); // NO LONGER IMPLEMENTED
 	bool f_graphnetwork(Results &results, string const &filename);
-	bool f_graphtrial(int type, Simulation &sim, int input, int trial, string const &filename);
+	bool f_graphtrial(int type, Results &results, int trial, string const &filename);
     bool f_graphspiketrains(Simulation &sim, string const &popID, string const &filename, double const &start, double const &end); 
 
     /**

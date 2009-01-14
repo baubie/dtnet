@@ -6,16 +6,10 @@
 sim = simulation("networks/BP.xml", "inputs/durations.xml")
 results = run(sim,"bp.sim",1)
 #results = load("bp.sim")
-print(results)
-durs = constrain(results,"trial.main.duration",6)
-print(durs)
-amp = constrain(durs,"trial.main.amplitude",1.5)
-print(amp)
-#graphnetwork(results, "network.eps")
-#graph_height = 20
-#graph_width = 15
-#graphtrial_voltage(, 4, 0, "voltage_5ms.eps")
-#graph_height = 10
-#graph_width = 10
-#graphspiketrains(sim, "DTN", "spikes.eps":
+durs = constrain(results,"trial.main.duration",5)
+#graphnetwork(durs, "network.eps")
+graph_height = 20
+graph_width = 15
+graphtrial_voltage(durs, 0, "voltage_5ms.eps")
+graphtrial_spikes(durs, 0, "spikes_5ms.eps")
 quit()

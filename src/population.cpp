@@ -15,6 +15,7 @@ void Population::genPopulations() {
     // TODO Create a vector of populations for each range value.
     ConstrainedPopulation cp;
     cp.ID = this->ID;
+    cp.name = this->name;
     cp.params = this->params;
     cp.neurons = vector<Neuron>(this->neurons);
     cp.accept_input = this->accept_input;

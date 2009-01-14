@@ -9,7 +9,7 @@ Each trial can have any number of inputs
 <trial>
     <input type="pure" ID="main">
         <param name="delay">0</param>
-        <param name="amplitude"><range start="1" end="2" step="0.25" /></param>
+        <param name="amplitude">1</param>
         <param name="duration"><range start="1" end="25" step="1" /></param>
     </input>
 </trial>

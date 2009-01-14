@@ -8,6 +8,7 @@
 #include "trial.h"
 #include "net.h"
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include "lib/threadpool/threadpool.hpp"
 #include <boost/random.hpp>
 #include <boost/bind.hpp>

@@ -119,15 +119,16 @@ bool Net::parseXML(string filename, string &error)
             hPopulation = pElem;        
 
             if (strcmp(pElem->Attribute("type"), "Poisson") == 0) {
-                NeuronParams np(NeuronParams::POISSON);
+                np = NeuronParams(NeuronParams::POISSON);
             }
-            if (strcmp(pElem->Attribute("type"), "aEIF") == 0) {
-                NeuronParams np(NeuronParams::AEIF);
+            else if (strcmp(pElem->Attribute("type"), "aEIF") == 0) {
+                np = NeuronParams(NeuronParams::AEIF);
             }
             pElem->QueryValueAttribute("id", &pop_id);             
             pElem->QueryValueAttribute("name", &pop_name);             
             
 			pElemParam = hPopulation.FirstChild( "param" ).Element();
+
 			for ( /***/; pElemParam; pElemParam = pElemParam->NextSiblingElement( "param" )) {
 
 				hParam = pElemParam;
@@ -144,7 +145,8 @@ bool Net::parseXML(string filename, string &error)
 
                     for (map<string,Range>::iterator iter = np.vals.begin(); iter != np.vals.end(); ++iter) {
                         if (strcmp(pElemParam->Attribute("name"),(iter->first).c_str()) == 0) {
-                            iter->second = (double)atof(pElemParam->FirstChild()->Value());
+                            double value = (double)atof(pElemParam->FirstChild()->Value());
+                            np.vals[iter->first] = Range(value);
                             double sigma = 0;
                             pElemParam->QueryDoubleAttribute("sigma", &sigma);                    
                             np.sigmas[iter->first] = sigma;
@@ -199,8 +201,8 @@ bool Net::parseXML(string filename, string &error)
             }
 
             if (weight != 0) {
-                this->connections[to][from].weight = weight;
-                this->connections[to][from].weight = delay;
+                this->connections[to][from].weight = Range(weight);
+                this->connections[to][from].delay = Range(delay);
             }
 		}
 

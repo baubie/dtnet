@@ -3,16 +3,16 @@
 
 using namespace std;
 
+extern vector< Results::Result > Results::results;
+
 // Empty constructor that is only used for passing a results object to the simulation class.
-Results::Results() : use_external(false) { }
-Results::Results(double T, double dt, double delay) : T(T), dt(dt), delay(delay), use_external(false) {}
+Results::Results() { }
+Results::Results(double T, double dt, double delay) : T(T), dt(dt), delay(delay) {}
 
 string Results::toString() {
     stringstream r;
     r << "Result Collection" << endl;
     r << "=================" << endl;
-    if (this->use_external) r << "Constrained from a previous results collection." << endl;
-    else r << "Original, unconstrained results collection." << endl;
     r << this->get().size() << " results found." << endl;
     r << "=================" << endl;
     r << this->unconstrained.size() << " unconstrained variables." << endl;
@@ -24,42 +24,32 @@ string Results::toString() {
 
 vector< Results::Result* > Results::get() {
     vector< Result* > r;
+    vector<Result>::pointer ptr;
     for (vector<int>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
-        if (this->use_external == false) {
-            r.push_back(&(this->results.at(*i)));
-        } else {
-            r.push_back(&(this->external_results->at(*i)));
-        }
+        ptr = &(results[*i]);
+        r.push_back(ptr);
     }
     return r;
 }
 
 void Results::add(Result &r) {
-    this->results.push_back(r); // Add it to the pile.
-    this->filter.push_back(this->results.size() - 1); // Add on the last index
+    results.push_back(r); // Add it to the pile.
+    this->filter.push_back(results.size() - 1); // Add on the last index
 }
 
-void Results::setExternal(std::vector< Result> *ext) {
-    this->external_results = ext;
-}
-
-Results Results::constrain(std::string ID, const double value) {
+bool Results::constrain(Results &r, std::string ID, const double value) {
 
     // If the key isn't unconstrained, just return what we have and print a warning.
     if (this->unconstrained.find(ID) == this->unconstrained.end()) {
         cout << "[WARNING] " << ID << " is not constrained.  Original results collection returned." << endl;
-        return *this;
+        return false;
     }
 
-    Results r(this->T, this->dt, this->delay);
-    r.use_external = true;
-
-    if (this->use_external == false) {
-        r.setExternal(&(this->results)); // Point the new results to these results.
-    } else {
-        r.setExternal(this->external_results); // Point the new results to the same as this one.
-    }
+    r.T = this->T;
+    r.dt = this->dt;
+    r.delay = this->delay;
     r.unconstrained = this->unconstrained;
+    r.timeseries = this->timeseries;
     r.unconstrained.erase(ID); // Remove it from the list;
 
     // Split up the ID into its three parts.
@@ -74,17 +64,12 @@ Results Results::constrain(std::string ID, const double value) {
     item_ID = ID.substr(0, pos);
     param_ID = ID.substr(pos+1);
 
-
     // Loop over all the results in this collection.
     // Add them onto the new one only if the constraint matches
-    vector<Result>* master;
-    if (this->use_external == true) master = this->external_results;
-    else master = &(this->results);
-
     for (vector<int>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
         bool add = false;
         if (type_ID == "trial") {
-            for (vector<Input::Signal>::iterator input = master->at(*i).cTrial.signals.begin(); input != master->at(*i).cTrial.signals.end(); ++input) {
+            for (vector<Input::Signal>::iterator input = results[*i].cTrial.signals.begin(); input != results[*i].cTrial.signals.end(); ++input) {
                 if (input->ID == item_ID) {
                     if (param_ID == "duration" && input->duration == value) add = true;
                     if (param_ID == "amplitude" && input->amplitude == value) add = true;
@@ -96,7 +81,7 @@ Results Results::constrain(std::string ID, const double value) {
             r.filter.push_back(*i);
         }
     }
-    return r;
+    return true;
 }
 
 void Results::save(string filename) {

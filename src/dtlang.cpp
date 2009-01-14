@@ -452,16 +452,10 @@ void dtlang::initialize_functions()
     f.return_type = dtlang::TYPE_VOID;
     f.params.clear();
 
-    p.type = dtlang::TYPE_SIMULATION;
-    p.help = "A simulation that has been run.";
+    p.type = dtlang::TYPE_RESULTS;
+    p.help = "A results object constrained to have no free parameters.";
     p.optional = false;
     p.name = "simulation";
-    f.params.push_back(p);
-
-    p.type = dtlang::TYPE_INT;
-    p.help = "The index of the input vector (zero based).";
-    p.optional = false;
-    p.name = "input";
     f.params.push_back(p);
 
     p.type = dtlang::TYPE_INT;
@@ -564,13 +558,14 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	} 
 
     if (name == "graphtrial_voltage") {
-        return dtlang::f_graphtrial(dtlang::PLOT_VOLTAGE, *(static_cast<Simulation*>(params[0].obj)), 
+        return dtlang::f_graphtrial(dtlang::PLOT_VOLTAGE, *(static_cast<Results*>(params[0].obj)), 
                                                           (int)*(static_cast<double*>(params[1].obj)), 
-                                                          (int)*(static_cast<double*>(params[2].obj)), 
-                                                          *(static_cast<string*>(params[3].obj)));
+                                                          *(static_cast<string*>(params[2].obj)));
     }
     if (name == "graphtrial_spikes") {
-        return dtlang::f_graphtrial(dtlang::PLOT_SPIKES, *(static_cast<Simulation*>(params[0].obj)), (int)*(static_cast<double*>(params[1].obj)), (int)*(static_cast<double*>(params[2].obj)), *(static_cast<string*>(params[3].obj)));
+        return dtlang::f_graphtrial(dtlang::PLOT_SPIKES, *(static_cast<Results*>(params[0].obj)), 
+                                                         (int)*(static_cast<double*>(params[1].obj)), 
+                                                         *(static_cast<string*>(params[2].obj)));
     }
 
     if (name == "graphspiketrains") {
@@ -847,11 +842,7 @@ bool dtlang::f_run(Results &result, Simulation &sim, string filename, int number
     double T = *(static_cast<double*>(dtlang::vars["T"].obj));
     double dt = *(static_cast<double*>(dtlang::vars["dt"].obj));
 
-    boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
     bool r = sim.run(result, filename, T, dt, delay, number_of_trials, tp);
-    boost::posix_time::ptime end(boost::posix_time::microsec_clock::local_time());
-    boost::posix_time::time_duration dur = end - start;
-    cout << "Completed in " << dur << endl;
     return r;
 }
 
@@ -931,8 +922,7 @@ bool dtlang::f_simulation(const string net_filename, const string trial_filename
 }
 
 bool dtlang::f_constrain(Results &result, Results *old_results, const string ID, const double value) {
-    result = old_results->constrain(ID, value);
-    return true;
+    return old_results->constrain(result, ID, value);
 }
 
 /*
@@ -1055,28 +1045,25 @@ bool dtlang::f_graphnetwork(Results &results, string const &filename) {
 	return true;
 }
 
-bool dtlang::f_graphtrial(int type, Simulation &sim, int input, int trial, string const &filename)  {
-/*
-    if (sim.results.empty()) {
+bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &filename)  {
+
+    vector<Results::Result*> trials = results.get();
+    if (trials.empty()) {
         cout << "[X] No results are found in this simulation." << endl;
         return false;
     }
-
-
-    vector<double> timesteps;
-    vector< vector<double> > signals;
-    if (sim.trials.size() > 0) { 
-        Trial tmp = sim.trials.begin()->second;
-        timesteps = tmp.timesteps;
-    } else { // Generate our own timeseries
-        unsigned int steps = (int)(sim.net.T/sim.net.dt);
-        timesteps.resize(steps);
-        for (unsigned int i = 0; i < steps; ++i) {
-            timesteps.at(i) = i * sim.net.dt;
-        }
+    bool found = false;
+    Results::Result* r = NULL;
+    vector<Results::Result*>::iterator i;
+    for (i = trials.begin(); i != trials.end(); ++i) {
+        if ((*i)->trial_num == trial) { r = *i; break; }
+    }
+    if (r == NULL) {
+        cout << "[X] Requested trial not found.  Please select a trial between 0 and " << (trials.size()-1) << "." << endl;
     }
 
-    Net net_result = sim.results[input][trial];
+    vector<double> timesteps = results.timeseries;
+    vector< vector<double> > signals;
 
     GLE gle;
     GLE::PlotProperties plotProperties;
@@ -1090,12 +1077,12 @@ bool dtlang::f_graphtrial(int type, Simulation &sim, int input, int trial, strin
     }
     
     GLE::PanelID panelID;
-    vector<Population>::iterator pop_iter;
+    map<string, Population::ConstrainedPopulation>::iterator pop_iter;
     vector<Neuron>::iterator neuron_iter;
 
-    for (pop_iter = net_result.populations.begin(); pop_iter != net_result.populations.end(); ++pop_iter) {
+    for (pop_iter = r->cNetwork.populations.begin(); pop_iter != r->cNetwork.populations.end(); ++pop_iter) {
         signals.clear();
-        for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
+        for (neuron_iter = pop_iter->second.neurons.begin(); neuron_iter != pop_iter->second.neurons.end(); ++neuron_iter) {
             switch(type) {
                 case dtlang::PLOT_VOLTAGE:
                     signals.push_back(neuron_iter->voltage);
@@ -1122,14 +1109,13 @@ bool dtlang::f_graphtrial(int type, Simulation &sim, int input, int trial, strin
                 props.y_title = "Cell Spikes";
                 break;
         }
-        props.title = pop_iter->name;
+        props.title = pop_iter->second.name;
         bool r = gle.setPanelProperties(props, panelID);
     }
 
     gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
     gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
     gle.draw(filename);
-    */
     return true;
 }
 
