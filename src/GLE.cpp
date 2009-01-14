@@ -208,7 +208,6 @@ bool GLE::data_to_file()
             for (values_iter = y.begin(); values_iter != y.end(); ++values_iter) {
                 of << fixed << setprecision(3)  << values_iter->first;
                 for ( values_y_iter = values_iter->second.begin(); values_y_iter != values_iter->second.end(); ++values_y_iter ) {
-                    if (plot_iter->properties.zeros == false) cout << "NO ZEROS" << endl;
                     if (plot_iter->properties.zeros || *values_y_iter != 0) {
                         of << fixed << setprecision(3) << "," << *values_y_iter;
                     } else {
@@ -308,6 +307,7 @@ string GLE::gle_script_to_file()
                     {
                         out << "d" << plot_num << " line color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << " lwidth " << plot_iter->properties.lineWidth << endl;
                         if (plot_iter->properties.pointSize > 0) out << "d" << plot_num << " marker " << plot_iter->properties.shape << " msize " << plot_iter->properties.pointSize << endl; 
+                        if (plot_iter->properties.nomiss) out << "d" << plot_num << " nomiss" << endl;
                         color.r += diff.r;
                         color.g += diff.g;
                         color.b += diff.b;

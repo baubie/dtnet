@@ -65,6 +65,7 @@ class GLE
             float pointSize;
             std::string shape;
             bool zeros;
+            bool nomiss;
             bool no_y;
 
             /** For use when no_y = true **/
@@ -79,6 +80,7 @@ class GLE
                 pointSize(0.1),
                 shape("fcircle"),
                 zeros(true),
+                nomiss(true),
                 no_y(false),
                 y_start(1),
                 y_inc(1)

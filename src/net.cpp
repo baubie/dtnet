@@ -105,14 +105,17 @@ bool Net::parseXML(string filename, string &error)
 		hRoot = pElem;
 	
         // Load Network Attributes 
-    	pElem->QueryValueAttribute("name", &this->name);
+    	pElem->QueryStringAttribute("title", &this->name);
+        cout << "Found Network: " << this->name << endl;
 
         // Load Each Population
+        int position = 0;
  		pElem = hRoot.FirstChild( "population" ).Element();
 		for( /***/; pElem; pElem = pElem->NextSiblingElement("population")) {
 
             string pop_name;
             string pop_id;
+            char pop_name_tmp[50];
     		int pop_size = 0;
             bool accept_input = false;
             NeuronParams np;
@@ -124,8 +127,9 @@ bool Net::parseXML(string filename, string &error)
             else if (strcmp(pElem->Attribute("type"), "aEIF") == 0) {
                 np = NeuronParams(NeuronParams::AEIF);
             }
-            pElem->QueryValueAttribute("id", &pop_id);             
-            pElem->QueryValueAttribute("name", &pop_name);             
+            pElem->QueryStringAttribute("id", &pop_id);             
+            pElem->QueryStringAttribute("title", &pop_name);
+            cout << "Found Population: " << pop_name << endl;
             
 			pElemParam = hPopulation.FirstChild( "param" ).Element();
 
@@ -158,7 +162,8 @@ bool Net::parseXML(string filename, string &error)
 				
                 }	
 			} // Parameter Loop            
-            this->populations[pop_id] = Population(pop_name, pop_id, pop_size, accept_input, np);
+            this->populations[pop_id] = Population(pop_name, pop_id, pop_size, accept_input, position, np);
+            ++position;
         }
 
         // Load Each Connection

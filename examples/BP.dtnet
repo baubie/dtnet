@@ -3,9 +3,9 @@
 # Written by Brandon Aubie    #
 ###############################
 
-#sim = simulation("networks/BP.xml", "inputs/durations.xml")
-#results = run(sim,"bp.sim",20)
-results = load("bp.sim")
+sim = simulation("networks/BP.xml", "inputs/durations.xml")
+results = run(sim,"bp.sim",3)
+#results = load("bp.sim")
 durs = constrain(results,"trial.main.duration",5)
 #graphnetwork(durs, "network.eps")
 graph_height = 20

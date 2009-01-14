@@ -22,7 +22,7 @@ void Population::genPopulations() {
     this->cPopulations.push_back(cp);
 }
 
-Population::Population(string name, string ID, int size, bool accept_input, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), params(params)  { 
+Population::Population(string name, string ID, int size, bool accept_input, int position, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), position(position), params(params)  { 
     this->initialize(size, params);
 }
 

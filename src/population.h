@@ -15,11 +15,12 @@ class Population {
         std::string name;
         std::string ID;
         bool accept_input;
+        int position;
         std::vector<Neuron> neurons;
         NeuronParams params;
 		
 		// Methods
-		Population(std::string name, std::string ID, int size, bool accept_input, NeuronParams params);
+		Population(std::string name, std::string ID, int size, bool accept_input, int position, NeuronParams params);
         Population();
 		std::string toString();
 
@@ -28,6 +29,7 @@ class Population {
             std::string name;
             NeuronParams params;
             std::vector<Neuron> neurons;
+            int position;
             bool accept_input;
 
             friend class boost::serialization::access;
@@ -38,6 +40,7 @@ class Population {
                 ar & name;
                 ar & params;
                 ar & neurons;
+                ar & position;
                 ar & accept_input;
             }
         };
