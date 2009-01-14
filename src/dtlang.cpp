@@ -1077,12 +1077,12 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
     }
     
     GLE::PanelID panelID;
-    map<string, Population::ConstrainedPopulation>::iterator pop_iter;
+    vector<Population::ConstrainedPopulation>::iterator pop_iter;
     vector<Neuron>::iterator neuron_iter;
 
-    for (pop_iter = r->cNetwork.populations.begin(); pop_iter != r->cNetwork.populations.end(); ++pop_iter) {
+    for (pop_iter = r->cNetwork.popvector().begin(); pop_iter != r->cNetwork.popvector().end(); ++pop_iter) {
         signals.clear();
-        for (neuron_iter = pop_iter->second.neurons.begin(); neuron_iter != pop_iter->second.neurons.end(); ++neuron_iter) {
+        for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
             switch(type) {
                 case dtlang::PLOT_VOLTAGE:
                     signals.push_back(neuron_iter->voltage);
@@ -1109,7 +1109,7 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
                 props.y_title = "Cell Spikes";
                 break;
         }
-        props.title = pop_iter->second.name;
+        props.title = pop_iter->name;
         bool r = gle.setPanelProperties(props, panelID);
     }
 

@@ -3,6 +3,9 @@
 
 using namespace std;
 
+bool Net::pop_order_sort ( Population::ConstrainedPopulation a, Population::ConstrainedPopulation b ) {
+    return (a.position < b.position);
+}
 
 Net::Net() {
     this->initialize();
@@ -106,7 +109,6 @@ bool Net::parseXML(string filename, string &error)
 	
         // Load Network Attributes 
     	pElem->QueryStringAttribute("title", &this->name);
-        cout << "Found Network: " << this->name << endl;
 
         // Load Each Population
         int position = 0;

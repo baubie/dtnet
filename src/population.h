@@ -24,6 +24,7 @@ class Population {
         Population();
 		std::string toString();
 
+
         struct ConstrainedPopulation {
             std::string ID;
             std::string name;

@@ -50,9 +50,19 @@ class Net {
             }
         };
 
+        static bool pop_order_sort ( Population::ConstrainedPopulation a, Population::ConstrainedPopulation b );
+
         struct ConstrainedNetwork {
             std::map<std::string, Population::ConstrainedPopulation> populations;    
             std::map< std::string, std::map< std::string, Connection<double> > > connections;
+            std::vector<Population::ConstrainedPopulation> popvector() {
+                std::vector<Population::ConstrainedPopulation> r;
+                for (std::map<std::string, Population::ConstrainedPopulation>::iterator i = this->populations.begin(); i != this->populations.end(); ++i) {
+                    r.push_back(i->second);
+                }
+                std::sort(r.begin(), r.end(), Net::pop_order_sort);
+                return r;
+            }
 
             friend class boost::serialization::access;
             template<class Archive>
