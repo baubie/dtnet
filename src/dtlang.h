@@ -34,6 +34,9 @@
 namespace dtlang 
 {
     static const int NO_RETURN = 999999;
+    static const double DEFAULT = -9999999;
+    static const int PLOT_VOLTAGE = 1;
+    static const int PLOT_SPIKES = 2; 
     static const int TYPE_ANY = 2948242;
     static const int TYPE_VOID = 1;
     static const int TYPE_STRING = 2;
@@ -121,12 +124,10 @@ namespace dtlang
     bool f_constrain(Results &result, Results *old_results, const string ID, const double value); 
 
     // Graphing functions
-    static const int PLOT_VOLTAGE = 1;
-    static const int PLOT_SPIKES = 2; 
    // bool f_graphinputs(Trial &trial, string const &filename); // NO LONGER IMPLEMENTED
 	bool f_graphnetwork(Results &results, string const &filename);
 	bool f_graphtrial(int type, Results &results, int trial, string const &filename);
-    bool f_graphspiketrains(Simulation &sim, string const &popID, string const &filename, double const &start, double const &end); 
+    bool f_graphspiketrains(Results &results, string const &popID, int trials, double start, double end, string const &filename); 
 
     /**
      * Comment Parser

@@ -407,10 +407,10 @@ void dtlang::initialize_functions()
     f.return_type = dtlang::TYPE_VOID;
     f.params.clear();
 
-    p.type = dtlang::TYPE_SIMULATION;
-    p.help = "A simulation variable from an already loaded simulation.";
+    p.type = dtlang::TYPE_RESULTS;
+    p.help = "A results variable constrained to a single dimension.";
     p.optional = false;
-    p.name = "simulation";
+    p.name = "results";
     f.params.push_back(p);
 
     p.type = dtlang::TYPE_STRING;
@@ -424,6 +424,27 @@ void dtlang::initialize_functions()
     p.optional = true;
     p.def = "spikes.eps";
     p.name = "filename";
+    f.params.push_back( p );
+
+    p.type == dtlang::TYPE_INT;
+    p.help = "Number of trials to print.";
+    p.optional = true;
+    p.def = "Every Trial";
+    p.name = "trials";
+    f.params.push_back( p );
+
+    p.type == dtlang::TYPE_INT;
+    p.help = "Time value to start at.";
+    p.optional = true;
+    p.def = "Results timeseries start.";
+    p.name = "start";
+    f.params.push_back( p );
+
+    p.type == dtlang::TYPE_INT;
+    p.help = "Time value to end at.";
+    p.optional = true;
+    p.def = "Results timeseries end.";
+    p.name = "end";
     f.params.push_back( p );
 
     dtlang::functions["graphspiketrains"] = f;
@@ -569,7 +590,44 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
     }
 
     if (name == "graphspiketrains") {
-        return dtlang::f_graphspiketrains(*(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), *(static_cast<string*>(params[2].obj)), 0, 50);
+        if (params.size() == 2) {  
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
+                                              *(static_cast<string*>(params[1].obj)), 
+                                              dtlang::DEFAULT,
+                                              dtlang::DEFAULT,
+                                              dtlang::DEFAULT,
+                                              "spikes.eps");
+        } else if (params.size() == 3) {
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
+                                              *(static_cast<string*>(params[1].obj)), 
+                                              dtlang::DEFAULT,
+                                              dtlang::DEFAULT,
+                                              dtlang::DEFAULT,
+                                              *(static_cast<string*>(params[2].obj)));
+
+        } else if (params.size() == 4) {
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
+                                              *(static_cast<string*>(params[1].obj)), 
+                                              (int)*(static_cast<double*>(params[3].obj)), 
+                                              dtlang::DEFAULT,
+                                              dtlang::DEFAULT,
+                                              *(static_cast<string*>(params[2].obj)));
+        } else if (params.size() == 5) {
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
+                                              *(static_cast<string*>(params[1].obj)), 
+                                              (int)*(static_cast<double*>(params[3].obj)), 
+                                              *(static_cast<double*>(params[4].obj)), 
+                                              dtlang::DEFAULT,
+                                              *(static_cast<string*>(params[2].obj)));
+
+        } else if (params.size() == 6) {
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
+                                              *(static_cast<string*>(params[1].obj)), 
+                                              (int)*(static_cast<double*>(params[3].obj)), 
+                                              *(static_cast<double*>(params[4].obj)), 
+                                              *(static_cast<double*>(params[5].obj)), 
+                                              *(static_cast<string*>(params[2].obj)));
+        }
     }
 
 	if (name == "vars") {
@@ -948,35 +1006,36 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
 }
 */
 
-bool dtlang::f_graphspiketrains(Simulation &sim, string const &popID, string const &filename, double const &start, double const &end) {
+bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trials, double start, double end, string const &filename) {
 
-    /*
+    if (results.unconstrained.size() != 1) {
+        cout << "[X] Results must be constrained to a single parameter." << endl;
+        return false;
+    }
+
     // Produce the truncated timesteps
-    vector<double>* original_timesteps = trial.timeSteps();
     vector<double> timesteps;
     vector<double>::iterator iter;
-    for (iter = original_timesteps->begin(); iter != original_timesteps->end(); ++iter) {
+
+    // Setup timesteps
+    if (start == dtlang::DEFAULT) start = results.timeseries.front();
+    if (end == dtlang::DEFAULT) end = results.timeseries.back();
+    if (start < results.timeseries.front()) start = results.timeseries.front();
+    if (end > results.timeseries.back()) end = results.timeseries.back();
+    for (iter = results.timeseries.begin(); iter != results.timeseries.end(); ++iter) {
         if (*iter >= start && *iter <= end) timesteps.push_back(*iter);
     }
 
+    // Get results
+    vector< Results::Result* > r = results.get();
 
+    /*
     GLE gle;
     GLE::PlotProperties plotProperties;
 
-    for (pop_iter = net_result.populations.begin(); pop_iter != net_result.populations.end(); ++pop_iter) {
-        signals.clear();
-        for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
-            switch(type) {
-                case dtlang::PLOT_VOLTAGE:
-                    signals.push_back(neuron_iter->voltage);
-                    plotProperties.pointSize = 0;
-                    break;
-                case dtlang::PLOT_SPIKES:
-                    signals.push_back(neuron_iter->spikes);
-                    plotProperties.no_y = true;
-                    break;
-            }
-        } 
+    signals.clear();
+    for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
+        signals.push_back(neuron_iter->spikes);
         panelID = gle.plot(timesteps, signals, plotProperties);
         GLE::PanelProperties props=gle.getPanelProperties(panelID);
         props.x_title = "Time (ms)";
@@ -1077,12 +1136,13 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
     }
     
     GLE::PanelID panelID;
-    vector<Population::ConstrainedPopulation>::iterator pop_iter;
+    vector<Population::ConstrainedPopulation*>::iterator pop_iter;
     vector<Neuron>::iterator neuron_iter;
+    vector<Population::ConstrainedPopulation*> pops = r->cNetwork.popvector();
 
-    for (pop_iter = r->cNetwork.popvector().begin(); pop_iter != r->cNetwork.popvector().end(); ++pop_iter) {
+    for (pop_iter = pops.begin(); pop_iter != pops.end(); ++pop_iter) {
         signals.clear();
-        for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
+        for (neuron_iter = (**pop_iter).neurons.begin(); neuron_iter != (**pop_iter).neurons.end(); ++neuron_iter) {
             switch(type) {
                 case dtlang::PLOT_VOLTAGE:
                     signals.push_back(neuron_iter->voltage);
@@ -1109,7 +1169,7 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
                 props.y_title = "Cell Spikes";
                 break;
         }
-        props.title = pop_iter->name;
+        props.title = (*pop_iter)->name;
         bool r = gle.setPanelProperties(props, panelID);
     }
 

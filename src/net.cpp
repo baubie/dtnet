@@ -3,10 +3,6 @@
 
 using namespace std;
 
-bool Net::pop_order_sort ( Population::ConstrainedPopulation a, Population::ConstrainedPopulation b ) {
-    return (a.position < b.position);
-}
-
 Net::Net() {
     this->initialize();
 }
@@ -131,7 +127,6 @@ bool Net::parseXML(string filename, string &error)
             }
             pElem->QueryStringAttribute("id", &pop_id);             
             pElem->QueryStringAttribute("title", &pop_name);
-            cout << "Found Population: " << pop_name << endl;
             
 			pElemParam = hPopulation.FirstChild( "param" ).Element();
 

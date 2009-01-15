@@ -37,6 +37,34 @@ void Results::add(Result &r) {
     this->filter.push_back(results.size() - 1); // Add on the last index
 }
 
+bool Results::matches(Result &r, std::string ID, const double value) {
+
+    // Split up the ID into its three parts.
+    string type_ID;
+    string item_ID;
+    string param_ID;
+    size_t pos;
+    pos = ID.find('.');
+    type_ID = ID.substr(0, pos);
+    ID = ID.substr(pos+1);
+    pos = ID.find('.');
+    item_ID = ID.substr(0, pos);
+    param_ID = ID.substr(pos+1);
+
+    bool matches = false;
+    if (type_ID == "trial") {
+        for (vector<Input::Signal>::iterator input = r.cTrial.signals.begin(); input != r.cTrial.signals.end(); ++input) {
+            if (input->ID == item_ID) {
+                if (param_ID == "duration" && input->duration == value) matches = true;
+                if (param_ID == "amplitude" && input->amplitude == value) matches = true;
+                if (param_ID == "delay" && input->delay == value) matches = true;
+            } 
+        }
+    } 
+
+    return matches;
+}
+
 bool Results::constrain(Results &r, std::string ID, const double value) {
 
     // If the key isn't unconstrained, just return what we have and print a warning.
@@ -52,34 +80,10 @@ bool Results::constrain(Results &r, std::string ID, const double value) {
     r.timeseries = this->timeseries;
     r.unconstrained.erase(ID); // Remove it from the list;
 
-    // Split up the ID into its three parts.
-    string type_ID;
-    string item_ID;
-    string param_ID;
-    size_t pos;
-    pos = ID.find('.');
-    type_ID = ID.substr(0, pos);
-    ID = ID.substr(pos+1);
-    pos = ID.find('.');
-    item_ID = ID.substr(0, pos);
-    param_ID = ID.substr(pos+1);
-
     // Loop over all the results in this collection.
     // Add them onto the new one only if the constraint matches
     for (vector<int>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
-        bool add = false;
-        if (type_ID == "trial") {
-            for (vector<Input::Signal>::iterator input = results[*i].cTrial.signals.begin(); input != results[*i].cTrial.signals.end(); ++input) {
-                if (input->ID == item_ID) {
-                    if (param_ID == "duration" && input->duration == value) add = true;
-                    if (param_ID == "amplitude" && input->amplitude == value) add = true;
-                    if (param_ID == "delay" && input->delay == value) add = true;
-                } 
-            }
-        } 
-        if (add) {
-            r.filter.push_back(*i);
-        }
+        if (this->matches(results[*i], ID, value)) { r.filter.push_back(*i); }
     }
     return true;
 }

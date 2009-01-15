@@ -19,6 +19,7 @@ void Population::genPopulations() {
     cp.params = this->params;
     cp.neurons = vector<Neuron>(this->neurons);
     cp.accept_input = this->accept_input;
+    cp.position = this->position;
     this->cPopulations.push_back(cp);
 }
 

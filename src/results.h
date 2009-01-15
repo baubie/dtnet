@@ -49,6 +49,7 @@ class Results {
         static bool load(Results &r, std::string filename);
         void save(std::string filename);
         bool constrain(Results &r, std::string ID, const double value);
+        bool matches(Result &r, std::string ID, const double value);
 
         static std::vector<Result> results;                  /*<< Collection of all results. */
     private:
