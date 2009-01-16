@@ -3,11 +3,6 @@
 
 using namespace std;
 
-Net::Net() {
-    this->initialize();
-}
-
-
 std::vector<Net::ConstrainedNetwork>* Net::networkFactory() {
     if (this->cNetworks.empty()) this->genNetworks();
     return &(this->cNetworks);
@@ -37,19 +32,6 @@ void Net::genNetworks() {
     }
 
     this->cNetworks.push_back(cn);
-}
-
-
-void Net::initialize() {
-    unsigned int seed = time(NULL);
-    struct timespec ts;
-    if (0 == clock_gettime(CLOCK_REALTIME, &ts)) {
-        seed += (unsigned int)ts.tv_nsec;
-    } else {
-        cout << "Error: Unable to use clock_gettime();" << endl;
-        cout << "ERRNO = " << strerror(errno) << endl;
-        throw;
-    }
 }
 
 int Net::count_populations() {

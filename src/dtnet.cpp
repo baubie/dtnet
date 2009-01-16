@@ -9,11 +9,10 @@ using namespace std;
 using namespace swift;
 
 int main(int argc, char* argv[]) {
-	
+
     /* Default Values */
     dtlang::verbose = false;
-    GLE::gv = false;
-    int procs = 8;
+    int procs = 1;
 
     string script;
     string prompt = "> ";
@@ -22,14 +21,14 @@ int main(int argc, char* argv[]) {
     history.append("/.dtnet_history");
 
     /* Parse Command Line Arguments */
-    int result = parseargs(argc, argv, dtlang::verbose, script, procs, GLE::gv);
+    int result = parseargs(argc, argv, dtlang::verbose, script, procs, GLE::viewer);
     if (result != 0) return result;
 
     /* Display A Welcome Message */
     if (dtlang::verbose) cout << endl << "Welcome to the Parallel Network Simulator 2.0" << endl;
     if (dtlang::verbose) cout << "Written by Brandon Aubie <aubiebn@mcmaster.ca>" << endl;
     if (dtlang::verbose) cout << "Compiled " << __DATE__ << " " << __TIME__ << endl;
-	
+
     /* Setup Threads For Parallel Simulations */
     if (dtlang::verbose) cout << "...Pooling " << procs << " threads for simulations";
     boost::threadpool::pool tp(procs);
@@ -40,9 +39,9 @@ int main(int argc, char* argv[]) {
     if (dtlang::verbose) cout << "Simulation is Empty" << endl << endl;
 
     SReadline   Reader(history, 32);
-    dtlang::initialize(); 
+    dtlang::initialize();
 
-    bool EndOfInput = false; 
+    bool EndOfInput = false;
     // Run an external script from the command line
     if (script != "") {
         dtlang::parse("external(\"" + script + "\")", tp, EndOfInput);
@@ -52,7 +51,7 @@ int main(int argc, char* argv[]) {
     stringstream ssprompt;
     ssprompt << VT_set_colors(VT_BLUE, VT_DEFAULT) << "dtnet" << VT_default_attributes << "> ";
     while (!EndOfInput) {
-        input = Reader.GetLine(ssprompt.str(), EndOfInput); 
+        input = Reader.GetLine(ssprompt.str(), EndOfInput);
         if (dtlang::parse(input, tp, EndOfInput)) {
             Reader.SaveHistory(history);
         }

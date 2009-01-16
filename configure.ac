@@ -25,7 +25,6 @@ LDFLAGS="$LDFLAGS $add_ldflags"
 
 AC_CHECK_LIB([readline], [readline])
 AC_CHECK_LIB([ncurses], [main])
-AC_CHECK_LIB([rt], [clock_gettime])
 
 AX_BOOST_BASE(1.37)
 AX_BOOST_SERIALIZATION

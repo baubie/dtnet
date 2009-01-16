@@ -28,7 +28,7 @@ class GLE
         static const int NEW_PANEL = -1;
         static const double UNDEFINED = -91348434;
 
-        static bool gv;
+		static std::string viewer;
 
         struct Color {
             float r;

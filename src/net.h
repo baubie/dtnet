@@ -22,7 +22,6 @@
 class Net {
 
     public:
-        Net();
         bool verbose;
         std::string name; // A name for this network
 

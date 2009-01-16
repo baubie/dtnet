@@ -145,8 +145,8 @@ bool GLE::draw(string const &filename)
 	else
     {
 	    cout << "[GLE] Saved plot to " << filename << endl;
-        if (GLE::gv) {
-            string command = string("gv ") + filename + " &"; // Try to run ghostview in the background.
+        if (!GLE::viewer.empty()) {
+            string command = GLE::viewer + filename + " &"; // Try to run ghostview in the background.
             int r = system(command.c_str());
             if (r != 0) {
                 cout << "[GLE] Ghostview preview is unavailable." << endl;

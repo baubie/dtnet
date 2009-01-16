@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int parseargs(int argc, char* argv[], bool& verbose, string& script, int& procs, bool& gv) {
+int parseargs(int argc, char* argv[], bool& verbose, string& script, int& procs, string& viewer) {
 
     for (int i=0; i < argc; i++) {
 
@@ -13,8 +13,15 @@ int parseargs(int argc, char* argv[], bool& verbose, string& script, int& procs,
         else if (strcmp(argv[i],"-v") == 0) {
             verbose = true;
         }
-        else if (strcmp(argv[i],"-gv") == 0) {
-            gv = true;
+        else if (strcmp(argv[i],"-eps") == 0) {
+            i++;
+            if (i >= argc) {
+                cout << "ERROR: " << argv[i-1] << " takes an argument.\n";
+                outputHelp();
+                return(-1);
+            }
+            viewer = argv[i];
+            viewer += " ";
         }
         else if (strcmp(argv[i],"-s") == 0) {
             i++;
@@ -52,8 +59,8 @@ void outputHelp() {
     cout << "McMaster University, Ontario, Canada\n\n";
     cout << "Usage: dtnet [OPTIONS]\n";
     cout << "  -h\t\tDisplay this screen.\n";
-    cout << "  -gv\t\tUse ghostview (gv) to preview graphs.\n";
-    cout << "  -s filename\t Load a script to run upon startup.\n\n";
+    cout << "  -eps command\t\tPreview graphs with the given command.\n";
+    cout << "  -s filename\t Load a script to run upon startup.\n";
     cout << "  -p #procs\t Specify the maximum number of processes to spawn (Default 8).\n";
     cout << "  -v\t\tUse verbose output during the simulation.\n";
 }
