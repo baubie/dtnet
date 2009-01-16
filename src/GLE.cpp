@@ -133,6 +133,9 @@ bool GLE::draw()
 
 bool GLE::draw(string const &filename)
 {
+
+    cout << "About to draw " << this->panels[0].plots.size() << " plots" << endl;
+
     string gle_script_file = this->gle_script_to_file();
     cout << "[GLE] Saving data to temporary file...";
     string command = string("gle -output ") + filename + " " + gle_script_file;
@@ -294,6 +297,7 @@ string GLE::gle_script_to_file()
                     out << "yaxis off" << endl;
                 }
 
+                plot_num = 1;
                 for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
                 {
                     out << "data \"" << plot_iter->data_file << "\"" << endl;
@@ -302,7 +306,6 @@ string GLE::gle_script_to_file()
                     diff.b = (plot_iter->properties.last.b - plot_iter->properties.first.b) / plot_iter->y.size();
                     color = plot_iter->properties.first;
                     
-                    plot_num = 1;
                     for ( y_iter = plot_iter->y.begin(); y_iter != plot_iter->y.end(); ++y_iter)
                     {
                         out << "d" << plot_num << " line color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << " lwidth " << plot_iter->properties.lineWidth << endl;

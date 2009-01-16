@@ -1013,6 +1013,9 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
         return false;
     }
 
+    string param_name = results.unconstrained.begin()->first;
+    Range params = results.unconstrained.begin()->second;
+
     // Produce the truncated timesteps
     vector<double> timesteps;
     vector<double>::iterator iter;
@@ -1027,32 +1030,48 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     }
 
     // Get results
-    vector< Results::Result* > r = results.get();
-
-    /*
     GLE gle;
     GLE::PlotProperties plotProperties;
+    plotProperties.zeros = false;
+    plotProperties.no_y = true;
+    plotProperties.y_inc = (1 / (double)trials);
+    GLE::PanelID panelID = GLE::NEW_PANEL;
+   
+    vector< vector<double> > signals; 
+    int trial;
+    double y;
 
-    signals.clear();
-    for (neuron_iter = pop_iter->neurons.begin(); neuron_iter != pop_iter->neurons.end(); ++neuron_iter) {
-        signals.push_back(neuron_iter->spikes);
-        panelID = gle.plot(timesteps, signals, plotProperties);
-        GLE::PanelProperties props=gle.getPanelProperties(panelID);
-        props.x_title = "Time (ms)";
-        props.y_title = "";
-        props.title = pop_iter->name;
-        bool r = gle.setPanelProperties(props, panelID);
+    for (vector<double>::iterator pIter = params.begin(); pIter != params.end(); ++pIter) {
+        plotProperties.y_start = *pIter;
+        vector< Results::Result* > r = results.get(param_name, *pIter);
+        trial = 0;
+        signals.clear();
+        for (vector<Results::Result*>::iterator rIter = r.begin(); rIter != r.end(); ++rIter) {
+            Population::ConstrainedPopulation pop = (*rIter)->cNetwork.populations[popID]; 
+            // Only plot the first neuron
+            signals.push_back(pop.neurons[0].spikes);
+            ++trial;
+            if (trial == trials) break; // Only show up to trials;
+        }
+        panelID = gle.plot(timesteps, signals, plotProperties, panelID);
     }
-    
 
-    gle.plot(timesteps, *signals, plotProperties);
+    GLE::PanelProperties props = gle.getPanelProperties(panelID);
+    props.x_title = "Time (ms)";
+    props.y_title = "";
+    props.title = "Spike Trains";
+    props.y_min = params.front();
+    props.y_max = params.back();
+    props.y_labels = true;
+    bool r = gle.setPanelProperties(props, panelID);
 
     gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
     gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
     gle.draw(filename);
-    */
     return true;
 }
+
+
 
 bool dtlang::f_graphnetwork(Results &results, string const &filename) {
 	char data_filename[] = "/tmp/dtnet_dot_XXXXXX";

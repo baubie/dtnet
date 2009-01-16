@@ -19,6 +19,12 @@ class Range {
         operator const double() { return this->values.at(0); }
         std::string toString();
 
+        // Pretend to be a collection
+        std::vector<double>::iterator begin();
+        std::vector<double>::iterator end();
+        double front();
+        double back();
+
 
         std::vector<double> values;
 

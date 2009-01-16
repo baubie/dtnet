@@ -23,11 +23,17 @@ string Results::toString() {
 }
 
 vector< Results::Result* > Results::get() {
+    return this->get(string(""), 0);
+}
+
+vector< Results::Result* > Results::get(const string ID, const double value) {
     vector< Result* > r;
     vector<Result>::pointer ptr;
     for (vector<int>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
         ptr = &(results[*i]);
-        r.push_back(ptr);
+        if (ID == "" || this->matches(*ptr, ID, value)) {
+            r.push_back(ptr);
+        }
     }
     return r;
 }
@@ -37,7 +43,7 @@ void Results::add(Result &r) {
     this->filter.push_back(results.size() - 1); // Add on the last index
 }
 
-bool Results::matches(Result &r, std::string ID, const double value) {
+bool Results::matches(Result &r, string ID, const double value) {
 
     // Split up the ID into its three parts.
     string type_ID;

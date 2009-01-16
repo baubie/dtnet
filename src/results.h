@@ -40,6 +40,7 @@ class Results {
         double delay;
 
         std::vector< Result* > get();
+        std::vector< Result* > get(const std::string ID, const double value);
         void add(Result &r);
         std::vector<int> filter;
 

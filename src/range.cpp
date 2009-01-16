@@ -22,6 +22,11 @@ void Range::initialize(double start, double end, double step) {
     }
 }
 
+vector<double>::iterator Range::begin() { return this->values.begin(); }
+vector<double>::iterator Range::end() { return this->values.end(); }
+double Range::front() { return this->values.front(); }
+double Range::back() { return this->values.back(); }
+
 int Range::size() {
     return this->values.size();
 }
