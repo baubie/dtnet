@@ -83,6 +83,23 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
 	}
 }
 
+bool Simulation::simulationProgress(boost::threadpool::pool &tp, int total, boost::posix_time::ptime start) {
+
+    boost::posix_time::ptime now(boost::posix_time::microsec_clock::local_time());
+    int pending = tp.pending();
+    if (tp.pending() == 0) {
+        cout << endl;
+        return false;
+    }
+    double percent_done = (double)(total - pending) / (double)total;
+    boost::posix_time::time_duration dur = now - start;
+    double time_left = (double)dur.total_microseconds() / percent_done;
+    boost::posix_time::ptime finished = now + boost::posix_time::microseconds(time_left);
+    boost::posix_time::time_duration left = boost::posix_time::microseconds(time_left) - dur;
+    cout << "\r[" << (int)(percent_done * 100) << "%] " << left << " remaining. Finished at " << finished << flush;
+    return true;
+}
+
 bool Simulation::run(Results &results, string filename, double T, double dt, double delay, int number_of_trials, boost::threadpool::pool &tp) {
 
     vector<Trial::ConstrainedTrial>* inputs = this->trial.inputFactory(T,dt,delay);
@@ -99,8 +116,6 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
      * INITIALIZE SIMULATIONS *
      **************************/
     cout << "Initializing Simulations..." << endl;
-    cout << "Generated " << inputs->size() << " signals" << endl;
-    cout << "Generated " << networks->size() << " networks each with " << networks->at(0).populations.size()  << " populations." << endl;
     // Steal the unconstrained IDs from the trial and network.
     for(map<string, Range>::iterator iter = this->net.unconstrained.begin(); iter != this->net.unconstrained.end(); ++iter) {
         results.unconstrained[iter->first] = iter->second;
@@ -137,6 +152,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
      * RUN SIMULATIONS *
      *******************/
     boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
+    tp.schedule(boost::threadpool::looped_task_func(boost::bind(&Simulation::simulationProgress, tp, total, start), 500));
     cout << "Running Simulations..." << endl;
     vector<Results::Result*> results_to_run = results.get();
     for (vector<Results::Result*>::iterator iter=results_to_run.begin(); iter != results_to_run.end(); ++iter) {

@@ -1,4 +1,3 @@
-
 #include "results.h"
 
 using namespace std;

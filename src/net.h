@@ -61,7 +61,6 @@ class Net {
                 std::vector<Population::ConstrainedPopulation*> r;
                 for (std::map<std::string, Population::ConstrainedPopulation>::iterator i = this->populations.begin(); i != this->populations.end(); ++i) {
                     r.push_back(&(i->second));
-                    std::cout << i->second.position << std::endl;
                 }
                 std::sort(r.begin(), r.end(), Net::pop_order_sort);
                 return r;

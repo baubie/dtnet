@@ -1021,12 +1021,18 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     vector<double>::iterator iter;
 
     // Setup timesteps
+    int start_index = -9999;
+    int end_index = -9999;
     if (start == dtlang::DEFAULT) start = results.timeseries.front();
     if (end == dtlang::DEFAULT) end = results.timeseries.back();
     if (start < results.timeseries.front()) start = results.timeseries.front();
     if (end > results.timeseries.back()) end = results.timeseries.back();
+    int count = 0;
     for (iter = results.timeseries.begin(); iter != results.timeseries.end(); ++iter) {
+        if (*iter >= start && start_index == -9999) start_index = count;
+        if (*iter >= end && end_index == -9999) end_index = count;
         if (*iter >= start && *iter <= end) timesteps.push_back(*iter);
+        ++count;
     }
 
     // Get results
@@ -1035,10 +1041,17 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     plotProperties.zeros = false;
     plotProperties.no_y = true;
     plotProperties.y_inc = (1 / (double)trials);
+    plotProperties.lineWidth = 0;
+
+    GLE::PlotProperties sigPlotProperties;
+    sigPlotProperties.zeros = false;
+    sigPlotProperties.lineWidth = 0.02;
     GLE::PanelID panelID = GLE::NEW_PANEL;
    
     vector< vector<double> > signals; 
     int trial;
+    vector<double> values;
+    vector<double> values_raw;
     double y;
 
     for (vector<double>::iterator pIter = params.begin(); pIter != params.end(); ++pIter) {
@@ -1054,6 +1067,13 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
             if (trial == trials) break; // Only show up to trials;
         }
         panelID = gle.plot(timesteps, signals, plotProperties, panelID);
+        values_raw = r.front()->cTrial.values;
+        values.clear();
+        for (int index = start_index; index <= end_index; ++index) {
+            if (values_raw[index] != 0) values.push_back(*pIter);
+            else values.push_back(0);
+        }
+        panelID = gle.plot(timesteps, values, sigPlotProperties, panelID);
     }
 
     GLE::PanelProperties props = gle.getPanelProperties(panelID);
