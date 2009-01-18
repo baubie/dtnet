@@ -152,7 +152,7 @@ namespace dtlang
         {
             expr        %= name >> "(" >> -param >> *("," > param) >> ")";
             param       %= raw[lexeme[(lit('"') >> *(print - lit('"')) >> lit('"'))] 
-                               | lexeme[+(alnum|'_'|'.')] >> -('(' >> -param >> *("," > param)  >> ')')];
+                               | lexeme[+(alnum|'_'|'.'|'-')] >> -('(' >> -param >> *("," > param)  >> ')')];
             name        %= raw[lexeme[+(alnum|'_'|'.')]];
         }
         rule<Iter, function_call(), space_type> expr;

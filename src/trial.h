@@ -12,6 +12,7 @@
 #include "range.h"
 #include "lib/tinyxml/tinyxml.h"
 #include "serialization.h"
+#include "debug.h"
 
 /** Load and generate the input signal vectors from an XML file. */
 class Trial {
@@ -45,13 +46,5 @@ class Trial {
 		bool parseXML(std::string filename, std::string &error);    /**< Parse the XML file. */
         void genSignal(std::vector<Input>::iterator inputsPos, double T, double dt, double delay);     /**< Generate input signals from the collection of input definitions. */
         std::string filename;       /**< XML from which this Trial was read from. */
-
-        friend class boost::serialization::access;
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & inputs;
-            ar & filename;
-        }
 };
 #endif

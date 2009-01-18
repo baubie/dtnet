@@ -8,6 +8,7 @@
 using namespace std;
 using namespace swift;
 
+
 int main(int argc, char* argv[]) {
 
     /* Default Values */
@@ -28,6 +29,11 @@ int main(int argc, char* argv[]) {
     if (dtlang::verbose) cout << endl << "Welcome to the Parallel Network Simulator 2.0" << endl;
     if (dtlang::verbose) cout << "Written by Brandon Aubie <aubiebn@mcmaster.ca>" << endl;
     if (dtlang::verbose) cout << "Compiled " << __DATE__ << " " << __TIME__ << endl;
+#ifdef SERIALIZE_TEXT
+    if (dtlang::verbose) cout << "Archive format is text." << endl;
+#else
+    if (dtlang::verbose) cout << "Archive format is binary." << endl;
+#endif
 
     /* Setup Threads For Parallel Simulations */
     if (dtlang::verbose) cout << "...Pooling " << procs << " threads for simulations";

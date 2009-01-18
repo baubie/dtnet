@@ -8,7 +8,13 @@ CXXFLAGS="-O3"
 
 AC_ARG_ENABLE(debug,
     [ --enable-debug    Enable debugging symbols ],
-    [ CXXFLAGS="$CXXFLAGS -g"])
+    [ CXXFLAGS="$CXXFLAGS -g"
+      AC_DEFINE([DEBUG])
+     ])
+
+AC_ARG_ENABLE(text-archive,
+    [ --enable-text-archive     Use text archiving mode to save simulations.  Uses more disk space but is required on Mac OSX ],
+    [ AC_DEFINE([SERIALIZE_TEXT]) ]) 
 
 add_ldflags=""
 READLINE_lib_check=""

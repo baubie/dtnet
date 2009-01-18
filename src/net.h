@@ -18,6 +18,7 @@
 #include "lib/tinyxml/tinyxml.h"
 #include "serialization.h"
 #include "range.h"
+#include "debug.h"
 
 class Net {
 
@@ -87,9 +88,14 @@ class Net {
 
     private:
 
-        std::vector<ConstrainedNetwork> cNetworks;
-        void genNetworks();
+        void genConnections( std::map< std::string, std::map< std::string, Connection<Range> > >::iterator to,
+                             std::map< std::string, Connection<Range> >::iterator from ); 
 
+        std::vector< std::map< std::string, Population::ConstrainedPopulation > > cPopulations; /**< Constrained popuations. **/
+        std::vector< std::map< std::string, std::map< std::string, Connection<double> > > > cConnections; /**< Constrained connections. **/
+        std::vector<ConstrainedNetwork> cNetworks; /**< Completed, constrained networks taking all combinations of cPopulations and cConnections. **/
+
+        void genNetworks();
         std::string filename;
 		int numPopulations();                
         bool parseXML(std::string filename, std::string &error);

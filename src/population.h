@@ -7,6 +7,7 @@
 #include <vector>
 #include "neuron.h"
 #include "serialization.h"
+#include "debug.h"
 
 class Population {
 

@@ -1040,7 +1040,7 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     GLE::PlotProperties plotProperties;
     plotProperties.zeros = false;
     plotProperties.no_y = true;
-    plotProperties.y_inc = (1 / (double)trials);
+    plotProperties.y_inc = (1 / (4*(double)trials)); // Fill a quarter of  the verticle area
     plotProperties.lineWidth = 0;
 
     GLE::PlotProperties sigPlotProperties;
@@ -1070,7 +1070,8 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
         values_raw = r.front()->cTrial.values;
         values.clear();
         for (int index = start_index; index <= end_index; ++index) {
-            if (values_raw[index] != 0) values.push_back(*pIter);
+            // We offset the value by 0.0001 to ensure we never hit EXACTLY on 0.0 and thus not display it.
+            if (values_raw[index] != 0) values.push_back(*pIter+0.0001);
             else values.push_back(0);
         }
         panelID = gle.plot(timesteps, values, sigPlotProperties, panelID);

@@ -11,7 +11,7 @@
 #include <map>
 #include "serialization.h"
 #include "range.h"
-
+#include "debug.h"
 
 class Input {
 	
@@ -53,18 +53,6 @@ class Input {
         std::map< std::string, Range > unconstrained;       /*<< Collection of unconstrained IDs. */
 
 	private:
-        friend class boost::serialization::access;
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & name;
-            ar & type;
-            ar & duration;
-            ar & amplitude;
-            ar & delay;
-            ar & signals;
-        }
-
         std::vector< Signal > signals;
         void generateSignals(double T, double dt, double delay);
 };

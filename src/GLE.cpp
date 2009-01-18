@@ -133,17 +133,12 @@ bool GLE::draw()
 
 bool GLE::draw(string const &filename)
 {
-
-    cout << "About to draw " << this->panels[0].plots.size() << " plots" << endl;
-
     string gle_script_file = this->gle_script_to_file();
-    cout << "[GLE] Saving data to temporary file...";
     string command = string("gle -output ") + filename + " " + gle_script_file;
-    cout << "DONE" << endl;
 
     int r = system(command.c_str());
 	if (r != 0) {
-		cout << "[GLE] An error occured." << endl;
+		cerr << "[GLE] An error occured." << endl;
     }
 	else
     {
@@ -152,7 +147,7 @@ bool GLE::draw(string const &filename)
             string command = GLE::viewer + filename + " &"; // Try to run ghostview in the background.
             int r = system(command.c_str());
             if (r != 0) {
-                cout << "[GLE] Ghostview preview is unavailable." << endl;
+                cerr << "[GLE] Ghostview preview is unavailable." << endl;
             }
         }
     }
@@ -204,7 +199,7 @@ bool GLE::data_to_file()
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
             if (!of) 
             {
-               cout << "[GLE] Unable to create temporary file." << endl;
+               cerr << "[GLE] Unable to create temporary file." << endl;
                return false;
             }
             plot_iter->data_file = string(data_filename);
@@ -223,7 +218,6 @@ bool GLE::data_to_file()
             y.clear();
         }
     }
-
     return true;
 }
 
@@ -308,9 +302,21 @@ string GLE::gle_script_to_file()
                     
                     for ( y_iter = plot_iter->y.begin(); y_iter != plot_iter->y.end(); ++y_iter)
                     {
-                        out << "d" << plot_num << " line color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << " lwidth " << plot_iter->properties.lineWidth << endl;
-                        if (plot_iter->properties.pointSize > 0) out << "d" << plot_num << " marker " << plot_iter->properties.shape << " msize " << plot_iter->properties.pointSize << endl; 
-                        if (plot_iter->properties.nomiss) out << "d" << plot_num << " nomiss" << endl;
+                        if (plot_iter->properties.lineWidth > 0) {
+                            out << "d" << plot_num << " line color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << " lwidth " << plot_iter->properties.lineWidth << endl;
+                        }
+
+                        if (plot_iter->properties.pointSize > 0) {
+                            out << "d" << plot_num << " marker " << plot_iter->properties.shape << " msize " << plot_iter->properties.pointSize << endl; 
+                            if (plot_iter->properties.lineWidth > 0) {
+                                out << "d" << plot_num << " color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << endl;
+                            }
+                        }
+
+                        if (plot_iter->properties.nomiss) {
+                            out << "d" << plot_num << " nomiss" << endl;
+                        }
+
                         color.r += diff.r;
                         color.g += diff.g;
                         color.b += diff.b;

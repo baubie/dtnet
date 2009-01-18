@@ -66,6 +66,15 @@ bool Results::matches(Result &r, string ID, const double value) {
             } 
         }
     } 
+    if (type_ID == "connection") {
+        string from, to;
+        pos = item_ID.find(':');
+        from = item_ID.substr(0, pos);
+        to = item_ID.substr(pos+1);
+        if (param_ID == "weight" && r.cNetwork.connections[to][from].weight == value) matches = true;
+        if (param_ID == "delay" && r.cNetwork.connections[to][from].delay == value) matches = true;
+        if (param_ID == "density" && r.cNetwork.connections[to][from].density == value) matches = true;
+    }
 
     return matches;
 }
@@ -95,7 +104,15 @@ bool Results::constrain(Results &r, std::string ID, const double value) {
 
 void Results::save(string filename) {
     ofstream ofs(filename.c_str());
+
+#ifdef SERIALIZE_TEXT
+    LOG("Saving Text Archive to " << filename.c_str());
+    boost::archive::text_oarchive oa(ofs);
+#else
+    LOG("Saving Binary Archive to " << filename.c_str());
     boost::archive::binary_oarchive oa(ofs);
+#endif
+    LOG("boost::archive created.");
     oa << *this;    
 }
 
@@ -105,7 +122,11 @@ bool Results::load(Results &r, string filename) {
         cout << "[X] Error opening " << filename << ".  Sorry." << endl;
         return false;
     }
+#ifdef SERIALIZE_TEXT
+    boost::archive::text_iarchive ia(ifs);
+#else
     boost::archive::binary_iarchive ia(ifs);
+#endif
     ia >> r;    
     return true;
 }

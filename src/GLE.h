@@ -19,6 +19,7 @@
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <math.h>
+#include "debug.h"
 
 class GLE
 {

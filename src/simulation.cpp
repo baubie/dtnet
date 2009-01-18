@@ -106,7 +106,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     vector<Net::ConstrainedNetwork>* networks = this->net.networkFactory();
     vector<double> timesteps = this->genTimeSeries(T, dt, delay);
 
-    int total = number_of_trials * inputs->size();
+    int total = number_of_trials * inputs->size() * networks->size();
     int steps = (int)(T/dt);
     int count = 0;
 
@@ -115,7 +115,11 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     /**************************
      * INITIALIZE SIMULATIONS *
      **************************/
-    cout << "Initializing Simulations..." << endl;
+    cout << "Initializing " << total << " Simulations..." << endl;
+    const int progress_width = 50;
+    int progress = 0;
+    string progress_done;
+    string progress_left;
     // Steal the unconstrained IDs from the trial and network.
     for(map<string, Range>::iterator iter = this->net.unconstrained.begin(); iter != this->net.unconstrained.end(); ++iter) {
         results.unconstrained[iter->first] = iter->second;
@@ -127,7 +131,6 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     for (vector<Trial::ConstrainedTrial>::iterator t = inputs->begin(); t != inputs->end(); ++t) {
         for (vector<Net::ConstrainedNetwork>::iterator n = networks->begin(); n != networks->end(); ++n) {
             for (int i = 0; i < number_of_trials; ++i) {
-
                 // Initialize the neurons
                 map<string, Population::ConstrainedPopulation>::iterator pops;
                 vector<Neuron>::iterator neurons;
@@ -144,15 +147,23 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
                 r.trial_num = i;
                 results.add(r);
             }
+            progress += number_of_trials;
+            progress_done = string((int)(progress_width*((float)progress/(float)total)), '*');
+            progress_left = string(progress_width*(1-((float)progress/(float)total)) , ' ');
+            cout << "\r[" << progress_done << progress_left << "]" << flush;
         }
     }
+    progress_done = string(progress_width, '*');
+    cout << "\r[" << progress_done << progress_left << "]" << endl;
+    
+    LOG("Running " << networks->size() << " networks against " << inputs->size() << " inputs over " << number_of_trials << " trials.");
 
 
     /*******************
      * RUN SIMULATIONS *
      *******************/
     boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
-    tp.schedule(boost::threadpool::looped_task_func(boost::bind(&Simulation::simulationProgress, tp, total, start), 500));
+    tp.schedule(boost::threadpool::looped_task_func(boost::bind(&Simulation::simulationProgress, tp, total, start), 1000));
     cout << "Running Simulations..." << endl;
     vector<Results::Result*> results_to_run = results.get();
     for (vector<Results::Result*>::iterator iter=results_to_run.begin(); iter != results_to_run.end(); ++iter) {

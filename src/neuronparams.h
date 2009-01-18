@@ -5,6 +5,7 @@
 #include "range.h"
 #include <map>
 #include <string>
+#include "debug.h"
 
 class NeuronParams {
 

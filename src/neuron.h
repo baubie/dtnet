@@ -14,6 +14,7 @@
 #include "serialization.h"
 #include "neuronparams.h"
 #include "range.h"
+#include "debug.h"
 
 class Neuron {
 

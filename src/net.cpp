@@ -11,28 +11,116 @@ std::vector<Net::ConstrainedNetwork>* Net::networkFactory() {
 
 void Net::genNetworks() {
 
-    // For now just produce a single constrained network.
-    // TODO Create a vector of networks for each range value.
-    
-    ConstrainedNetwork cn;
+    this->genConnections( this->connections.begin(), 
+                          this->connections.begin()->second.begin() );
 
-    map<string, Population>::iterator pIter;
-
-    for (pIter = this->populations.begin(); pIter != this->populations.end(); ++pIter) {
-        // TODO Don't just add the first population, use recursion to add all returned populations.
-        cn.populations[pIter->first] = pIter->second.populationFactory()->at(0);
-    }
-
-    // TODO Don't just create a single weight matrix, use recursion to add in all ranges.
-    for (map<string, map<string, Connection<Range> > >::iterator to = this->connections.begin(); to != this->connections.end(); ++to) {
-        for (map<string, Connection<Range> >::iterator from = to->second.begin(); from != to->second.end(); ++from) {
-            cn.connections[to->first][from->first].weight = (double)from->second.weight;
-            cn.connections[to->first][from->first].delay = (double)from->second.delay;
+    /** Find the unconstrained connection parameters. **/
+    for (map<string, map<string, Connection<Range> > >::iterator iter = this->connections.begin(); iter != this->connections.end(); ++iter) {
+        for (map<string, Connection<Range> >::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2) {
+            // Contrary to code, we use FROM:TO syntax for the scripting language
+            // as it is  more intuitive to users.
+            string connection_name = iter2->first + ":" + iter->first; 
+            if (iter2->second.weight.size() > 1) this->unconstrained["connection."+connection_name+".weight"] = iter2->second.weight;
+            if (iter2->second.delay.size() > 1) this->unconstrained["connection."+connection_name+".delay"] = iter2->second.delay;
+            if (iter2->second.density.size() > 1) this->unconstrained["connection."+connection_name+".density"] = iter2->second.density;
         }
     }
 
-    this->cNetworks.push_back(cn);
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // TEMPORARY
+    // CURRENTLY ONLY GETS A SINGLE NETWORK
+    // EVENTUALLY NEEDS TO CREATE AND PUSH ALL NETWORKS ONTO this->cPopulations
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    map<string, Population>::iterator pIter;
+    map<string, Population::ConstrainedPopulation> cPop; 
+    for (pIter = this->populations.begin(); pIter != this->populations.end(); ++pIter) {
+        // TODO Don't just add the first population, use recursion to add all returned populations.
+        cPop[pIter->first] = pIter->second.populationFactory()->at(0);
+    }
+    this->cPopulations.push_back(cPop);
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Loop over all networks and all connection profiles to produce all possible constrained networks
+    for (vector< map<string, map<string, Connection<double> > > >::iterator cIter = this->cConnections.begin(); cIter != this->cConnections.end(); ++cIter) {
+        for (vector< map<string, Population::ConstrainedPopulation> >::iterator pIter = this->cPopulations.begin(); pIter != this->cPopulations.end(); ++pIter) {
+            ConstrainedNetwork cn;
+            cn.connections = *cIter;
+            cn.populations = *pIter;
+            this->cNetworks.push_back(cn);
+        }
+    }
+
+
 }
+
+void Net::genConnections( map< string, map< string, Connection<Range> > >::iterator to_in,
+                          map< string, Connection<Range> >::iterator from_in ) 
+{
+    /** Recursively generate all possible connections. **/
+
+    map< string, map< string, Connection<Range> > >::iterator to = to_in;
+    map< string, Connection<Range> >::iterator from = from_in;
+
+    ///////////////
+    // BASE CASE //
+    ///////////////
+    if (to == --(this->connections.end()) && from == --(to->second.end()) ) {
+        this->cConnections.clear();
+        for (Range::iterator weight = from->second.weight.begin(); weight != from->second.weight.end(); ++weight) {
+            for (Range::iterator delay = from->second.delay.begin(); delay != from->second.delay.end(); ++delay) {
+                for (Range::iterator density = from->second.density.begin(); density != from->second.density.end(); ++density) {
+                    Connection<double> connection;
+                    map<string, map<string, Connection<double> > > network_connection;
+                    connection.weight = *weight;
+                    connection.delay = *delay;
+                    connection.density = *density;
+                    network_connection[to->first][from->first] = connection;
+                    this->cConnections.push_back( network_connection );
+                } 
+            } 
+        } 
+    }
+
+    ////////////////////
+    // RECURSIVE CASE //
+    ////////////////////
+    else {
+        // First, finish up for connections below this one.
+        map< string, map< string, Connection<Range> > >::iterator new_to = to;
+        map< string, Connection<Range> >::iterator new_from = from;
+        if (from != --(to->second.end()) ) {
+            ++new_from;
+        }  else {
+            // When we use to in the second parameter below, it has already been incremented.
+            ++new_to;
+            new_from = new_to->second.begin();
+        }
+        genConnections( new_to, new_from); 
+         
+        vector< map<string, map<string, Connection<double> > > > oldConns = this->cConnections;
+        this->cConnections.clear();
+
+        // Loop over our existing populations generated above and add on our new connection.
+        for (vector< map<string, map<string, Connection<double> > > >::iterator old = oldConns.begin(); old != oldConns.end(); ++old) {
+            for (Range::iterator weight = from->second.weight.begin(); weight != from->second.weight.end(); ++weight) {
+                for (Range::iterator delay = from->second.delay.begin(); delay != from->second.delay.end(); ++delay) {
+                    for (Range::iterator density = from->second.density.begin(); density != from->second.density.end(); ++density) {
+                        Connection<double> connection;
+                        connection.weight = *weight;
+                        connection.delay = *delay;
+                        connection.density = *density;
+                        (*old)[to->first][from->first] = connection;
+                        this->cConnections.push_back( *old );
+                    } 
+                } 
+            } 
+        }
+    }
+}
+
+
 
 int Net::count_populations() {
     return this->populations.size();
@@ -148,10 +236,11 @@ bool Net::parseXML(string filename, string &error)
         // Load Each Connection
  		pElem = hRoot.FirstChild( "connection" ).Element();
 		for( /***/; pElem; pElem = pElem->NextSiblingElement("connection")) {
-            double weight = 0;
-            double delay = 1;
-            double density = 1;
+            Range weight = 0;
+            Range delay = 1;
+            Range density = 1;
             double sigma = 0;
+            double start, end, step;
             string from, to;
             bool symmetric = false;
 			hConnection = pElem;
@@ -169,19 +258,38 @@ bool Net::parseXML(string filename, string &error)
                         to = pElemParam->FirstChild()->Value();
                     } 
                     if (strcmp(pElemParam->Attribute("name"), "weight") == 0) {
-                        weight = (double)atof(pElemParam->FirstChild()->Value());
+                        weight = Range((double)atof(pElemParam->FirstChild()->Value()));
                         pElem->QueryDoubleAttribute("sigma", &sigma);
                     } 
                     if (strcmp(pElemParam->Attribute("name"), "delay") == 0) {
-                        delay = (double)atof(pElemParam->FirstChild()->Value());
+                        delay = Range((double)atof(pElemParam->FirstChild()->Value()));
                     } 
                     if (strcmp(pElemParam->Attribute("name"), "density") == 0) {
-                        density = (double)atof(pElemParam->FirstChild()->Value());
+                        density = Range((double)atof(pElemParam->FirstChild()->Value()));
                     } 
                     if (strcmp(pElemParam->Attribute("name"), "symmetric") == 0) {
                         symmetric = (strcmp(pElemParam->FirstChild()->Value(),"true") == 0);
                     } 
-                } 
+				} else if (pElemParam->FirstChild()->Type() == TiXmlNode::ELEMENT) {
+
+					if (strcmp(pElemParam->FirstChild()->Value(), "range") == 0) {
+                        start = 0;
+                        end = 0;
+                        step = 1;
+                        hParam.FirstChild().Element()->QueryDoubleAttribute("start", &start);
+                        hParam.FirstChild().Element()->QueryDoubleAttribute("end", &end);
+                        hParam.FirstChild().Element()->QueryDoubleAttribute("step", &step);
+                        if (strcmp(pElemParam->Attribute("name"),"weight") == 0) {
+                            weight = Range(start, end, step);
+                        }
+                        if (strcmp(pElemParam->Attribute("name"),"delay") == 0) {
+                            delay = Range(start, end, step);
+                        }
+                        if (strcmp(pElemParam->Attribute("name"),"density") == 0) {
+                            density = Range(start, end, step);
+                        }
+					}
+                }
             }
 
             if (weight != 0) {

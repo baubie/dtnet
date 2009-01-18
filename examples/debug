@@ -1,2 +1,2 @@
 #!/bin/bash
-valgrind --leak-check=full dtnet -s BP.dtnet -v
+valgrind -v dtnet -s debug.dtnet -v -p 2

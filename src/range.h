@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "debug.h"
 
 class Range {
 
@@ -20,6 +21,7 @@ class Range {
         std::string toString();
 
         // Pretend to be a collection
+        typedef std::vector<double>::iterator iterator;
         std::vector<double>::iterator begin();
         std::vector<double>::iterator end();
         double front();
