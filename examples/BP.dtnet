@@ -4,7 +4,7 @@
 ###############################
 
 sim = simulation("networks/BP.xml", "inputs/durations.xml")
-results = run(sim,"bp.sim",15)
+results = run(sim,"/1/bp.sim",15,5,false)
 #results = load("bp.sim")
 durs = constrain(results,"trial.main.duration",5)
 graph_height = 10

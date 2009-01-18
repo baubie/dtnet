@@ -44,7 +44,7 @@ double Simulation::alpha(double t, vector<Neuron> &neurons, double tau, double d
 	return current;
 }
 
-void Simulation::runSimulation(Results::Result *r, double T, double dt, double delay) {
+void Simulation::runSimulation(Results::Result *r, double T, double dt, double delay, bool voltage) {
 
 	double input;
     double new_input;
@@ -81,6 +81,15 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
 			}
 		}
 	}
+
+    // Delete the voltage if we don't want to save it.
+    if (!voltage) {
+        for (cpIter = r->cNetwork.populations.begin(); cpIter != r->cNetwork.populations.end(); ++cpIter) {
+            for (nIter = cpIter->second.neurons.begin(); nIter != cpIter->second.neurons.end(); ++nIter) { // Loop over neurons
+                nIter->voltage.clear();
+            }
+        }
+    }
 }
 
 bool Simulation::simulationProgress(boost::threadpool::pool &tp, int total, boost::posix_time::ptime start) {
@@ -100,7 +109,7 @@ bool Simulation::simulationProgress(boost::threadpool::pool &tp, int total, boos
     return true;
 }
 
-bool Simulation::run(Results &results, string filename, double T, double dt, double delay, int number_of_trials, boost::threadpool::pool &tp) {
+bool Simulation::run(Results &results, string filename, double T, double dt, double delay, int number_of_trials, bool voltage, boost::threadpool::pool &tp) {
 
     vector<Trial::ConstrainedTrial>* inputs = this->trial.inputFactory(T,dt,delay);
     vector<Net::ConstrainedNetwork>* networks = this->net.networkFactory();
@@ -115,7 +124,9 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     /**************************
      * INITIALIZE SIMULATIONS *
      **************************/
-    cout << "Initializing " << total << " Simulations..." << endl;
+    cout << "Initializing " << total << " Simulations ";
+    if (voltage) cout << "with voltage traces." << endl;
+    if (!voltage) cout << "without voltage traces." << endl;  
     const int progress_width = 50;
     int progress = 0;
     string progress_done;
@@ -167,7 +178,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     cout << "Running Simulations..." << endl;
     vector<Results::Result*> results_to_run = results.get();
     for (vector<Results::Result*>::iterator iter=results_to_run.begin(); iter != results_to_run.end(); ++iter) {
-        tp.schedule(boost::bind(&runSimulation, *iter, T, dt, delay));
+        tp.schedule(boost::bind(&runSimulation, *iter, T, dt, delay, voltage));
     }
 
     tp.wait();

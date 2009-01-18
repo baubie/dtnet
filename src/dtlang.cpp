@@ -239,6 +239,14 @@ void dtlang::initialize_variables()
     v.type = dtlang::TYPE_DOUBLE;
     v.obj = new double(5.0);
     dtlang::vars["graph_height"] = v;
+
+    v.type = dtlang::TYPE_DOUBLE;
+    v.obj = new double(0);
+    dtlang::vars["false"] = v;
+
+    v.type = dtlang::TYPE_DOUBLE;
+    v.obj = new double(1);
+    dtlang::vars["true"] = v;
 }
 
 void dtlang::initialize_functions()
@@ -340,6 +348,13 @@ void dtlang::initialize_functions()
 	p.optional = true;
     p.def = "10";
     p.name = "delay";
+    f.params.push_back(p);
+
+	p.type = dtlang::TYPE_INT;
+	p.help = "Set to false if you do not wish to store the voltage parameters.";
+	p.optional = true;
+    p.def = "1";
+    p.name = "store_voltage";
     f.params.push_back(p);
 
     dtlang::functions["run"] = f;
@@ -649,7 +664,8 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
                                   *(static_cast<Simulation*>(params[0].obj)),
                                   *(static_cast<string*>(params[1].obj)), 
                                    (int)*(static_cast<double*>(params[2].obj)), 
-                                  5.0, // Default to 5 ms delay
+                                   5.0, // Default to 5 ms delay
+                                   true, // Store voltage by default
                                    tp);
         } else if (params.size() == 4) {
             return dtlang::f_run( *(static_cast<Results*>(r)), 
@@ -657,6 +673,15 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
                                   *(static_cast<string*>(params[1].obj)), 
                                    (int)*(static_cast<double*>(params[2].obj)), 
                                   *(static_cast<double*>(params[3].obj)), 
+                                   true, // Store voltage by default
+                                   tp);
+        } else if (params.size() == 5) {
+            return dtlang::f_run( *(static_cast<Results*>(r)), 
+                                  *(static_cast<Simulation*>(params[0].obj)),
+                                  *(static_cast<string*>(params[1].obj)), 
+                                   (int)*(static_cast<double*>(params[2].obj)), 
+                                  *(static_cast<double*>(params[3].obj)), 
+                                  *(static_cast<int*>(params[4].obj)) != 0,
                                    tp);
         }
 	} 
@@ -893,14 +918,14 @@ bool dtlang::delete_variable(variable_def var) {
 }
 
 
-bool dtlang::f_run(Results &result, Simulation &sim, string filename, int number_of_trials, double delay, boost::threadpool::pool &tp) {
+bool dtlang::f_run(Results &result, Simulation &sim, string filename, int number_of_trials, double delay, bool voltage, boost::threadpool::pool &tp) {
 
     if (dtlang::vars.find("T") == dtlang::vars.end() || dtlang::vars["T"].type != dtlang::TYPE_DOUBLE) { cout << "Error: T must be a double!" << endl; return false;}
     if (dtlang::vars.find("dt") == dtlang::vars.end() || dtlang::vars["dt"].type != dtlang::TYPE_DOUBLE) { cout << "Error: dt must be a double!" << endl; return false;}
     double T = *(static_cast<double*>(dtlang::vars["T"].obj));
     double dt = *(static_cast<double*>(dtlang::vars["dt"].obj));
 
-    bool r = sim.run(result, filename, T, dt, delay, number_of_trials, tp);
+    bool r = sim.run(result, filename, T, dt, delay, number_of_trials, voltage, tp);
     return r;
 }
 

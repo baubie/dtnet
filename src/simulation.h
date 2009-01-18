@@ -27,13 +27,13 @@ class Simulation
 		Simulation(Net &net, Trial &trial);
         Simulation();
 
-        bool run(Results &r, std::string filename, double T, double dt, double delay, int number_of_trials, boost::threadpool::pool &tp);
+        bool run(Results &r, std::string filename, double T, double dt, double delay, int number_of_trials, bool voltage, boost::threadpool::pool &tp);
 		std::string toString();
 
         static bool simulationProgress(boost::threadpool::pool &tp, int total, boost::posix_time::ptime start);
         static const int ALPHA_WIDTH = 20; // 20 ms is MORE than enough width for the alpha function
         static double alpha(double t, std::vector<Neuron> &neurons, double tau, double delay, double globalDelay, double dt);
-        static void runSimulation(Results::Result *r, double T, double dt, double delay);
+        static void runSimulation(Results::Result *r, double T, double dt, double delay, bool voltage);
 
     private:
 
