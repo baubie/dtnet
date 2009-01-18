@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 
     /* Setup Threads For Parallel Simulations */
     if (dtlang::verbose) cout << "...Pooling " << procs << " threads for simulations";
-    boost::threadpool::pool tp(procs);
+    boost::threadpool::pool tp(procs+1); // Pool an additional thread for the progress meter
     if (dtlang::verbose) cout << "\t[OK]" << endl;
 
     /* Main Input Loop */
