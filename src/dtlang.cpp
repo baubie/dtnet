@@ -1059,13 +1059,13 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
         if (*iter >= start && *iter <= end) timesteps.push_back(*iter);
         ++count;
     }
+    if (trials == dtlang::DEFAULT) trials = -1; // Ensure we always print all the trials.
 
     // Get results
     GLE gle;
     GLE::PlotProperties plotProperties;
     plotProperties.zeros = false;
     plotProperties.no_y = true;
-    plotProperties.y_inc = (1 / (4*(double)trials)); // Fill a quarter of  the verticle area
     plotProperties.lineWidth = 0;
 
     GLE::PlotProperties sigPlotProperties;
@@ -1078,20 +1078,24 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     vector<double> values;
     vector<double> values_raw;
     double y;
+    double y_inc = (1 / (4*(double)(*(params.begin()+1) - *(params.begin())))); // Fill a quarter of  the verticle area
+
+    vector< pair<double,double> > points;
 
     for (vector<double>::iterator pIter = params.begin(); pIter != params.end(); ++pIter) {
         plotProperties.y_start = *pIter;
         vector< Results::Result* > r = results.get(param_name, *pIter);
         trial = 0;
-        signals.clear();
+        y = *pIter;
         for (vector<Results::Result*>::iterator rIter = r.begin(); rIter != r.end(); ++rIter) {
             Population::ConstrainedPopulation pop = (*rIter)->cNetwork.populations[popID]; 
-            // Only plot the first neuron
-            signals.push_back(pop.neurons[0].spikes);
+            for (vector<double>::iterator nIter = pop.neurons[0].spikes.begin(); nIter != pop.neurons[0].spikes.end(); ++nIter) {
+                points.push_back(make_pair(*nIter, y));
+            }
             ++trial;
             if (trial == trials) break; // Only show up to trials;
+            y += y_inc / r.size();
         }
-        panelID = gle.plot(timesteps, signals, plotProperties, panelID);
         values_raw = r.front()->cTrial.values;
         values.clear();
         for (int index = start_index; index <= end_index; ++index) {
@@ -1102,12 +1106,14 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
         panelID = gle.plot(timesteps, values, sigPlotProperties, panelID);
     }
 
+    panelID = gle.plot(points, plotProperties, panelID);
+
     GLE::PanelProperties props = gle.getPanelProperties(panelID);
     props.x_title = "Time (ms)";
-    props.y_title = "";
+    props.y_title = param_name;
     props.title = "Spike Trains";
     props.y_min = params.front();
-    props.y_max = params.back();
+    props.y_max = max(params.back(), y); // Use the last y value as the top value.
     props.y_labels = true;
     bool r = gle.setPanelProperties(props, panelID);
 

@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <fstream>
 #include "trial.h"
 #include "net.h"
 

@@ -42,6 +42,11 @@ void Results::add(Result &r) {
     this->filter.push_back(results.size() - 1); // Add on the last index
 }
 
+void Results::init(int size) {
+    results.clear();
+    results.reserve(size);
+}
+
 bool Results::matches(Result &r, string ID, const double value) {
 
     // Split up the ID into its three parts.

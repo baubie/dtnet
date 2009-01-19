@@ -43,6 +43,7 @@ class Results {
         std::vector< Result* > get();
         std::vector< Result* > get(const std::string ID, const double value);
         void add(Result &r);
+        void init(int size);
         std::vector<int> filter;
 
         Results(double dt, double T, double delay);

@@ -79,7 +79,7 @@ class GLE
             PlotProperties() :
                 lineWidth(0.010),
                 pointSize(0.1),
-                shape("fcircle"),
+                shape("dot"),
                 zeros(true),
                 nomiss(true),
                 no_y(false),
@@ -125,6 +125,7 @@ class GLE
 
         // Various different plot functions
         PanelID plot(std::vector<double> &x, std::vector<double> &y, PlotProperties properties); // Plot a single x-y curve
+        PanelID plot(std::vector< std::pair<double,double> > &points, PlotProperties properties, PanelID ID);  // Plot a set of points
         PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, PlotProperties properties); // Plot a Multiple x-y curves with the same x
         PanelID plot(std::vector<double> &x, std::vector<double> &y, PlotProperties properties, PanelID panel); // Plot a single x-y curve by adding it to an existing panel
         PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, PlotProperties properties, PanelID panel); // Plot a Multiple x-y curves with the same x by adding it to an existing panel
@@ -146,9 +147,16 @@ class GLE
             std::string data_file;
         };
 
+        struct Points {
+            std::vector< std::pair<double,double> > points;
+            PlotProperties properties;
+            std::string data_file;
+        };
+
         struct Panel {
             PanelProperties properties;
             std::vector<Plot> plots;
+            std::vector<Points> points;
         };
 
         std::vector<Panel> panels;

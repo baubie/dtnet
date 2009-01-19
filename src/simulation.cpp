@@ -124,6 +124,13 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     /**************************
      * INITIALIZE SIMULATIONS *
      **************************/
+    ofstream fstr;
+    fstr.open(filename.c_str(), fstream::out);
+    if (fstr.fail()) {
+        cout << "[X] Unable to open " << filename << " for writing." << endl;
+        return false;
+    }
+    fstr.close();
     cout << "Initializing " << total << " Simulations ";
     if (voltage) cout << "with voltage traces." << endl;
     if (!voltage) cout << "without voltage traces." << endl;  
@@ -131,6 +138,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     int progress = 0;
     string progress_done;
     string progress_left;
+    results.init(total);
     // Steal the unconstrained IDs from the trial and network.
     for(map<string, Range>::iterator iter = this->net.unconstrained.begin(); iter != this->net.unconstrained.end(); ++iter) {
         results.unconstrained[iter->first] = iter->second;
@@ -166,13 +174,12 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     }
     progress_done = string(progress_width, '*');
     cout << "\r[" << progress_done << progress_left << "]" << endl;
-    
-    LOG("Running " << networks->size() << " networks against " << inputs->size() << " inputs over " << number_of_trials << " trials.");
 
 
     /*******************
      * RUN SIMULATIONS *
      *******************/
+    LOG("Running " << networks->size() << " networks against " << inputs->size() << " inputs over " << number_of_trials << " trials.");
     boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
     tp.schedule(boost::threadpool::looped_task_func(boost::bind(&Simulation::simulationProgress, tp, total, start), 1000));
     cout << "Running Simulations..." << endl;

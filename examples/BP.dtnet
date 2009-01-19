@@ -3,11 +3,14 @@
 # Written by Brandon Aubie    #
 ###############################
 
-sim = simulation("networks/BP.xml", "inputs/durations.xml")
-results = run(sim,"/1/bp.sim",15,5,false)
-#results = load("bp.sim")
-durs = constrain(results,"trial.main.duration",5)
+#sim = simulation("networks/BP.xml", "inputs/durations.xml")
+#results = run(sim,"bp.sim",15,5,false)
+results = load("bp.sim")
 graph_height = 10
 graph_width = 10
-graphspiketrains(durs, "DTN", "spikes.eps")
+graphspiketrains(constrain(results,"trial.main.duration",1), "DTN", "spikes1.eps")
+graphspiketrains(constrain(results,"trial.main.duration",5), "DTN", "spikes5.eps")
+graphspiketrains(constrain(results,"trial.main.duration",8), "DTN", "spikes8.eps")
+graphspiketrains(constrain(results,"trial.main.duration",12), "DTN", "spikes12.eps")
+graphspiketrains(constrain(results,"trial.main.duration",15), "DTN", "spikes15.eps")
 quit()

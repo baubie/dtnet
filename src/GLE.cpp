@@ -35,6 +35,38 @@ bool GLE::verifyData(GLE::Plot &plot)
     return true;
 }
 
+GLE::PanelID GLE::plot(vector< pair<double,double> > &points, PlotProperties properties, GLE::PanelID ID)
+{
+    Points new_points;
+    new_points.points = points;
+    new_points.properties = properties;
+
+    Panel panel;
+    if (ID == GLE::NEW_PANEL) 
+    {
+        // Get a new ID
+        this->panels.push_back(panel);
+        ID = this->panels.size() - 1;
+    }
+    else
+    {
+        try
+        {
+            panel = this->panels.at(ID);
+        } 
+        catch (out_of_range outOfRange)
+        {
+            cout << "[GLE++] Attempted to add to a non-existent panel (" << outOfRange.what() << ")." << endl;
+            return false;
+        }
+        
+    }
+
+    panel.points.push_back(new_points);
+    this->panels.at(ID) = panel;
+    return ID;
+}
+
 GLE::PanelID GLE::plot(vector<double> &x, vector<double> &y, GLE::PlotProperties properties)
 {
     return this->plot(x, y, properties, GLE::NEW_PANEL);
@@ -155,12 +187,17 @@ bool GLE::draw(string const &filename)
     // Delete the temporary files
     vector<Panel>::iterator panel_iter;
     vector<Plot>::iterator plot_iter;
+    vector<Points>::iterator points_iter;
     remove(gle_script_file.c_str());
     for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter) 
     {
         for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
         {
             remove(plot_iter->data_file.c_str());
+        }
+        for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter )
+        {
+            remove(points_iter->data_file.c_str());
         }
     }
 
@@ -174,6 +211,8 @@ bool GLE::data_to_file()
     vector<Plot>::iterator plot_iter;
     vector<double>::iterator x_iter;
     vector<double>::iterator y_iter;
+    vector<Points>::iterator points_iter;
+    vector< pair<double,double> >::iterator pair_iter;
     vector<vector<double> >::iterator all_y_iter;
     map<double, vector<double> > y;
     vector<double>::iterator values_y_iter;
@@ -181,6 +220,25 @@ bool GLE::data_to_file()
 
     for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter) 
     { /**< Loop over each panel. */
+
+        for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter )
+        { /**< Loop over each point. */
+            char data_filename[] = "/tmp/gle_data_XXXXXX";
+            int pTemp = mkstemp(data_filename);
+            boost::iostreams::file_descriptor_sink sink( pTemp );
+            boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
+            if (!of) 
+            {
+               cerr << "[GLE] Unable to create temporary file." << endl;
+               return false;
+            }
+            points_iter->data_file = string(data_filename);
+            for (pair_iter = points_iter->points.begin(); pair_iter != points_iter->points.end(); ++pair_iter) {
+                        of <<  fixed << setprecision(3) << pair_iter->first << "," << pair_iter->second << endl;
+            }
+            close ( pTemp );
+        }
+
         for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
         { /**< Loop over each plot in this panel. */
             for ( all_y_iter = plot_iter->y.begin(); all_y_iter != plot_iter->y.end(); ++all_y_iter)
@@ -232,6 +290,8 @@ string GLE::gle_script_to_file()
 
     vector<Panel>::iterator panel_iter;
     vector<Plot>::iterator plot_iter;
+    vector<Points>::iterator points_iter;
+    vector< pair<double,double> >::iterator pair_iter;
     vector<vector<double> >::iterator y_iter;
     Color color;
     Color diff;
@@ -322,6 +382,12 @@ string GLE::gle_script_to_file()
                         color.b += diff.b;
                         ++plot_num;
                     }
+                }
+                for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter ) 
+                {
+                    out << "data \"" << points_iter->data_file << "\"" << endl;
+                    out << "d" << plot_num << " marker dot" << endl;
+                    ++plot_num;
                 }
                 out << "end graph" << endl;
                 out << "end object" << endl;
