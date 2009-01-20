@@ -1,5 +1,6 @@
 
 #include "simulation.h"
+#define BUNDLE_SIZE 1
 
 using namespace std;
 
@@ -8,79 +9,48 @@ boost::mt19937 random_engine;
 
 Simulation::Simulation(Net &net, Trial &trial) : net(net), trial(trial) {}
 
-double Simulation::alpha(double t, vector<Neuron> &neurons, double tau, double delay, double globalDelay, double dt) {
 
-    static map<double, vector<double> > alpha;
-    static int alpha_steps = (int)(Simulation::ALPHA_WIDTH/dt);
-    static double q = 1000.0;
+void Simulation::runSimulation(int r_index, double T, double dt, double delay, bool voltage) {
 
-
-    if (alpha.find(tau) == alpha.end()) {
-        alpha[tau] = vector<double>(alpha_steps,0);
-        double tau2 = pow(tau,2);
-        for (int i=0; i < alpha_steps; i++) {
-            alpha[tau][i] = q*((i*dt) * exp(-(i*dt)/tau)) / tau2;
-        }
-    }
-
-
-	double current = 0;
-	double spike;
-    int step;
-
-    for (vector<Neuron>::iterator n = neurons.begin(); n != neurons.end(); ++n) {
-        for (vector<double>::iterator s = n->spikes.begin(); s != n->spikes.end(); ++s) {
-            // delay is the axonal delay and this->delay is the global time zero delay
-            spike = t-*s- delay - globalDelay;
-            if (spike > 0) {
-                step = (int)(spike/dt);
-                if (spike < Simulation::ALPHA_WIDTH) {
-                        current += alpha[tau][step];
-                } 
-                else { break; }
-            }
-        }
-    }
-	return current;
-}
-
-void Simulation::runSimulation(Results::Result *r, double T, double dt, double delay, bool voltage) {
-
-	double input;
+    // Run all the results given to us in the vector
+    // Each thread runs multiple results to cut down on thread management overhead
+    double input;
     double new_input;
     double tau;
     unsigned int steps = (unsigned int)(T/dt);
+
+    Results::Result* r = &Results::results.at(r_index);
 
     map<string, Population::ConstrainedPopulation>::iterator cpIter;
     vector<Neuron>::iterator nIter;
     map<string, Net::Connection<double> >::iterator fromIter; 
     
-	for (unsigned int ts=0; ts < steps; ++ts) { // Loop over time steps
+    for (unsigned int ts=0; ts < steps; ++ts) { // Loop over time steps
         for (cpIter = r->cNetwork.populations.begin(); cpIter != r->cNetwork.populations.end(); ++cpIter) {
             for (nIter = cpIter->second.neurons.begin(); nIter != cpIter->second.neurons.end(); ++nIter) { // Loop over neurons
 
-				input = 0.0;
-				
-				// Find spikes into our population				
+                input = 0.0;
+                
+                // Find spikes into our population				
                 for (fromIter = r->cNetwork.connections[cpIter->second.ID].begin(); 
                      fromIter != r->cNetwork.connections[cpIter->second.ID].end(); 
                      ++fromIter) {
                         new_input = 0;
                         if (fromIter->second.weight > 0) tau = 0.7;
                         else tau = 1.1; 
-                        new_input += Simulation::alpha(ts*dt, r->cNetwork.populations[fromIter->first].neurons, tau, fromIter->second.delay, delay, dt) * fromIter->second.weight;
+                        new_input += r->cNetwork.alpha(ts*dt, r->cNetwork.populations[fromIter->first].neurons, tau, fromIter->second.delay, delay, dt) * fromIter->second.weight;
                         input += new_input / (double)(r->cNetwork.populations[fromIter->first].neurons.size());
-				}
-				
-				// Add our input signal in
+                }
+                
+                // Add our input signal in
                 if (cpIter->second.accept_input) {
                     input += r->cTrial.values[ts];
                 }
-				// Update our neuron
+                // Update our neuron
                 nIter->update(input, ts, dt);
-			}
-		}
-	}
+            }
+        }
+    }
 
     // Delete the voltage if we don't want to save it.
     if (!voltage) {
@@ -96,16 +66,22 @@ bool Simulation::simulationProgress(boost::threadpool::pool &tp, int total, boos
 
     boost::posix_time::ptime now(boost::posix_time::microsec_clock::local_time());
     int pending = tp.pending();
+
     if (tp.pending() == 0) {
         cout << endl;
         return false;
     }
+
     double percent_done = (double)(total - pending) / (double)total;
     boost::posix_time::time_duration dur = now - start;
     double time_left = (double)dur.total_microseconds() / percent_done;
-    boost::posix_time::ptime finished = now + boost::posix_time::microseconds(time_left);
     boost::posix_time::time_duration left = boost::posix_time::microseconds(time_left) - dur;
-    cout << "\r[" << (int)(percent_done * 100) << "%] " << left << " remaining. Finished at " << finished << flush;
+
+    cout << "\r[" << (int)(percent_done * 100) << "%] ";
+    cout << "[" << pending << "/" << total << "] ";
+    cout << "[" << (tp.active()-1) << " active] ";
+    cout << left << " remaining." << flush;
+
     return true;
 }
 
@@ -124,13 +100,15 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     /**************************
      * INITIALIZE SIMULATIONS *
      **************************/
-    ofstream fstr;
-    fstr.open(filename.c_str(), fstream::out);
-    if (fstr.fail()) {
-        cout << "[X] Unable to open " << filename << " for writing." << endl;
-        return false;
+    if (filename != "") {
+        ofstream fstr;
+        fstr.open(filename.c_str(), fstream::out);
+        if (fstr.fail()) {
+            cout << "[X] Unable to open " << filename << " for writing." << endl;
+            return false;
+        }
+        fstr.close();
     }
-    fstr.close();
     cout << "Initializing " << total << " Simulations ";
     if (voltage) cout << "with voltage traces." << endl;
     if (!voltage) cout << "without voltage traces." << endl;  
@@ -182,10 +160,9 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
     LOG("Running " << networks->size() << " networks against " << inputs->size() << " inputs over " << number_of_trials << " trials.");
     boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
     tp.schedule(boost::threadpool::looped_task_func(boost::bind(&Simulation::simulationProgress, tp, total, start), 1000));
-    cout << "Running Simulations..." << endl;
-    vector<Results::Result*> results_to_run = results.get();
-    for (vector<Results::Result*>::iterator iter=results_to_run.begin(); iter != results_to_run.end(); ++iter) {
-        tp.schedule(boost::bind(&runSimulation, *iter, T, dt, delay, voltage));
+    cout << "Running " << Results::results.size() << " Simulations ..." << endl;
+    for (int r_index = 0; r_index < total; ++r_index) {
+            tp.schedule(boost::bind(&runSimulation, r_index, T, dt, delay, voltage));
     }
 
     tp.wait();

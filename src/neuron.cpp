@@ -128,10 +128,11 @@ void Neuron::Euler2(double current, int position, double dt) {
 void Neuron::RungeKutta(double current, int position, double dt) {
     w += w_update() * dt; // Just stick with Euler
     
-    double k1 = V_update(V, current, position)*dt;
-    double k2 = V_update(V+0.5*k1, current, position)*dt;
-    double k3 = V_update(V+0.5*k2, current, position)*dt;
-    double k4 = V_update(V+k3, current, position)*dt;
+    double k1,k2,k3,k4;
+    k1 = V_update(V, current, position)*dt;
+    k2 = V_update(V+0.5*k1, current, position)*dt;
+    k3 = V_update(V+0.5*k2, current, position)*dt;
+    k4 = V_update(V+k3, current, position)*dt;
     V += (k1+2*k2+2*k3+k4)/6;
     
     voltage[position] = V;
@@ -157,16 +158,26 @@ void Neuron::Spike(int position, double dt) {
 }
 
 double Neuron::V_update(double V, double current, int position) {
-        
+
+    double gL = params.vals["gL"];
+    double EL = params.vals["EL"];
+    double deltaT = params.vals["deltaT"];
+    double VT = params.vals["VT"];
+    double C = params.vals["C"];
+
     double IL;
     double ILd;	
-    IL = params.vals["gL"] * (V - params.vals["EL"]);
-    ILd = -params.vals["gL"] * params.vals["deltaT"] * exp((V-params.vals["VT"])/params.vals["deltaT"]);
-    double r =  (current - IL - ILd - w) / params.vals["C"];
+    IL = gL * (V - EL);
+    ILd = -gL * deltaT * exp((V-VT)/deltaT);
+    double r =  (current - IL - ILd - w) / C;
     if (r > 100000) r = 100000; // Prevent overflows
     return (double)r;
 }
 
 double Neuron::w_update() {
-    return (params.vals["a"]*(V-params.vals["EL"])-w)/params.vals["tauw"];
+    double a = params.vals["a"];
+    double EL = params.vals["EL"];
+    double tauw = params.vals["tauw"];
+
+    return (a*(V-EL)-w)/tauw;
 }

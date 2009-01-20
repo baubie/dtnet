@@ -46,6 +46,8 @@ class Results {
         void init(int size);
         std::vector<int> filter;
 
+        std::vector<double> meanSpikeCount(const std::string popID, const std::string ID);
+
         Results(double dt, double T, double delay);
         Results();
         std::string toString(); 
@@ -54,6 +56,7 @@ class Results {
         bool constrain(Results &r, std::string ID, const double value);
         bool matches(Result &r, std::string ID, const double value);
 
+        static int results_size;
         static std::vector<Result> results;                  /*<< Collection of all results. */
     private:
 

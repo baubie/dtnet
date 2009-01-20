@@ -9,6 +9,7 @@ std::vector<Net::ConstrainedNetwork>* Net::networkFactory() {
 
 }
 
+
 void Net::genNetworks() {
 
     this->genConnections( this->connections.begin(), 

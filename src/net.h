@@ -67,6 +67,41 @@ class Net {
                 return r;
             }
 
+            std::map<double, std::vector<double> > alphaVals;
+            double alpha(double t, std::vector<Neuron> &neurons, double tau, double delay, double globalDelay, double dt) {
+
+                int ALPHA_WIDTH = 20;
+                int alpha_steps = (int)(ALPHA_WIDTH/dt);
+                double q = 1000.0;
+
+                if (alphaVals.find(tau) == alphaVals.end()) {
+                    alphaVals[tau] = std::vector<double>(alpha_steps,0);
+                    double tau2 = pow(tau,2);
+                    for (int i=0; i < alpha_steps; i++) {
+                        alphaVals[tau][i] = q*((i*dt) * exp(-(i*dt)/tau)) / tau2;
+                    }
+                }
+
+                double current = 0;
+                double spike;
+                int step;
+
+                for (std::vector<Neuron>::iterator n = neurons.begin(); n != neurons.end(); ++n) {
+                    for (std::vector<double>::iterator s = n->spikes.begin(); s != n->spikes.end(); ++s) {
+                        // delay is the axonal delay and this->delay is the global time zero delay
+                        spike = t-*s- delay - globalDelay;
+                        if (spike > 0) {
+                            step = (int)(spike/dt);
+                            if (spike < ALPHA_WIDTH) {
+                                    current += alphaVals[tau][step];
+                            } 
+                            else { break; }
+                        }
+                    }
+                }
+                return current;
+            }
+
             friend class boost::serialization::access;
             template<class Archive>
             void serialize(Archive & ar, const unsigned int version)
@@ -86,6 +121,7 @@ class Net {
 		std::map<std::string, Population> populations;
         std::map< std::string, std::map< std::string, Connection<Range> > > connections;
 
+
     private:
 
         void genConnections( std::map< std::string, std::map< std::string, Connection<Range> > >::iterator to,
@@ -94,6 +130,7 @@ class Net {
         std::vector< std::map< std::string, Population::ConstrainedPopulation > > cPopulations; /**< Constrained popuations. **/
         std::vector< std::map< std::string, std::map< std::string, Connection<double> > > > cConnections; /**< Constrained connections. **/
         std::vector<ConstrainedNetwork> cNetworks; /**< Completed, constrained networks taking all combinations of cPopulations and cConnections. **/
+
 
         void genNetworks();
         std::string filename;

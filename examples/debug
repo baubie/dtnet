@@ -1,2 +1,2 @@
 #!/bin/bash
-valgrind -v dtnet -s debug.dtnet -v -p 2
+valgrind dtnet -s debug.dtnet -v -p 2

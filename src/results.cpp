@@ -37,14 +37,43 @@ vector< Results::Result* > Results::get(const string ID, const double value) {
     return r;
 }
 
+vector<double> Results::meanSpikeCount(const string popID, const string ID) {
+    // Return the mean spike counts over all simulations.
+    // When the result is constrained to have zero parameters, this is
+    // equivalent to mean spike count over all trials.
+    vector<double> means;
+    if (this->unconstrained.find(ID) == this->unconstrained.end()) {
+        cout << "[X] Mean spike count requested on a parameter that is not unconstrained." << endl;
+        return means; 
+    }
+
+    for (Range::iterator sIter = this->unconstrained[ID].begin(); sIter != this->unconstrained[ID].end(); ++sIter) {
+        int total = 0;
+        int count = 0;
+        vector<Results::Result*> r = this->get(ID, *sIter);
+        for (vector<Results::Result*>::iterator result = r.begin(); result != r.end(); ++result) {
+            for (vector<Neuron>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
+                                          neuron != (*result)->cNetwork.populations[popID].neurons.end();
+                                          ++neuron) {
+                total += neuron->spikes.size();
+                ++count; 
+            }
+        }
+        means.push_back((double)total/(double)count);
+    }
+
+    return means;
+}
+
 void Results::add(Result &r) {
-    results.push_back(r); // Add it to the pile.
-    this->filter.push_back(results.size() - 1); // Add on the last index
+    results[results_size] = r; // Add it to the pile.
+    this->filter.push_back(results_size); // Add on the last index
+    ++results_size;
 }
 
 void Results::init(int size) {
     results.clear();
-    results.reserve(size);
+    results.resize(size);
 }
 
 bool Results::matches(Result &r, string ID, const double value) {
@@ -98,6 +127,7 @@ bool Results::constrain(Results &r, std::string ID, const double value) {
     r.unconstrained = this->unconstrained;
     r.timeseries = this->timeseries;
     r.unconstrained.erase(ID); // Remove it from the list;
+    r.filter.clear(); // Make sure we clear the filter and start fresh.
 
     // Loop over all the results in this collection.
     // Add them onto the new one only if the constraint matches
