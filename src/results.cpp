@@ -72,6 +72,7 @@ void Results::add(Result &r) {
 }
 
 void Results::init(int size) {
+    results_size = 0;
     results.clear();
     results.resize(size);
 }

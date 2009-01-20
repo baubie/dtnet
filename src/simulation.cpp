@@ -19,7 +19,7 @@ void Simulation::runSimulation(int r_index, double T, double dt, double delay, b
     double tau;
     unsigned int steps = (unsigned int)(T/dt);
 
-    Results::Result* r = &Results::results.at(r_index);
+    Results::Result* r = &Results::results[r_index];
 
     map<string, Population::ConstrainedPopulation>::iterator cpIter;
     vector<Neuron>::iterator nIter;

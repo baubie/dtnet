@@ -4,16 +4,11 @@
 ###############################
 
 sim = simulation("networks/BP.xml", "inputs/durations.xml")
-results = run(sim,"/1/bp.sim",1,5,false)
-#results = load("/1/bp.sim")
+results = run(sim,"bp.sim",1,5,false)
+#results = load("bp.sim")
 print(results)
 graph_height = 10
 graph_width = 10
-#graphspikecounts(results, "DTN", "trial.main.duration", "spikes_all.eps")
-#graphspikecounts(constrain(results, "connection.SI:DTN.weight", -3), "DTN", "trial.main.duration", "spikes1.eps")
-graph_height = 20
-graph_width = 10
-weight = constrain(results, "connection.SI:DTN.weight", -3)
-dur = constrain(weight, "trial.main.duration", 5)
-#graphtrial_spikes(dur, 0, "output.eps")
+graphspikecounts(results, "DTN", "trial.main.duration", "spikes_all.eps")
+graphspikecounts(constrain(results, "connection.SI:DTN.weight", -3), "DTN", "trial.main.duration", "spikes1.eps")
 quit()

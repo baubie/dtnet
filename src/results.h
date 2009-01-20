@@ -56,7 +56,7 @@ class Results {
         bool constrain(Results &r, std::string ID, const double value);
         bool matches(Result &r, std::string ID, const double value);
 
-        static int results_size;
+        int results_size;
         static std::vector<Result> results;                  /*<< Collection of all results. */
     private:
 
