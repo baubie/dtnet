@@ -514,6 +514,9 @@ void dtlang::initialize_functions()
 
     dtlang::functions["graphspikecounts"] = f;
 
+    // graphspikecounts3d()
+    dtlang::functions["graphspikecounts3d"] = f;
+
     // graphtrial_voltage()
     f.help = "Produce a plot of the voltage traces for each neuron in each population.";
     f.return_type = dtlang::TYPE_VOID;
@@ -680,7 +683,16 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         return dtlang::f_graphspikecounts(*(static_cast<Results*>(params[0].obj)),
                                           *(static_cast<string*>(params[1].obj)),
                                           *(static_cast<string*>(params[2].obj)),
-                                          *(static_cast<string*>(params[3].obj))
+                                          *(static_cast<string*>(params[3].obj)),
+                                          dtlang::PLOT_FLAT
+                                         );
+    }
+    if (name == "graphspikecounts3d") {
+        return dtlang::f_graphspikecounts(*(static_cast<Results*>(params[0].obj)),
+                                          *(static_cast<string*>(params[1].obj)),
+                                          *(static_cast<string*>(params[2].obj)),
+                                          *(static_cast<string*>(params[3].obj)),
+                                          dtlang::PLOT_3D
                                          );
     }
 
@@ -1069,12 +1081,17 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
     return true;
 }
 */
-bool dtlang::f_graphspikecounts(Results &results, string const &popID, string const &x_axis, string const &filename) {
+bool dtlang::f_graphspikecounts(Results &results, string const &popID, string const &x_axis, string const &filename, int const type) {
 
     if (results.unconstrained.size() > 2 || results.unconstrained.size() == 0) {
         cout << "[X] Results must be constrained to a one or two parameters." << endl;
         return false;
     }
+    if (type != dtlang::PLOT_FLAT && results.unconstrained.size() != 2) {
+        cout << "[X] Results must be constrained to two parameters." << endl;
+        return false;
+    }
+
     string series = "";
     Range series_range = Range(0);
     map<string, Range>::iterator ucIter;
@@ -1089,28 +1106,46 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
     GLE gle;
     GLE::PanelID panelID = GLE::NEW_PANEL;
     GLE::PlotProperties plotProperties;
+    GLE::PanelProperties props;
     double max_value = 0;
+    vector< vector<double> > z;
 
-    for (Range::iterator sIter = series_range.begin(); sIter != series_range.end(); ++sIter) {
-        if (series != "") {
-            results.constrain(seriesResults, series, *sIter);
-        } else {
-            seriesResults = results;
-        }
+    switch (type) {
+        case dtlang::PLOT_FLAT:
+            for (Range::iterator sIter = series_range.begin(); sIter != series_range.end(); ++sIter) {
+                if (series != "") {
+                    results.constrain(seriesResults, series, *sIter);
+                } else {
+                    seriesResults = results;
+                }
+                
+                vector<double> means = seriesResults.meanSpikeCount(popID, x_axis);
+                panelID = gle.plot(results.unconstrained[x_axis].values, means, plotProperties, panelID);
+                max_value = max(max_value, *(max_element(means.begin(), means.end())));
+            }
+            props = gle.getPanelProperties(panelID);
+            props.x_title = x_axis;
+            props.y_title = "Mean Spike Count per Trial";
+            props.title = "Mean Spike Counts";
+            props.y_min = 0;
+            props.y_max = (int)(max_value+1); // Use the last y value as the top value.
+            props.y_labels = true;
+            gle.setPanelProperties(props, panelID);
+            break;
         
-        vector<double> means = seriesResults.meanSpikeCount(popID, x_axis);
-        panelID = gle.plot(results.unconstrained[x_axis].values, means, plotProperties, panelID);
-        max_value = max(max_value, *(max_element(means.begin(), means.end())));
+        case dtlang::PLOT_3D:
+            for (Range::iterator sIter = series_range.begin(); sIter != series_range.end(); ++sIter) {
+                results.constrain(seriesResults, series, *sIter);
+                vector<double> means = seriesResults.meanSpikeCount(popID, x_axis);
+                z.push_back(means);
+            }
+            panelID = gle.plot3d(results.unconstrained[x_axis].values, results.unconstrained[series].values, z, plotProperties, panelID);
+            props = gle.getPanelProperties(panelID);
+            props.title = "Mean Spike Counts";
+            gle.setPanelProperties(props, panelID);
+        break;
     }
 
-    GLE::PanelProperties props = gle.getPanelProperties(panelID);
-    props.x_title = x_axis;
-    props.y_title = "Mean Spike Count per Trial";
-    props.title = "Mean Spike Counts";
-    props.y_min = 0;
-    props.y_max = (int)(max_value+1); // Use the last y value as the top value.
-    props.y_labels = true;
-    bool r = gle.setPanelProperties(props, panelID);
 
     gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
     gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));

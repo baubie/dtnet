@@ -86,7 +86,7 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<double> &y, GLE::PlotProperties
 
 GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotProperties properties, GLE::PanelID ID)
 {
-    GLE::Plot plot;
+    Plot plot;
     plot.x = x;
     plot.properties = properties;
 
@@ -140,7 +140,7 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotP
         catch (out_of_range outOfRange)
         {
             cout << "[GLE++] Attempted to add to a non-existent panel (" << outOfRange.what() << ")." << endl;
-            return false;
+            return -1;
         }
         
     }
@@ -154,6 +154,42 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotP
         this->setPanelProperties(p, ID);
     }
 
+    return ID;
+}
+
+GLE::PanelID GLE::plot3d(vector<double> &x, vector<double> &y, vector< vector<double> > &z, PlotProperties properties, PanelID ID)
+{
+
+    Plot3d plot3d;
+    plot3d.x = x;
+    plot3d.y = y;
+    plot3d.z = z;
+    plot3d.properties = properties;
+
+    Panel panel;
+
+    if (ID == GLE::NEW_PANEL) 
+    {
+        // Get a new ID
+        this->panels.push_back(panel);
+        ID = this->panels.size() - 1;
+    }
+    else
+    {
+        try
+        {
+            panel = this->panels.at(ID);
+        } 
+        catch (out_of_range outOfRange)
+        {
+            cout << "[GLE++] Attempted to add to a non-existent panel (" << outOfRange.what() << ")." << endl;
+            return -1;
+        }
+        
+    }
+
+    panel.plots3d.push_back(plot3d);
+    this->panels.at(ID) = panel;
     return ID;
 }
 
@@ -188,6 +224,7 @@ bool GLE::draw(string const &filename)
     vector<Panel>::iterator panel_iter;
     vector<Plot>::iterator plot_iter;
     vector<Points>::iterator points_iter;
+    vector<Plot3d>::iterator plot3d_iter;
     remove(gle_script_file.c_str());
     for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter) 
     {
@@ -198,6 +235,10 @@ bool GLE::draw(string const &filename)
         for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter )
         {
             remove(points_iter->data_file.c_str());
+        }
+        for ( plot3d_iter = panel_iter->plots3d.begin(); plot3d_iter != panel_iter->plots3d.end(); ++plot3d_iter )
+        {
+            remove(plot3d_iter->data_file.c_str());
         }
     }
 
@@ -212,6 +253,7 @@ bool GLE::data_to_file()
     vector<double>::iterator x_iter;
     vector<double>::iterator y_iter;
     vector<Points>::iterator points_iter;
+    vector<Plot3d>::iterator plot3d_iter;
     vector< pair<double,double> >::iterator pair_iter;
     vector<vector<double> >::iterator all_y_iter;
     map<double, vector<double> > y;
@@ -221,8 +263,37 @@ bool GLE::data_to_file()
     for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter) 
     { /**< Loop over each panel. */
 
+        for ( plot3d_iter = panel_iter->plots3d.begin(); plot3d_iter != panel_iter->plots3d.end(); ++plot3d_iter ) 
+        { /**< Loop over each set of 3D data (probably only one, but this is general). **/
+            char data_filename[] = "/tmp/gle_data_XXXXXX";
+            int pTemp = mkstemp(data_filename);
+            boost::iostreams::file_descriptor_sink sink( pTemp );
+            boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
+            if (!of) 
+            {
+               cerr << "[GLE] Unable to create temporary file." << endl;
+               return false;
+            }
+            plot3d_iter->data_file = string(data_filename);
+            plot3d_iter->data_file += ".z"; // GLE requires the .z extension to work
+            of << "! nx " << plot3d_iter->x.size() << " ny " << plot3d_iter->y.size();
+            of << " xmin " << plot3d_iter->x.front() << " xmax " << plot3d_iter->x.back();
+            of << " ymin " << plot3d_iter->y.front() << " ymax " << plot3d_iter->y.back();
+            of << endl;
+            for (vector< vector<double> >::iterator x = plot3d_iter->z.begin(); x != plot3d_iter->z.end(); ++x) {
+                for (vector<double>::iterator y = x->begin(); y != x->end(); ++y) {
+                    of << fixed << setprecision(3) << *y << " ";
+                    if (*y > plot3d_iter->z_max) plot3d_iter->z_max = *y;
+                    if (*y < plot3d_iter->z_min) plot3d_iter->z_min = *y;
+                }
+                of << endl;
+            }
+            close ( pTemp );
+            rename( data_filename, plot3d_iter->data_file.c_str() );
+        }
+
         for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter )
-        { /**< Loop over each point. */
+        { /**< Loop over each set of points. */
             char data_filename[] = "/tmp/gle_data_XXXXXX";
             int pTemp = mkstemp(data_filename);
             boost::iostreams::file_descriptor_sink sink( pTemp );
@@ -290,6 +361,7 @@ string GLE::gle_script_to_file()
 
     vector<Panel>::iterator panel_iter;
     vector<Plot>::iterator plot_iter;
+    vector<Plot3d>::iterator plot3d_iter;
     vector<Points>::iterator points_iter;
     vector< pair<double,double> >::iterator pair_iter;
     vector<vector<double> >::iterator y_iter;
@@ -324,8 +396,29 @@ string GLE::gle_script_to_file()
                 out << "! PANEL " << count << " !" << endl;
                 out << "!!!!!!!!!!!" << endl;
 
+                out << "include \"color.gle\"" << endl;
 
                 out << "begin object graph" << count << endl;
+
+                if (panel_iter->plots3d.size() > 0) {
+                    out << "begin graph" << endl;
+                    out << "xaxis min " << panel_iter->plots3d[0].x.front() << " max " << panel_iter->plots3d[0].x.back() << endl;
+                    out << "yaxis min " << panel_iter->plots3d[0].y.front() << " max " << panel_iter->plots3d[0].y.back() << endl;
+                    out << "size " << (panel_width-1) << " " << panel_height << endl;
+                    out << "scale auto" << endl;
+                    out << "xtitle \"" << panel_iter->properties.x_title << "\"" << endl;
+                    out << "ytitle \"" << panel_iter->properties.y_title << "\"" << endl;
+                    out << "title \"" << panel_iter->properties.title << "\"" << endl;
+                    out << "colormap \"" << panel_iter->plots3d[0].data_file << "\"";
+                    out << " " << panel_iter->plots3d[0].x.size() << " " << panel_iter->plots3d[0].y.size();
+                    out << " zmin " << panel_iter->plots3d[0].z_min << " zmax " << panel_iter->plots3d[0].z_max;
+                    out << endl;
+                    out << "end graph" << endl;
+                    out << "amove xg(xgmax)+0.3 yg(ygmin)" << endl;
+
+                    out << "color_range_vertical " << panel_iter->plots3d[0].z_min << " " << panel_iter->plots3d[0].z_max;
+                    out << " 1 palette gray" << endl;
+                } else {
                 out << "begin graph" << endl;
                 out << "size " << panel_width << " " << panel_height << endl;
                 out << "scale auto" << endl;
@@ -340,6 +433,7 @@ string GLE::gle_script_to_file()
                     if (panel_iter->properties.y_max != GLE::UNDEFINED) out << "max " << panel_iter->properties.y_max << " ";
                     out << endl;
                 }
+
                 if (panel_iter->properties.y_nticks != GLE::UNDEFINED) {
                     out << "yaxis nticks " << panel_iter->properties.y_nticks << endl;
                 }
@@ -390,6 +484,7 @@ string GLE::gle_script_to_file()
                     ++plot_num;
                 }
                 out << "end graph" << endl;
+                }
                 out << "end object" << endl;
 
                 ++panel_iter;

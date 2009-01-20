@@ -37,6 +37,9 @@ namespace dtlang
     static const double DEFAULT = -9999999;
     static const int PLOT_VOLTAGE = 1;
     static const int PLOT_SPIKES = 2; 
+    static const int PLOT_FLAT = 1;
+    static const int PLOT_3D = 2;
+    static const int PLOT_MAP = 3;
     static const int TYPE_ANY = 2948242;
     static const int TYPE_VOID = 1;
     static const int TYPE_STRING = 2;
@@ -128,7 +131,7 @@ namespace dtlang
 	bool f_graphnetwork(Results &results, string const &filename);
 	bool f_graphtrial(int type, Results &results, int trial, string const &filename);
     bool f_graphspiketrains(Results &results, string const &popID, int trials, double start, double end, string const &filename); 
-    bool f_graphspikecounts(Results &results, string const &popID, string const &x_axis, string const &filename);
+    bool f_graphspikecounts(Results &results, string const &popID, string const &x_axis, string const &filename, int const type);
 
     /**
      * Comment Parser

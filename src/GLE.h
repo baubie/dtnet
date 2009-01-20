@@ -130,6 +130,8 @@ class GLE
         PanelID plot(std::vector<double> &x, std::vector<double> &y, PlotProperties properties, PanelID panel); // Plot a single x-y curve by adding it to an existing panel
         PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, PlotProperties properties, PanelID panel); // Plot a Multiple x-y curves with the same x by adding it to an existing panel
 
+        PanelID plot3d(std::vector<double> &x, std::vector<double> &y, std::vector< std::vector<double> > &z, PlotProperties properties, PanelID ID);
+
         bool setPanelProperties(PanelProperties properties, PanelID ID); // Set the panel properties for a particular panel
         bool setPanelProperties(PanelProperties properties); // Set the panel properties for all panels
 
@@ -147,6 +149,15 @@ class GLE
             std::string data_file;
         };
 
+        struct Plot3d {
+            std::vector<double> y;
+            std::vector<double> x;
+            std::vector< std::vector<double> > z;
+            double z_min, z_max;
+            PlotProperties properties;
+            std::string data_file;
+        };
+
         struct Points {
             std::vector< std::pair<double,double> > points;
             PlotProperties properties;
@@ -157,6 +168,7 @@ class GLE
             PanelProperties properties;
             std::vector<Plot> plots;
             std::vector<Points> points;
+            std::vector<Plot3d> plots3d;
         };
 
         std::vector<Panel> panels;

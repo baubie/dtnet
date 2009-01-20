@@ -3,12 +3,11 @@
 # Written by Brandon Aubie    #
 ###############################
 
-sim = simulation("networks/BP.xml", "inputs/durations.xml")
-results = run(sim,"bp.sim",1,5,false)
-#results = load("bp.sim")
+#sim = simulation("networks/BP.xml", "inputs/durations.xml")
+#results = run(sim,"bp.sim",10,5,false)
+results = load("bp.sim")
 print(results)
 graph_height = 10
 graph_width = 10
-graphspikecounts(results, "DTN", "trial.main.duration", "spikes_all.eps")
-graphspikecounts(constrain(results, "connection.SI:DTN.weight", -3), "DTN", "trial.main.duration", "spikes1.eps")
+graphspikecounts3d(results, "DTN", "trial.main.duration", "spikes_all.eps")
 quit()
