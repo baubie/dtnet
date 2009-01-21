@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<!--
+Each trial can have a maximum of ONE range over duration.
+Each trial can have a maximum of ONE range over delay.
+Each trial can have any number of inputs
+-->
+
+<trial>
+    <input type="pure" ID="main">
+        <param name="delay"><range start="0" end="65" step="1" /></param>
+        <param name="amplitude">1</param>
+        <param name="duration">2</param>
+    </input>
+    <input type="pure" ID="long">
+        <param name="delay">20</param>
+        <param name="amplitude">1</param>
+        <param name="duration">20</param>
+    </input>
+</trial>

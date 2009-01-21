@@ -3,7 +3,7 @@
 <network title="Bandpass Network">
     <population id="CN" title="Cochlear Nucleus" type="Poisson">
         <param name="size">25</param>
-        <param name="mu"><range start="350" end="500" step="50" /></param>
+		<param name="mu">400</param>
         <param name="accept_input">true</param>
     </population>
 
@@ -113,7 +113,7 @@
     <connection>
         <param name="from">ONDelay</param> 
         <param name="to">DTN</param>
-        <param name="weight">5</param>
+        <param name="weight"><range start="5" end="8" step="1" /></param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
@@ -121,7 +121,7 @@
     <connection>
         <param name="from">OFF</param> 
         <param name="to">DTN</param>
-        <param name="weight">2</param>
+        <param name="weight">0</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
