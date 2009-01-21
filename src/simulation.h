@@ -32,7 +32,7 @@ class Simulation
 		std::string toString();
 
         static bool simulationProgress(boost::threadpool::pool &tp, int total, boost::posix_time::ptime start);
-        static void runSimulation(int r_index, double T, double dt, double delay, bool voltage);
+        static void runSimulation(Results::Result *r, double T, double dt, double delay, bool voltage);
 
     private:
 

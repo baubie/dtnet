@@ -68,6 +68,7 @@ class GLE
             bool zeros;
             bool nomiss;
             bool no_y;
+            bool usemap;
 
             /** For use when no_y = true **/
             double y_start;
@@ -83,6 +84,7 @@ class GLE
                 zeros(true),
                 nomiss(true),
                 no_y(false),
+                usemap(false),
                 y_start(1),
                 y_inc(1)
             {}

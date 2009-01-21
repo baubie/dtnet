@@ -187,6 +187,7 @@ bool Net::parseXML(string filename, string &error)
             char pop_name_tmp[50];
     		int pop_size = 0;
             bool accept_input = false;
+            bool spontaneous = false;
             NeuronParams np;
             hPopulation = pElem;        
 
@@ -203,12 +204,19 @@ bool Net::parseXML(string filename, string &error)
 
 			for ( /***/; pElemParam; pElemParam = pElemParam->NextSiblingElement( "param" )) {
 
+                double sigma = 0;
+                double start, end, step;
+
 				hParam = pElemParam;
                // Found a Parameter Element With Text
 				if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
 
                     if (strcmp(pElemParam->Attribute("name"),"accept_input") == 0) {
                         accept_input = (strcmp(pElemParam->FirstChild()->Value(), "true") == 0);
+                    }
+
+                    if (strcmp(pElemParam->Attribute("name"),"spontaneous") == 0) {
+                        spontaneous = (strcmp(pElemParam->FirstChild()->Value(), "true") == 0);
                     }
 
                     if (strcmp(pElemParam->Attribute("name"),"size") == 0) {
@@ -227,10 +235,28 @@ bool Net::parseXML(string filename, string &error)
                     
                // Found a Parameter Element With A Range Element
 				} else if (pElemParam->FirstChild()->Type() == TiXmlNode::ELEMENT) {
-				
+
+					if (strcmp(pElemParam->FirstChild()->Value(), "range") == 0) {
+                        start = 0;
+                        end = 0;
+                        step = 1;
+                        hParam.FirstChild().Element()->QueryDoubleAttribute("start", &start);
+                        hParam.FirstChild().Element()->QueryDoubleAttribute("end", &end);
+                        hParam.FirstChild().Element()->QueryDoubleAttribute("step", &step);
+
+                        for (map<string,Range>::iterator iter = np.vals.begin(); iter != np.vals.end(); ++iter) {
+                            if (strcmp(pElemParam->Attribute("name"),(iter->first).c_str()) == 0) {
+                                np.vals[iter->first] = Range(start, end, step);
+                                double sigma = 0;
+                                pElemParam->QueryDoubleAttribute("sigma", &sigma);                    
+                                np.sigmas[iter->first] = sigma;
+                            }
+                        }
+					}
+
                 }	
 			} // Parameter Loop            
-            this->populations[pop_id] = Population(pop_name, pop_id, pop_size, accept_input, position, np);
+            this->populations[pop_id] = Population(pop_name, pop_id, pop_size, accept_input, spontaneous, position, np);
             ++position;
         }
 

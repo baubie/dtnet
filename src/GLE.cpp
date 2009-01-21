@@ -225,7 +225,7 @@ bool GLE::draw(string const &filename)
     vector<Plot>::iterator plot_iter;
     vector<Points>::iterator points_iter;
     vector<Plot3d>::iterator plot3d_iter;
-    remove(gle_script_file.c_str());
+    //remove(gle_script_file.c_str());
     for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter) 
     {
         for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
@@ -238,7 +238,7 @@ bool GLE::draw(string const &filename)
         }
         for ( plot3d_iter = panel_iter->plots3d.begin(); plot3d_iter != panel_iter->plots3d.end(); ++plot3d_iter )
         {
-            remove(plot3d_iter->data_file.c_str());
+            //remove(plot3d_iter->data_file.c_str());
         }
     }
 
@@ -401,23 +401,37 @@ string GLE::gle_script_to_file()
                 out << "begin object graph" << count << endl;
 
                 if (panel_iter->plots3d.size() > 0) {
-                    out << "begin graph" << endl;
-                    out << "xaxis min " << panel_iter->plots3d[0].x.front() << " max " << panel_iter->plots3d[0].x.back() << endl;
-                    out << "yaxis min " << panel_iter->plots3d[0].y.front() << " max " << panel_iter->plots3d[0].y.back() << endl;
-                    out << "size " << (panel_width-1) << " " << panel_height << endl;
-                    out << "scale auto" << endl;
-                    out << "xtitle \"" << panel_iter->properties.x_title << "\"" << endl;
-                    out << "ytitle \"" << panel_iter->properties.y_title << "\"" << endl;
-                    out << "title \"" << panel_iter->properties.title << "\"" << endl;
-                    out << "colormap \"" << panel_iter->plots3d[0].data_file << "\"";
-                    out << " " << panel_iter->plots3d[0].x.size() << " " << panel_iter->plots3d[0].y.size();
-                    out << " zmin " << panel_iter->plots3d[0].z_min << " zmax " << panel_iter->plots3d[0].z_max;
-                    out << endl;
-                    out << "end graph" << endl;
-                    out << "amove xg(xgmax)+0.3 yg(ygmin)" << endl;
+                    if (panel_iter->plots3d[0].properties.usemap == true) {
+                        // Output 3D data using a heatmap type display
+                        out << "begin graph" << endl;
+                        out << "xaxis min " << panel_iter->plots3d[0].x.front() << " max " << panel_iter->plots3d[0].x.back() << endl;
+                        out << "yaxis min " << panel_iter->plots3d[0].y.front() << " max " << panel_iter->plots3d[0].y.back() << endl;
+                        out << "size " << (panel_width-1) << " " << panel_height << endl;
+                        out << "scale auto" << endl;
+                        out << "xtitle \"" << panel_iter->properties.x_title << "\"" << endl;
+                        out << "ytitle \"" << panel_iter->properties.y_title << "\"" << endl;
+                        out << "title \"" << panel_iter->properties.title << "\"" << endl;
+                        out << "colormap \"" << panel_iter->plots3d[0].data_file << "\"";
+                        out << " " << panel_iter->plots3d[0].x.size() << " " << panel_iter->plots3d[0].y.size();
+                        out << " zmin " << panel_iter->plots3d[0].z_min << " zmax " << panel_iter->plots3d[0].z_max;
+                        out << endl;
+                        out << "end graph" << endl;
+                        out << "amove xg(xgmax)+0.3 yg(ygmin)" << endl;
+                        out << "color_range_vertical " << panel_iter->plots3d[0].z_min << " " << panel_iter->plots3d[0].z_max;
+                        out << " 1 palette gray" << endl;
+                    } else {
+                        // Output 3D data using a 3D graph
+                        out << "begin surface" << endl;
+                        out << "xaxis min " << panel_iter->plots3d[0].x.front() << " max " << panel_iter->plots3d[0].x.back() << endl;
+                        out << "yaxis min " << panel_iter->plots3d[0].y.front() << " max " << panel_iter->plots3d[0].y.back() << endl;
+                        out << "size " << panel_width << " " << panel_height << endl;
+                        out << "xtitle \"" << panel_iter->properties.x_title << "\"" << endl;
+                        out << "ytitle \"" << panel_iter->properties.y_title << "\"" << endl;
+                        out << "title \"" << panel_iter->properties.title << "\"" << endl;
+                        out << "data \"" << panel_iter->plots3d[0].data_file << "\"" << endl;
+                        out << "end surface" << endl;
 
-                    out << "color_range_vertical " << panel_iter->plots3d[0].z_min << " " << panel_iter->plots3d[0].z_max;
-                    out << " 1 palette gray" << endl;
+                    }
                 } else {
                 out << "begin graph" << endl;
                 out << "size " << panel_width << " " << panel_height << endl;
@@ -480,7 +494,7 @@ string GLE::gle_script_to_file()
                 for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter ) 
                 {
                     out << "data \"" << points_iter->data_file << "\"" << endl;
-                    out << "d" << plot_num << " marker dot" << endl;
+                    out << "d" << plot_num << " marker dot msize " << points_iter->properties.pointSize << endl;
                     ++plot_num;
                 }
                 out << "end graph" << endl;

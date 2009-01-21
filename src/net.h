@@ -70,9 +70,9 @@ class Net {
             std::map<double, std::vector<double> > alphaVals;
             double alpha(double t, std::vector<Neuron> &neurons, double tau, double delay, double globalDelay, double dt) {
 
-                int ALPHA_WIDTH = 20;
-                int alpha_steps = (int)(ALPHA_WIDTH/dt);
-                double q = 1000.0;
+                static int ALPHA_WIDTH = 20;
+                static int alpha_steps = (int)(ALPHA_WIDTH/dt);
+                static double q = 1000.0;
 
                 if (alphaVals.find(tau) == alphaVals.end()) {
                     alphaVals[tau] = std::vector<double>(alpha_steps,0);
@@ -87,7 +87,8 @@ class Net {
                 int step;
 
                 for (std::vector<Neuron>::iterator n = neurons.begin(); n != neurons.end(); ++n) {
-                    for (std::vector<double>::iterator s = n->spikes.begin(); s != n->spikes.end(); ++s) {
+                    // Loop over the spikes from the most recent the the oldest
+                    for (std::vector<double>::reverse_iterator s = n->spikes.rbegin(); s != n->spikes.rend(); ++s) {
                         // delay is the axonal delay and this->delay is the global time zero delay
                         spike = t-*s- delay - globalDelay;
                         if (spike > 0) {

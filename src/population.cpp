@@ -19,11 +19,12 @@ void Population::genPopulations() {
     cp.params = this->params;
     cp.neurons = vector<Neuron>(this->neurons);
     cp.accept_input = this->accept_input;
+    cp.spontaneous = this->spontaneous;
     cp.position = this->position;
     this->cPopulations.push_back(cp);
 }
 
-Population::Population(string name, string ID, int size, bool accept_input, int position, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), position(position), params(params)  { 
+Population::Population(string name, string ID, int size, bool accept_input, bool spontaneous, int position, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), spontaneous(spontaneous), position(position), params(params)  { 
     this->initialize(size, params);
 }
 

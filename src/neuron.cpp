@@ -67,6 +67,7 @@ void Neuron::Poisson(double current, int position, double dt) {
 
 
     if (current == 0) { this->active = 0; return; }
+
     this->active += dt;
     double mu = this->params.vals["mu"];
 
@@ -159,25 +160,22 @@ void Neuron::Spike(int position, double dt) {
 
 double Neuron::V_update(double V, double current, int position) {
 
-    double gL = params.vals["gL"];
-    double EL = params.vals["EL"];
-    double deltaT = params.vals["deltaT"];
-    double VT = params.vals["VT"];
-    double C = params.vals["C"];
+    static string s_gL = "gL";
+    static string s_EL = "EL";
+    static string s_deltaT = "deltaT";
+    static string s_VT = "VT";
+    static string s_C = "C";
 
-    double IL;
-    double ILd;	
-    IL = gL * (V - EL);
-    ILd = -gL * deltaT * exp((V-VT)/deltaT);
-    double r =  (current - IL - ILd - w) / C;
-    if (r > 100000) r = 100000; // Prevent overflows
-    return (double)r;
+    double IL = params.vals[s_gL] * (V - params.vals[s_EL]);
+    double ILd = -params.vals[s_gL] * params.vals[s_deltaT] * exp((V-params.vals[s_VT])/params.vals[s_deltaT]);
+    double r =  (current - IL - ILd - w) / params.vals[s_C];
+    if (r > 10000) r = 10000; // Prevent overflows
+    return r;
 }
 
 double Neuron::w_update() {
-    double a = params.vals["a"];
-    double EL = params.vals["EL"];
-    double tauw = params.vals["tauw"];
-
-    return (a*(V-EL)-w)/tauw;
+    static string s_a = "a";
+    static string s_EL = "EL";
+    static string s_tauw = "tauw";
+    return (params.vals[s_a]*(V-params.vals[s_EL])-w)/params.vals[s_tauw];
 }

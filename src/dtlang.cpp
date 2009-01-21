@@ -517,6 +517,9 @@ void dtlang::initialize_functions()
     // graphspikecounts3d()
     dtlang::functions["graphspikecounts3d"] = f;
 
+    // graphspikecountsmap()
+    dtlang::functions["graphspikecountsmap"] = f;
+
     // graphtrial_voltage()
     f.help = "Produce a plot of the voltage traces for each neuron in each population.";
     f.return_type = dtlang::TYPE_VOID;
@@ -693,6 +696,14 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
                                           *(static_cast<string*>(params[2].obj)),
                                           *(static_cast<string*>(params[3].obj)),
                                           dtlang::PLOT_3D
+                                         );
+    }
+    if (name == "graphspikecountsmap") {
+        return dtlang::f_graphspikecounts(*(static_cast<Results*>(params[0].obj)),
+                                          *(static_cast<string*>(params[1].obj)),
+                                          *(static_cast<string*>(params[2].obj)),
+                                          *(static_cast<string*>(params[3].obj)),
+                                          dtlang::PLOT_MAP
                                          );
     }
 
@@ -1133,12 +1144,15 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
             gle.setPanelProperties(props, panelID);
             break;
         
+        case dtlang::PLOT_MAP:
         case dtlang::PLOT_3D:
             for (Range::iterator sIter = series_range.begin(); sIter != series_range.end(); ++sIter) {
                 results.constrain(seriesResults, series, *sIter);
                 vector<double> means = seriesResults.meanSpikeCount(popID, x_axis);
                 z.push_back(means);
             }
+            if (type == dtlang::PLOT_MAP) plotProperties.usemap = true;
+            else plotProperties.usemap = false;
             panelID = gle.plot3d(results.unconstrained[x_axis].values, results.unconstrained[series].values, z, plotProperties, panelID);
             props = gle.getPanelProperties(panelID);
             props.title = "Mean Spike Counts";
@@ -1190,10 +1204,11 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     plotProperties.zeros = false;
     plotProperties.no_y = true;
     plotProperties.lineWidth = 0;
+    plotProperties.pointSize = 0.1;
 
     GLE::PlotProperties sigPlotProperties;
     sigPlotProperties.zeros = false;
-    sigPlotProperties.lineWidth = 0.02;
+    sigPlotProperties.lineWidth = 0;
     GLE::PanelID panelID = GLE::NEW_PANEL;
    
     vector< vector<double> > signals; 
