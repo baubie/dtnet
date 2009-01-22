@@ -27,25 +27,9 @@ void Net::genNetworks() {
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // TEMPORARY
-    // CURRENTLY ONLY GETS A SINGLE NETWORK
-    // EVENTUALLY NEEDS TO CREATE AND PUSH ALL NETWORKS ONTO this->cPopulations
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    map<string, Population>::iterator pIter;
-    map<string, Population::ConstrainedPopulation> cPop; 
-    for (pIter = this->populations.begin(); pIter != this->populations.end(); ++pIter) {
-        // TODO Don't just add the first population, use recursion to add all returned populations.
-        cPop[pIter->first] = pIter->second.populationFactory()->at(0);
-    }
-    this->cPopulations.push_back(cPop);
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
     // Loop over all networks and all connection profiles to produce all possible constrained networks
     for (vector< map<string, map<string, Connection<double> > > >::iterator cIter = this->cConnections.begin(); cIter != this->cConnections.end(); ++cIter) {
-        for (vector< map<string, Population::ConstrainedPopulation> >::iterator pIter = this->cPopulations.begin(); pIter != this->cPopulations.end(); ++pIter) {
+        for (vector< map<string, Population::ConstrainedPopulation> >::iterator pIter = this->populations.populationFactory->begin(); pIter != this->populations.populationFactory->end(); ++pIter) {
             ConstrainedNetwork cn;
             cn.connections = *cIter;
             cn.populations = *pIter;
@@ -185,7 +169,6 @@ bool Net::parseXML(string filename, string &error)
             string pop_name;
             string pop_id;
             char pop_name_tmp[50];
-    		int pop_size = 0;
             bool accept_input = false;
             bool spontaneous = false;
             NeuronParams np;
@@ -217,10 +200,6 @@ bool Net::parseXML(string filename, string &error)
 
                     if (strcmp(pElemParam->Attribute("name"),"spontaneous") == 0) {
                         spontaneous = (strcmp(pElemParam->FirstChild()->Value(), "true") == 0);
-                    }
-
-                    if (strcmp(pElemParam->Attribute("name"),"size") == 0) {
-                        pop_size = (int)atoi(pElemParam->FirstChild()->Value());
                     }
 
                     for (map<string,Range>::iterator iter = np.vals.begin(); iter != np.vals.end(); ++iter) {
@@ -256,7 +235,7 @@ bool Net::parseXML(string filename, string &error)
 
                 }	
 			} // Parameter Loop            
-            this->populations[pop_id] = Population(pop_name, pop_id, pop_size, accept_input, spontaneous, position, np);
+            this->populations[pop_id] = Population(pop_name, pop_id, accept_input, spontaneous, position, np);
             ++position;
         }
 

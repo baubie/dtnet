@@ -202,7 +202,10 @@ bool GLE::draw()
 bool GLE::draw(string const &filename)
 {
     string gle_script_file = this->gle_script_to_file();
-    string command = string("gle -output ") + filename + " " + gle_script_file;
+    string type = filename.substr(filename.find('.')+1);
+    if (type == "jpeg") type = "jpg";
+
+    string command = string("gle -d ") + type + string(" -output ") + filename + " " + gle_script_file;
 
     int r = system(command.c_str());
 	if (r != 0) {
@@ -412,13 +415,13 @@ string GLE::gle_script_to_file()
                         out << "ytitle \"" << panel_iter->properties.y_title << "\"" << endl;
                         out << "title \"" << panel_iter->properties.title << "\"" << endl;
                         out << "colormap \"" << panel_iter->plots3d[0].data_file << "\"";
-                        out << " " << panel_iter->plots3d[0].x.size() << " " << panel_iter->plots3d[0].y.size();
+                        out << " " << panel_iter->plots3d[0].x.size()*4 << " " << panel_iter->plots3d[0].y.size()*4; // *4 to smooth out graph
                         out << " zmin " << panel_iter->plots3d[0].z_min << " zmax " << panel_iter->plots3d[0].z_max;
                         out << endl;
                         out << "end graph" << endl;
                         out << "amove xg(xgmax)+0.3 yg(ygmin)" << endl;
                         out << "color_range_vertical " << panel_iter->plots3d[0].z_min << " " << panel_iter->plots3d[0].z_max;
-                        out << " 1 palette gray" << endl;
+                        out << " 0.5 palette gray pixels 500 format \"fix 1\"" << endl;
                     } else {
                         // Output 3D data using a 3D graph
                         out << "begin surface" << endl;

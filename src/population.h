@@ -22,7 +22,7 @@ class Population {
         NeuronParams params;
 		
 		// Methods
-		Population(std::string name, std::string ID, int size, bool accept_input, bool spontaneous, int position, NeuronParams params);
+		Population(std::string name, std::string ID, bool accept_input, bool spontaneous, int position, NeuronParams params);
         Population();
 		std::string toString();
 
@@ -49,9 +49,12 @@ class Population {
             }
         };
 
+        void Net::genPopulations( map< string, Population::ConstrainedPopulation >::iterator pop_in,
+                                  map< string, Range>::iterator param_in );
         std::vector<ConstrainedPopulation>* populationFactory();
 
     private:
+        std::vector<ConstrainedPopulation> cPopulations; /**< Constrained popuations. **/
         void genPopulations();
         void initialize(int size, NeuronParams params);
         std::vector<ConstrainedPopulation> cPopulations;

@@ -159,7 +159,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
      *******************/
     LOG("Running " << networks->size() << " networks against " << inputs->size() << " inputs over " << number_of_trials << " trials.");
     boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
-    tp.schedule(boost::threadpool::looped_task_func(boost::bind(&Simulation::simulationProgress, tp, total, start), 1000));
+    tp.schedule(boost::threadpool::looped_task_func(boost::bind(&Simulation::simulationProgress, tp, total, start), 500));
     cout << "Running " << Results::results.size() << " Simulations ..." << endl;
     for (int r_index = 0; r_index < total; ++r_index) {
             tp.schedule(boost::bind(&runSimulation, &Results::results[r_index], T, dt, delay, voltage));

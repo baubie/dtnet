@@ -1155,7 +1155,9 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
             else plotProperties.usemap = false;
             panelID = gle.plot3d(results.unconstrained[x_axis].values, results.unconstrained[series].values, z, plotProperties, panelID);
             props = gle.getPanelProperties(panelID);
-            props.title = "Mean Spike Counts";
+            props.title = "Mean Spike Count per Trial";
+            props.x_title = x_axis;
+            props.y_title = series;
             gle.setPanelProperties(props, panelID);
         break;
     }

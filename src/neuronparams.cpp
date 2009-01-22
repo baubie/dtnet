@@ -3,16 +3,21 @@
 
 NeuronParams::NeuronParams() : type(POISSON), integrator(RungeKutta) {}
 NeuronParams::NeuronParams(ModelType type) : type(type), integrator(RungeKutta) { initialize(); }
+NeuronParams::NeuronParams(ModelType type, bool init) : type(type), integrator(RungeKutta) { if (init) initialize(); }
 NeuronParams::NeuronParams(ModelType type, Integrator integrator) : type(type), integrator(integrator) { initialize(); }
+NeuronParams::NeuronParams(ModelType type, Integrator integrator, bool init) : type(type), integrator(integrator) { if (init) initialize(); }
 
 void NeuronParams::initialize() {
     switch(this->type) {
         case POISSON:
             vals["mu"] = Range(300);
+            vals["size"] = Range(1);
             toggles["spontaneous"] = false;
             break;
 
         case AEIF:
+            vals["size"] = Range(1);
+
             vals["VT"] = Range(-52);
             sigmas["VT"] = 0;
 

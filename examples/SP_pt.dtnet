@@ -8,8 +8,7 @@ sim = simulation("networks/SP_pt.xml", "inputs/pt_durations.xml")
 results = run(sim,"/1/sp_pt.sim",10,5, false)
 #results = load("/1/sp_pt.sim")
 print(results)
-
 graph_height = 10
 graph_width = 10
-graphspiketrains(results, "DTN", "sp_pairedtone.eps")
+graphspiketrains(results, "DTN", "sp_pairedtone.pdf")
 quit()

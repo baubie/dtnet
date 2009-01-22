@@ -65,11 +65,12 @@ void Neuron::update(double current, int position, double dt) {
 
 void Neuron::Poisson(double current, int position, double dt) {
 
+    static string s_mu = "mu";
 
     if (current == 0) { this->active = 0; return; }
 
     this->active += dt;
-    double mu = this->params.vals["mu"];
+    double mu = this->params.vals[s_mu];
 
     // Initial faster spiking rate
     double maximum = 1000;
@@ -141,11 +142,14 @@ void Neuron::RungeKutta(double current, int position, double dt) {
 }
 
 void Neuron::Spike(int position, double dt) {
+    static string s_VR = "VR";
+    static string s_b = "b";
+
     switch(this->params.type) {
         case NeuronParams::AEIF:
             if (this->V >= 20) {
-                this->V = this->params.vals["VR"];
-                this->w += this->params.vals["b"];
+                this->V = this->params.vals[s_VR];
+                this->w += this->params.vals[s_b];
                 voltage[position] = spikeHeight; // Artificial spike
                 spikes.push_back(position*dt - this->delay); // Save the actual spike time
             }

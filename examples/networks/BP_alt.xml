@@ -29,24 +29,13 @@
         <param name="VT" sigma="1">-52</param>
     </population>
 
-    <population id="OFF" title="Offset" type="aEIF">
-        <param name="size">10</param>
-        <param name="C" sigma="5">250</param>
-        <param name="a" sigma="2">200</param>
-        <param name="b" sigma="0">1000</param>
-        <param name="tauw" sigma="0">10</param>
-        <param name="EL" sigma="0">-58</param>
-        <param name="VR" sigma="0">-62</param>
-        <param name="VT" sigma="0">-55</param>
-    </population>
-
     <population id="ONDelay" title="Delayed Onset" type="aEIF">
         <param name="size">10</param>
         <param name="C" sigma="10">250</param>
         <param name="a" sigma="2">200</param>
         <param name="b" sigma="0">500</param>
         <param name="tauw" sigma="0">10</param>
-        <param name="EL" sigma="0">-58</param>
+        <param name="EL" sigma="2">-58</param>
         <param name="VR" sigma="0">-53</param>
         <param name="VT" sigma="0">-50</param>
     </population>
@@ -88,14 +77,6 @@
     </connection>
     <connection>
         <param name="from">SI</param> 
-        <param name="to">OFF</param>
-        <param name="weight">-6</param>
-        <param name="delay">1</param>
-        <param name="density">1</param>
-        <param name="symmetric">false</param>
-    </connection>
-    <connection>
-        <param name="from">SI</param> 
         <param name="to">DTN</param>
         <param name="weight">-3</param>
         <param name="delay">1</param>
@@ -113,15 +94,7 @@
     <connection>
         <param name="from">ONDelay</param> 
         <param name="to">DTN</param>
-        <param name="weight"><range start="5" end="8" step="1" /></param>
-        <param name="delay">1</param>
-        <param name="density">1</param>
-        <param name="symmetric">false</param>
-    </connection>
-    <connection>
-        <param name="from">OFF</param> 
-        <param name="to">DTN</param>
-        <param name="weight">0</param>
+        <param name="weight"><range start="4" end="9" step="0.5" /></param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
