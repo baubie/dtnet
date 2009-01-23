@@ -128,10 +128,14 @@ class Net {
         void genConnections( std::map< std::string, std::map< std::string, Connection<Range> > >::iterator to,
                              std::map< std::string, Connection<Range> >::iterator from ); 
 
-        void genPopulations( std::map< std::string, Population::ConstrainedPopulation >::iterator pop_in,
-                                  std::map< std::string, Range>::iterator param_in );
+        void genPopulations(    std::vector< std::vector<Population::ConstrainedPopulation>* >::iterator pop_in, 
+                                std::vector<Population::ConstrainedPopulation>::iterator sub_pop_in
+                           );
+
+        std::vector< std::vector<Population::ConstrainedPopulation>* > populationCollections;
 
         std::vector< std::map< std::string, std::map< std::string, Connection<double> > > > cConnections; /**< Constrained connections. **/
+        std::vector< std::map< std::string, Population::ConstrainedPopulation > > cPopulations; /**< Constrained collections of populations. **/
         std::vector<ConstrainedNetwork> cNetworks; /**< Completed, constrained networks taking all combinations of cPopulations and cConnections. **/
 
 

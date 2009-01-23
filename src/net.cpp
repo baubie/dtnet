@@ -12,8 +12,16 @@ std::vector<Net::ConstrainedNetwork>* Net::networkFactory() {
 
 void Net::genNetworks() {
 
+    this->populationCollections.clear();
+    for (map<string, Population>::iterator p = this->populations.begin(); p != this->populations.end(); ++p) {
+        this->populationCollections.push_back(p->second.populationFactory());
+    }
+
     this->genConnections( this->connections.begin(), 
                           this->connections.begin()->second.begin() );
+
+    this->genPopulations( this->populationCollections.begin(),
+                          (*this->populationCollections.begin())->begin() ); 
 
     /** Find the unconstrained connection parameters. **/
     for (map<string, map<string, Connection<Range> > >::iterator iter = this->connections.begin(); iter != this->connections.end(); ++iter) {
@@ -29,7 +37,7 @@ void Net::genNetworks() {
 
     // Loop over all networks and all connection profiles to produce all possible constrained networks
     for (vector< map<string, map<string, Connection<double> > > >::iterator cIter = this->cConnections.begin(); cIter != this->cConnections.end(); ++cIter) {
-        for (vector<ConstrainedNetwork>::iterator pIter = this->cNetworks.begin(); pIter != this->populations.populationFactory->end(); ++pIter) {
+        for (vector< map<string, Population::ConstrainedPopulation> >::iterator pIter = this->cPopulations.begin(); pIter != this->cPopulations.end(); ++pIter) {
             ConstrainedNetwork cn;
             cn.connections = *cIter;
             cn.populations = *pIter;
@@ -37,6 +45,12 @@ void Net::genNetworks() {
         }
     }
 
+
+}
+
+void Net::genPopulations( std::vector< std::vector<Population::ConstrainedPopulation>* >::iterator pop_in, 
+                          std::vector<Population::ConstrainedPopulation>::iterator sub_pop_in )
+{
 
 }
 

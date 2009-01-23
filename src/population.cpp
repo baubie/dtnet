@@ -4,9 +4,24 @@
 using namespace std;
 
 
+
+Population::Population(string name, string ID, bool accept_input, bool spontaneous, int position, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), spontaneous(spontaneous), position(position), params(params)  {}
+
+Population::Population() : name(""), ID(""), accept_input(false) {}
+
+
+
+
 std::vector<Population::ConstrainedPopulation>* Population::populationFactory() {
-    this->genPopulations();
-    //TODO: Initialize neurons in each cPopulation
+
+    this->genPopulations( this->params.vals.begin() );
+
+    for (vector<ConstrainedPopulation>::iterator p = this->cPopulations.begin(); p != this->cPopulations.end(); ++p) {
+        int size = 1;
+        if (p->params.vals.find("size") != p->params.vals.end()) size = p->params.vals["size"];
+        p->neurons = vector<Neuron>(size,Neuron(params));
+    }
+
     return &(this->cPopulations);
 }
 
@@ -18,7 +33,7 @@ void Population::genPopulations( map< string, Range>::iterator param_in )
     ///////////////
     // BASE CASE //
     ///////////////
-    if (param == --(param->second.end())) {
+    if (param == --(this->params.vals.end())) {
         this->cPopulations.clear();
 
         // Base case is at the last parameter
@@ -38,20 +53,19 @@ void Population::genPopulations( map< string, Range>::iterator param_in )
         }
     }
 
-
     ////////////////////
     // RECURSIVE CASE //
     ////////////////////
     else {
         ++param_in;
-        genPopulations( param_in );
+        this->genPopulations( param_in );
 
         vector<ConstrainedPopulation> oldPops = this->cPopulations;
         this->cPopulations.clear();
 
         for (vector<ConstrainedPopulation>::iterator old = oldPops.begin(); old != oldPops.end(); ++old) {
             for (Range::iterator i = param->second.begin(); i != param->second.end(); ++i) {
-                Population::ConstrainedPopulation new_pop = *old;
+                ConstrainedPopulation new_pop = *old;
                 NeuronParams np = old->params;
                 np.vals[param->first] = *i; 
                 new_pop.params = np;
@@ -59,22 +73,6 @@ void Population::genPopulations( map< string, Range>::iterator param_in )
             }
         }
     }
-}
-
-Population::Population(string name, string ID, bool accept_input, bool spontaneous, int position, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), spontaneous(spontaneous), position(position), params(params)  { 
-    this->initialize(params);
-}
-
-Population::Population() : name(""), ID(""), accept_input(false) { 
-    NeuronParams np; this->initialize(np); 
-}
-
-void Population::initialize(NeuronParams params) {
-    int size = 1;
-    if (params.vals.find("size") != params.vals.end()) size = params.vals["size"];
-	for( int i = 0; i < size; i++ ) {
-		neurons.push_back(Neuron(params));
-	}
 }
 
 string Population::toString() {

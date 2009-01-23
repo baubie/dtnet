@@ -49,13 +49,11 @@ class Population {
             }
         };
 
-        void genPopulations( std::map< std::string, Population::ConstrainedPopulation >::iterator pop_in,
-                             std::map< std::string, Range>::iterator param_in );
+        void genPopulations( std::map< std::string, Range>::iterator param_in );
         std::vector<ConstrainedPopulation>* populationFactory();
 
     private:
         std::vector<ConstrainedPopulation> cPopulations; /**< Constrained popuations. **/
         void genPopulations();
-        void initialize(int size, NeuronParams params);
 };
 #endif
