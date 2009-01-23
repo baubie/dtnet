@@ -29,7 +29,7 @@ void Net::genNetworks() {
 
     // Loop over all networks and all connection profiles to produce all possible constrained networks
     for (vector< map<string, map<string, Connection<double> > > >::iterator cIter = this->cConnections.begin(); cIter != this->cConnections.end(); ++cIter) {
-        for (vector< map<string, Population::ConstrainedPopulation> >::iterator pIter = this->populations.populationFactory->begin(); pIter != this->populations.populationFactory->end(); ++pIter) {
+        for (vector<ConstrainedNetwork>::iterator pIter = this->cNetworks.begin(); pIter != this->populations.populationFactory->end(); ++pIter) {
             ConstrainedNetwork cn;
             cn.connections = *cIter;
             cn.populations = *pIter;
