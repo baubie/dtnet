@@ -3,7 +3,7 @@
 <network title="Bandpass Network">
     <population id="CN" title="Cochlear Nucleus" type="Poisson">
         <param name="size">25</param>
-        <param name="mu"><range start="350" end="500" step="50" /></param>
+        <param name="mu">450 <!-- <range start="350" end="500" step="50" /> --></param>
         <param name="accept_input">true</param>
     </population>
 
@@ -33,7 +33,7 @@
         <param name="size">10</param>
         <param name="C" sigma="5">250</param>
         <param name="a" sigma="2">200</param>
-        <param name="b" sigma="0"><param start="600" end="1600" step="200" /><!--1000--></param>
+        <param name="b" sigma="0">1000</param>
         <param name="tauw" sigma="0">10</param>
         <param name="EL" sigma="0">-58</param>
         <param name="VR" sigma="0">-62</param>
@@ -53,7 +53,7 @@
 
     <population id="DTN" title="Duration Tuned Neuron" type="aEIF">
         <param name="size">1</param>
-        <param name="C" sigma="0">250</param>
+        <param name="C" sigma="0"><range start="230" end="280" step="10" /><!--250--></param>
         <param name="a" sigma="0">4</param>
         <param name="b" sigma="0">10</param>
         <param name="tauw" sigma="0">30</param>

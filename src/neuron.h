@@ -29,6 +29,7 @@ class Neuron {
 		void init(int steps, double delay);
 		void jitter();
 		void update(double current, int position, double dt);
+		NeuronParams params;        /**< Parameters to run simulation with after jitter(). **/
 
 	private:
         friend class boost::serialization::access;
@@ -44,7 +45,6 @@ class Neuron {
 		static const int spikeHeight = -20;
 			
 		// Model Parameters
-		NeuronParams params;        /**< Parameters to run simulation with after jitter(). **/
 		NeuronParams def_params;    /**< Parameters passed in before jittering. **/	
         double active;                /**< Used for Poisson to decide if it is currently active. **/
 		double V;                   /**< Voltage (mV) **/

@@ -9,9 +9,6 @@ Population::Population(string name, string ID, bool accept_input, bool spontaneo
 
 Population::Population() : name(""), ID(""), accept_input(false) {}
 
-
-
-
 std::vector<Population::ConstrainedPopulation>* Population::populationFactory() {
 
     this->genPopulations( this->params.vals.begin() );
@@ -19,7 +16,7 @@ std::vector<Population::ConstrainedPopulation>* Population::populationFactory() 
     for (vector<ConstrainedPopulation>::iterator p = this->cPopulations.begin(); p != this->cPopulations.end(); ++p) {
         int size = 1;
         if (p->params.vals.find("size") != p->params.vals.end()) size = p->params.vals["size"];
-        p->neurons = vector<Neuron>(size,Neuron(params));
+        p->neurons = vector<Neuron>(size,Neuron(p->params));
     }
 
     return &(this->cPopulations);
@@ -27,8 +24,11 @@ std::vector<Population::ConstrainedPopulation>* Population::populationFactory() 
 
 void Population::genPopulations( map< string, Range>::iterator param_in )
 {
-
     map< string, Range>::iterator param = param_in;
+
+    if (param->second.size() > 1) {
+        this->unconstrained["population." + this->ID + "." + param->first] = param->second;
+    }
 
     ///////////////
     // BASE CASE //
@@ -44,8 +44,8 @@ void Population::genPopulations( map< string, Range>::iterator param_in )
             new_pop.accept_input = this->accept_input;
             new_pop.name = this->name;
             new_pop.ID = this->ID;
-            NeuronParams np;
-            np.vals[param->first] = *i; 
+            NeuronParams np(this->params.type, this->params.integrator, false);
+            np.vals[param->first] = Range(*i); 
             np.toggles = this->params.toggles;
             np.sigmas = this->params.sigmas;
             new_pop.params = np;
@@ -62,13 +62,10 @@ void Population::genPopulations( map< string, Range>::iterator param_in )
 
         vector<ConstrainedPopulation> oldPops = this->cPopulations;
         this->cPopulations.clear();
-
         for (vector<ConstrainedPopulation>::iterator old = oldPops.begin(); old != oldPops.end(); ++old) {
             for (Range::iterator i = param->second.begin(); i != param->second.end(); ++i) {
                 ConstrainedPopulation new_pop = *old;
-                NeuronParams np = old->params;
-                np.vals[param->first] = *i; 
-                new_pop.params = np;
+                new_pop.params.vals[param->first] = Range(*i); 
                 this->cPopulations.push_back(new_pop);
             }
         }

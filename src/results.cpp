@@ -110,6 +110,9 @@ bool Results::matches(Result &r, string ID, const double value) {
         if (param_ID == "delay" && r.cNetwork.connections[to][from].delay == value) matches = true;
         if (param_ID == "density" && r.cNetwork.connections[to][from].density == value) matches = true;
     }
+    if (type_ID == "population") {
+        if (r.cNetwork.populations[item_ID].params.vals[param_ID] == value) matches = true;
+    }
 
     return matches;
 }

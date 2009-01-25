@@ -128,9 +128,7 @@ class Net {
         void genConnections( std::map< std::string, std::map< std::string, Connection<Range> > >::iterator to,
                              std::map< std::string, Connection<Range> >::iterator from ); 
 
-        void genPopulations(    std::vector< std::vector<Population::ConstrainedPopulation>* >::iterator pop_in, 
-                                std::vector<Population::ConstrainedPopulation>::iterator sub_pop_in
-                           );
+        void genPopulations(    std::vector< std::vector<Population::ConstrainedPopulation>* >::iterator pop_in );
 
         std::vector< std::vector<Population::ConstrainedPopulation>* > populationCollections;
 

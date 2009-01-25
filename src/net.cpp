@@ -20,8 +20,7 @@ void Net::genNetworks() {
     this->genConnections( this->connections.begin(), 
                           this->connections.begin()->second.begin() );
 
-    this->genPopulations( this->populationCollections.begin(),
-                          (*this->populationCollections.begin())->begin() ); 
+    this->genPopulations( this->populationCollections.begin() );
 
     /** Find the unconstrained connection parameters. **/
     for (map<string, map<string, Connection<Range> > >::iterator iter = this->connections.begin(); iter != this->connections.end(); ++iter) {
@@ -32,6 +31,12 @@ void Net::genNetworks() {
             if (iter2->second.weight.size() > 1) this->unconstrained["connection."+connection_name+".weight"] = iter2->second.weight;
             if (iter2->second.delay.size() > 1) this->unconstrained["connection."+connection_name+".delay"] = iter2->second.delay;
             if (iter2->second.density.size() > 1) this->unconstrained["connection."+connection_name+".density"] = iter2->second.density;
+        }
+    }
+    /** Find the unconstrained population parameters. **/
+    for (map<string, Population>::iterator p = this->populations.begin(); p != this->populations.end(); ++p) {
+        for (map<string, Range>::iterator c = p->second.unconstrained.begin(); c != p->second.unconstrained.end(); ++c) {
+            this->unconstrained[c->first] = c->second;
         }
     }
 
@@ -48,10 +53,38 @@ void Net::genNetworks() {
 
 }
 
-void Net::genPopulations( std::vector< std::vector<Population::ConstrainedPopulation>* >::iterator pop_in, 
-                          std::vector<Population::ConstrainedPopulation>::iterator sub_pop_in )
+void Net::genPopulations( vector< vector<Population::ConstrainedPopulation>* >::iterator pop_in )
 {
+    vector< vector<Population::ConstrainedPopulation>* >::iterator pop = pop_in;
 
+    ///////////////
+    // BASE CASE //
+    ///////////////
+    if (pop == --(this->populationCollections.end())) {
+        this->cPopulations.clear();
+        for (vector<Population::ConstrainedPopulation>::iterator p = (*pop)->begin(); p != (*pop)->end(); ++p) {
+            map<string, Population::ConstrainedPopulation> m;
+            m[p->ID] = *p;
+            this->cPopulations.push_back(m);
+        }  
+    }
+
+    ////////////////////
+    // RECURSIVE CASE //
+    ////////////////////
+    else {
+        ++pop_in;
+        this->genPopulations( pop_in );
+        vector< map<string, Population::ConstrainedPopulation> > old = this->cPopulations;
+        this->cPopulations.clear();
+        for (vector< map<string, Population::ConstrainedPopulation> >::iterator o = old.begin(); o != old.end(); ++o) {
+            for (vector<Population::ConstrainedPopulation>::iterator p = (*pop)->begin(); p != (*pop)->end(); ++p) {
+                map<string, Population::ConstrainedPopulation> m = *o;
+                m[p->ID] = *p;
+                this->cPopulations.push_back(m);
+            }  
+        }
+    }
 }
 
 void Net::genConnections( map< string, map< string, Connection<Range> > >::iterator to_in,

@@ -5,7 +5,7 @@
 
 T = 100
 sim = simulation("networks/BP_pt.xml", "inputs/pt_BPdurations.xml")
-results = run(sim,"/1/bp_pt.sim",10,5,false)
+results = run(sim,"bp_pt.sim",10,5,false)
 #results = load("/1/bp_pt.sim")
 print(results)
 graph_height = 10

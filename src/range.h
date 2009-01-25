@@ -27,7 +27,6 @@ class Range {
         double front();
         double back();
 
-
         std::vector<double> values;
 
     private:

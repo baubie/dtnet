@@ -4,7 +4,7 @@ AM_INIT_AUTOMAKE(dtnet,2.0)
 
 AC_PROG_RANLIB
 
-CXXFLAGS="-O3"
+CXXFLAGS="$CXXFLAGS -O3"
 
 AC_ARG_ENABLE(debug,
     [ --enable-debug    Enable debugging symbols ],

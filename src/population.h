@@ -20,6 +20,7 @@ class Population {
         int position;
         std::vector<Neuron> neurons;
         NeuronParams params;
+        std::map< std::string, Range > unconstrained;       /*<< Collection of unconstrained IDs. */
 		
 		// Methods
 		Population(std::string name, std::string ID, bool accept_input, bool spontaneous, int position, NeuronParams params);
