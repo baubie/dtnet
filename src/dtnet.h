@@ -17,6 +17,7 @@
 #include "lib/SReadline/SReadline.h"
 
 extern std::string GLE::viewer;
+extern bool GLE::qgle;
 extern bool dtlang::verbose;
 
 #endif

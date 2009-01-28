@@ -1117,6 +1117,7 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
     GLE gle;
     GLE::PanelID panelID = GLE::NEW_PANEL;
     GLE::PlotProperties plotProperties;
+    plotProperties.pointSize = 0.3;
     GLE::PanelProperties props;
     double max_value = 0;
     vector< vector<double> > z;
@@ -1356,12 +1357,20 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
         for (neuron_iter = (**pop_iter).neurons.begin(); neuron_iter != (**pop_iter).neurons.end(); ++neuron_iter) {
             switch(type) {
                 case dtlang::PLOT_VOLTAGE:
-                    signals.push_back(neuron_iter->voltage);
-                    plotProperties.pointSize = 0;
+                    if (neuron_iter->params.toggles["record_voltage"]) {
+                        signals.push_back(neuron_iter->voltage);
+                        plotProperties.pointSize = 0;
+                        plotProperties.no_y = false;
+                    } else {
+                        signals.push_back(neuron_iter->spikes);
+                        plotProperties.no_y = true;
+                    }
                     break;
                 case dtlang::PLOT_SPIKES:
                     signals.push_back(neuron_iter->spikes);
                     plotProperties.no_y = true;
+                    plotProperties.pointSize = 0.05;
+                    plotProperties.marker = "fcircle";
                     break;
             }
         } 
@@ -1376,8 +1385,8 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
                 props.y_nticks = 4;
                 break;
             case dtlang::PLOT_SPIKES:
-                props.x_title = "Time (ms)";
-                props.y_title = "Cell Spikes";
+                if (pop_iter == --(pops.end())) props.x_title = "Time (ms)";
+                else props.x_title = "";
                 break;
         }
         props.title = (*pop_iter)->name;
@@ -1398,8 +1407,7 @@ bool dtlang::f_print(void* ptr, int const type) {
             cout << *(static_cast<string*>(ptr)) << endl;
             break;
 
-        case dtlang::TYPE_TRIAL:
-            cout << static_cast<Trial*>(ptr)->toString();
+        case dtlang::TYPE_TRIAL: cout << static_cast<Trial*>(ptr)->toString();
             break;
 
         case dtlang::TYPE_NET:

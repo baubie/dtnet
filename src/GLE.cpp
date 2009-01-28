@@ -2,7 +2,7 @@
 #include "GLE.h"
 
 using namespace std;
-
+namespace bfs = boost::filesystem;
 
 bool GLE::setPanelProperties(PanelProperties props, PanelID ID) {
     if (ID >= panels.size()) return false;
@@ -193,6 +193,13 @@ GLE::PanelID GLE::plot3d(vector<double> &x, vector<double> &y, vector< vector<do
     return ID;
 }
 
+string GLE::getMarker()
+{
+    string r = *this->iter_marker;
+    this->iter_marker++;
+    if (this->iter_marker == this->markers.end()) this->iter_marker = this->markers.begin();
+    return r;
+}
 
 bool GLE::draw()
 {
@@ -203,9 +210,12 @@ bool GLE::draw(string const &filename)
 {
     string gle_script_file = this->gle_script_to_file();
     string type = filename.substr(filename.find('.')+1);
+    string basename = filename.substr(0, filename.find('.'));
     if (type == "jpeg") type = "jpg";
+    string qgle_preview;
+    if (GLE::qgle) qgle_preview = " -p ";
 
-    string command = string("gle -d ") + type + string(" -output ") + filename + " " + gle_script_file;
+    string command = string("gle -d ") + type + qgle_preview + string(" -output ") + filename + " " + gle_script_file;
 
     int r = system(command.c_str());
 	if (r != 0) {
@@ -223,25 +233,36 @@ bool GLE::draw(string const &filename)
         }
     }
 
-    // Delete the temporary files
+    // Move the temporary files to folder
+    bfs::create_directory(bfs::path(basename));
     vector<Panel>::iterator panel_iter;
     vector<Plot>::iterator plot_iter;
     vector<Points>::iterator points_iter;
     vector<Plot3d>::iterator plot3d_iter;
-    //remove(gle_script_file.c_str());
+    basename = basename;
+    string scriptName = basename + "/script.gle";
+    string dataName;
+    bfs::copy_file(bfs::path(gle_script_file), bfs::path(scriptName));
+    bfs::remove(bfs::path(gle_script_file));
     for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter) 
     {
         for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
         {
-            remove(plot_iter->data_file.c_str());
+            dataName = basename + "/" + plot_iter->data_file.substr(plot_iter->data_file.find_last_of("/")+1);
+            bfs::copy_file(bfs::path(plot_iter->data_file), bfs::path(dataName));
+            bfs::remove(bfs::path(plot_iter->data_file));
         }
         for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter )
         {
-            remove(points_iter->data_file.c_str());
+            dataName = basename + "/" + points_iter->data_file.substr(points_iter->data_file.find_last_of("/")+1);
+            bfs::copy_file(bfs::path(points_iter->data_file), bfs::path(dataName));
+            bfs::remove(bfs::path(points_iter->data_file));
         }
         for ( plot3d_iter = panel_iter->plots3d.begin(); plot3d_iter != panel_iter->plots3d.end(); ++plot3d_iter )
         {
-            //remove(plot3d_iter->data_file.c_str());
+            dataName = basename + "/" + plot3d_iter->data_file.substr(plot3d_iter->data_file.find_last_of("/")+1);
+            bfs::copy_file(bfs::path(plot3d_iter->data_file), bfs::path(dataName));
+            bfs::remove(bfs::path(plot3d_iter->data_file));
         }
     }
 
@@ -268,7 +289,7 @@ bool GLE::data_to_file()
 
         for ( plot3d_iter = panel_iter->plots3d.begin(); plot3d_iter != panel_iter->plots3d.end(); ++plot3d_iter ) 
         { /**< Loop over each set of 3D data (probably only one, but this is general). **/
-            char data_filename[] = "/tmp/gle_data_XXXXXX";
+            char data_filename[] = "gle_data_XXXXXX";
             int pTemp = mkstemp(data_filename);
             boost::iostreams::file_descriptor_sink sink( pTemp );
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
@@ -292,12 +313,13 @@ bool GLE::data_to_file()
                 of << endl;
             }
             close ( pTemp );
-            rename( data_filename, plot3d_iter->data_file.c_str() );
+            bfs::copy_file( bfs::path(data_filename), bfs::path(plot3d_iter->data_file) );
+            bfs::remove( bfs::path(data_filename) );
         }
 
         for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter )
         { /**< Loop over each set of points. */
-            char data_filename[] = "/tmp/gle_data_XXXXXX";
+            char data_filename[] = "gle_data_XXXXXX";
             int pTemp = mkstemp(data_filename);
             boost::iostreams::file_descriptor_sink sink( pTemp );
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
@@ -325,7 +347,7 @@ bool GLE::data_to_file()
                 }
             }    
 
-            char data_filename[] = "/tmp/gle_data_XXXXXX";
+            char data_filename[] = "gle_data_XXXXXX";
             int pTemp = mkstemp(data_filename);
             boost::iostreams::file_descriptor_sink sink( pTemp );
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
@@ -357,7 +379,7 @@ string GLE::gle_script_to_file()
 {
     this->data_to_file();
 
-    char filename[] = "/tmp/gle_script_XXXXXX";
+    char filename[] = "gle_script_XXXXXX";
     int pTemp = mkstemp(filename);
     boost::iostreams::file_descriptor_sink sink( pTemp );
     boost::iostreams::stream<boost::iostreams::file_descriptor_sink> out( sink );
@@ -385,7 +407,7 @@ string GLE::gle_script_to_file()
         int last_row_count = 0;
         rows = ceil( (float)this->panels.size() / (float)this->canvasProperties.columns );
         panel_width = (float)( (this->canvasProperties.width - 1.05*this->canvasProperties.margin_left*(this->canvasProperties.columns-1)) / (float)this->canvasProperties.columns );
-        panel_height = (float)( (this->canvasProperties.height - 1.05*this->canvasProperties.margin_top*(rows-1)) / (float)rows );
+        panel_height = (float)( (this->canvasProperties.height - 1.25*this->canvasProperties.margin_top*(rows-1)) / (float)rows );
 
         panel_iter = this->panels.begin();
         for ( int r = 1; r <= rows; ++r )
@@ -402,6 +424,8 @@ string GLE::gle_script_to_file()
                 out << "include \"color.gle\"" << endl;
 
                 out << "begin object graph" << count << endl;
+
+                if (panel_iter == --(this->panels.end())) panel_height *= 1.2;
 
                 if (panel_iter->plots3d.size() > 0) {
                     if (panel_iter->plots3d[0].properties.usemap == true) {
@@ -478,7 +502,10 @@ string GLE::gle_script_to_file()
                         }
 
                         if (plot_iter->properties.pointSize > 0) {
-                            out << "d" << plot_num << " marker " << plot_iter->properties.shape << " msize " << plot_iter->properties.pointSize << endl; 
+                            string marker;
+                            marker = plot_iter->properties.marker;
+                            if (marker == "__series__") marker = this->getMarker();
+                            out << "d" << plot_num << " marker " << marker << " msize " << plot_iter->properties.pointSize << endl; 
                             if (plot_iter->properties.lineWidth > 0) {
                                 out << "d" << plot_num << " color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << endl;
                             }
@@ -540,7 +567,8 @@ string GLE::gle_script_to_file()
     close ( pTemp );
     string old_filename = string(filename);
     string new_filename = string(filename) + ".gle";
-    rename(old_filename.c_str(), new_filename.c_str());
+    bfs::copy_file(bfs::path(old_filename), bfs::path(new_filename));
+    bfs::remove(bfs::path(old_filename));
     return new_filename; 
 }
 

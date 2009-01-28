@@ -3,12 +3,10 @@
 # Written by Brandon Aubie    #
 ###############################
 
-sim = simulation("networks/BP_alt.xml", "inputs/durations.xml")
-results = run(sim,"/1/bp_alt.sim",15,5,false)
-#results = load("/1/bp_alt.sim")
-print(results)
+#sim = simulation("networks/BP_alt.xml", "inputs/durations.xml")
+#results = run(sim,"/1/bp_alt.sim",20,5,false)
+results = load("/1/bp_alt.sim")
 graph_height = 10
 graph_width = 10
-graphspikecounts(results, "DTN", "trial.main.duration", "spikesflat.pdf")
-graphspikecountsmap(results, "DTN", "trial.main.duration", "spikesflat.pdf")
+graphspikecountsmap(results, "DTN", "trial.main.duration", "spikesmap.eps")
 quit()

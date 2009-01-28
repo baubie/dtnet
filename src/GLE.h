@@ -16,6 +16,9 @@
 #include <stdexcept>
 #include <iomanip>
 #include <algorithm>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <math.h>
@@ -30,6 +33,23 @@ class GLE
         static const double UNDEFINED = -91348434;
 
 		static std::string viewer;
+		static bool qgle;
+
+        std::vector<std::string> markers;
+        std::string getMarker();
+        std::vector<std::string>::iterator iter_marker;
+
+        GLE() {
+            this->markers.push_back("wcircle");
+            this->markers.push_back("fcircle");
+            this->markers.push_back("wsquare");
+            this->markers.push_back("fsquare");
+            this->markers.push_back("wtriangle");
+            this->markers.push_back("ftriangle");
+            this->markers.push_back("wdiamond");
+            this->markers.push_back("ftriangle");
+            this->iter_marker = this->markers.begin();
+        }
 
         struct Color {
             float r;
@@ -64,7 +84,7 @@ class GLE
         struct PlotProperties {
             float lineWidth;
             float pointSize;
-            std::string shape;
+            std::string marker;
             bool zeros;
             bool nomiss;
             bool no_y;
@@ -80,7 +100,7 @@ class GLE
             PlotProperties() :
                 lineWidth(0.010),
                 pointSize(0.1),
-                shape("dot"),
+                marker("__series__"),
                 zeros(true),
                 nomiss(true),
                 no_y(false),

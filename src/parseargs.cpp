@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int parseargs(int argc, char* argv[], bool& verbose, string& script, int& procs, string& viewer) {
+int parseargs(int argc, char* argv[], bool& verbose, string& script, int& procs, string& eps_viewer, bool &qgle) {
 
     for (int i=0; i < argc; i++) {
 
@@ -13,6 +13,9 @@ int parseargs(int argc, char* argv[], bool& verbose, string& script, int& procs,
         else if (strcmp(argv[i],"-v") == 0) {
             verbose = true;
         }
+        else if (strcmp(argv[i],"-qgle") == 0) {
+            qgle = true;
+        }
         else if (strcmp(argv[i],"-eps") == 0) {
             i++;
             if (i >= argc) {
@@ -20,8 +23,8 @@ int parseargs(int argc, char* argv[], bool& verbose, string& script, int& procs,
                 outputHelp();
                 return(-1);
             }
-            viewer = argv[i];
-            viewer += " ";
+            eps_viewer = argv[i];
+            eps_viewer += " ";
         }
         else if (strcmp(argv[i],"-s") == 0) {
             i++;

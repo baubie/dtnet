@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     history.append("/.dtnet_history");
 
     /* Parse Command Line Arguments */
-    int result = parseargs(argc, argv, dtlang::verbose, script, procs, GLE::viewer);
+    int result = parseargs(argc, argv, dtlang::verbose, script, procs, GLE::viewer, GLE::qgle);
     if (result != 0) return result;
 
     /* Display A Welcome Message */
