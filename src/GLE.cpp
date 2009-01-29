@@ -234,6 +234,7 @@ bool GLE::draw(string const &filename)
     }
 
     // Move the temporary files to folder
+    bfs::remove_all(bfs::path(basename));
     bfs::create_directory(bfs::path(basename));
     vector<Panel>::iterator panel_iter;
     vector<Plot>::iterator plot_iter;
@@ -425,7 +426,7 @@ string GLE::gle_script_to_file()
 
                 out << "begin object graph" << count << endl;
 
-                if (panel_iter == --(this->panels.end())) panel_height *= 1.2;
+                if (panel_iter == --(this->panels.end()) && this->panels.size() > 1) panel_height *= 1.2;
 
                 if (panel_iter->plots3d.size() > 0) {
                     if (panel_iter->plots3d[0].properties.usemap == true) {

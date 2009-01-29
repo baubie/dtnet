@@ -1207,11 +1207,14 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     plotProperties.zeros = false;
     plotProperties.no_y = true;
     plotProperties.lineWidth = 0;
-    plotProperties.pointSize = 0.1;
+    plotProperties.pointSize = 0.2;
+    plotProperties.marker = "fcircle";
 
     GLE::PlotProperties sigPlotProperties;
     sigPlotProperties.zeros = false;
     sigPlotProperties.lineWidth = 0;
+    sigPlotProperties.marker = "dot";
+    sigPlotProperties.pointSize = 0.05;
     GLE::PanelID panelID = GLE::NEW_PANEL;
    
     vector< vector<double> > signals; 
@@ -1331,6 +1334,7 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
     }
     if (r == NULL) {
         cout << "[X] Requested trial not found.  Please select a trial between 0 and " << (trials.size()-1) << "." << endl;
+        return false;
     }
 
     vector<double> timesteps = results.timeseries;

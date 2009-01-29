@@ -1,0 +1,23 @@
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+###############################
+
+T = 60
+sim = simulation("networks/SP.xml", "inputs/durations.xml")
+results = run(sim,"/1/sp.sim",15,5)
+#results = load("/1/sp.sim")
+print(results)
+graph_height = 10
+graph_width = 10
+graphspikecounts(results, "DTN", "trial.main.duration", "spcounts.eps")
+singleamp = constrain(results, "population.CN.mu", 450)
+graphspiketrains(singleamp, "DTN", "sptrials.eps")
+short = constrain(singleamp, "trial.main.duration", 2)
+long = constrain(singleamp, "trial.main.duration", 10)
+
+graph_height = 20
+graph_width = 15
+graphtrial_voltage(short, 0, "shorttrial.eps")
+graphtrial_voltage(long, 1, "longtrial0.eps")
+quit()

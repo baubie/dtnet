@@ -8,5 +8,8 @@
 results = load("/1/bp_alt.sim")
 graph_height = 10
 graph_width = 10
-graphspikecountsmap(results, "DTN", "trial.main.duration", "spikesmap.eps")
+graphspikecountsmap(results, "DTN", "trial.main.duration", "BPalt_spikesmap.eps")
+graphspikecounts3d(results, "DTN", "trial.main.duration", "BPalt_spikes3d.eps")
+graphspikecounts(results, "DTN", "trial.main.duration", "BPalt_spikes.eps")
+graphspiketrains(results, "DTN", "trial.main.duration", "BPalt_trains.eps")
 quit()

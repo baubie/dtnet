@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<network title="Bandpass Network">
+<network title="Short-pass Network">
     <population id="CN" title="Cochlear Nucleus" type="Poisson">
         <param name="size">25</param>
-		<param name="mu">500</param>
+        <param name="mu">400</param>
         <param name="accept_input">true</param>
     </population>
 
@@ -17,7 +17,7 @@
         <param name="size">10</param>
         <param name="C" sigma="5">220</param>
         <param name="a" sigma="0">40</param>
-        <param name="b" sigma="2">200</param>
+        <param name="b" sigma="2">20</param>
         <param name="tauw" sigma="0">250</param>
         <param name="EL" sigma="0">-65</param>
         <param name="VR" sigma="0">-63</param>
@@ -27,7 +27,7 @@
     <population id="ON" title="Onset" type="aEIF">
         <param name="size">10</param>
         <param name="C" sigma="2">200</param>
-        <param name="a" sigma="0">10</param>
+        <param name="a" sigma="0">20</param>
         <param name="b" sigma="0">300</param>
         <param name="tauw" sigma="0">10</param>
         <param name="EL" sigma="0">-52</param>
@@ -37,13 +37,13 @@
 
     <population id="ONDelay" title="Delayed Onset" type="aEIF">
         <param name="size">10</param>
-        <param name="C" sigma="10">250</param>
+        <param name="C" sigma="2">250</param>
         <param name="a" sigma="0">10</param>
         <param name="b" sigma="0">100</param>
-        <param name="tauw" sigma="0">100</param>
+        <param name="tauw" sigma="0">30</param>
         <param name="EL" sigma="0">-52</param>
         <param name="VR" sigma="0">-51</param>
-        <param name="VT" sigma="0">-50</param>
+        <param name="VT" sigma="1">-50</param>
     </population>
 
     <population id="DTN" title="Duration Tuned Neuron" type="aEIF">
@@ -51,7 +51,7 @@
         <param name="C" sigma="0">280</param>
         <param name="a" sigma="0">4</param>
         <param name="b" sigma="0">2</param>
-        <param name="tauw" sigma="0">10</param>
+        <param name="tauw" sigma="0">30</param>
         <param name="EL" sigma="0">-55</param>
         <param name="VR" sigma="0">-47</param>
         <param name="VT" sigma="0">-48</param>
@@ -68,7 +68,7 @@
     <connection>
         <param name="from">CN</param> 
         <param name="to">ON</param>
-        <param name="weight">4</param>
+        <param name="weight">3</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
@@ -84,7 +84,7 @@
     <connection>
         <param name="from">SI</param> 
         <param name="to">DTN</param>
-        <param name="weight">-5</param>
+        <param name="weight">-4</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
@@ -92,7 +92,7 @@
     <connection>
         <param name="from">ON</param> 
         <param name="to">ONDelay</param>
-        <param name="weight">4</param>
+        <param name="weight">3</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
@@ -108,7 +108,7 @@
     <connection>
         <param name="from">SPONT</param> 
         <param name="to">DTN</param>
-        <param name="weight">2</param>
+        <param name="weight">1</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>

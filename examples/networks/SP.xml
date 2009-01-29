@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<network title="Bandpass Network">
+<network title="Short-pass Network">
     <population id="CN" title="Cochlear Nucleus" type="Poisson">
         <param name="size">25</param>
-		<param name="mu">400</param>
+        <param name="mu"><range start="350" end="500" step="50" /></param>
         <param name="accept_input">true</param>
+    </population>
+
+    <population id="SPONT" title="Spontaneous Activity" type="Poisson">
+        <param name="size">5</param>
+		<param name="mu">50</param>
+        <param name="spontaneous">true</param>
     </population>
 
     <population id="SI" title="Sustained Inhibition" type="aEIF">
@@ -24,27 +30,27 @@
         <param name="a" sigma="0">10</param>
         <param name="b" sigma="0">400</param>
         <param name="tauw" sigma="0">100</param>
-        <param name="EL" sigma="0">-55</param>
+        <param name="EL" sigma="0">-52</param>
         <param name="VR" sigma="0">-54</param>
-        <param name="VT" sigma="1">-52</param>
+        <param name="VT" sigma="1">-50</param>
     </population>
 
     <population id="ONDelay" title="Delayed Onset" type="aEIF">
         <param name="size">10</param>
-        <param name="C" sigma="10">250</param>
-        <param name="a" sigma="2">200</param>
-        <param name="b" sigma="0">500</param>
-        <param name="tauw" sigma="0">10</param>
-        <param name="EL" sigma="2">-58</param>
-        <param name="VR" sigma="0">-53</param>
-        <param name="VT" sigma="0">-50</param>
+        <param name="C" sigma="2">250</param>
+        <param name="a" sigma="0">10</param>
+        <param name="b" sigma="0">100</param>
+        <param name="tauw" sigma="0">100</param>
+        <param name="EL" sigma="0">-52</param>
+        <param name="VR" sigma="0">-51</param>
+        <param name="VT" sigma="1">-50</param>
     </population>
 
     <population id="DTN" title="Duration Tuned Neuron" type="aEIF">
         <param name="size">1</param>
-        <param name="C" sigma="0">250</param>
+        <param name="C" sigma="0">280</param>
         <param name="a" sigma="0">4</param>
-        <param name="b" sigma="0">10</param>
+        <param name="b" sigma="0">2</param>
         <param name="tauw" sigma="0">30</param>
         <param name="EL" sigma="0">-55</param>
         <param name="VR" sigma="0">-47</param>
@@ -74,11 +80,11 @@
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
-    </connection>
+    </connectio>
     <connection>
         <param name="from">SI</param> 
         <param name="to">DTN</param>
-        <param name="weight">-3</param>
+        <param name="weight">-4</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
@@ -86,7 +92,7 @@
     <connection>
         <param name="from">ON</param> 
         <param name="to">ONDelay</param>
-        <param name="weight">-7</param>
+        <param name="weight">3</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
@@ -94,7 +100,15 @@
     <connection>
         <param name="from">ONDelay</param> 
         <param name="to">DTN</param>
-        <param name="weight"><range start="5" end="9" step="0.5" /></param>
+        <param name="weight">4</param>
+        <param name="delay">1</param>
+        <param name="density">1</param>
+        <param name="symmetric">false</param>
+    </connection>
+    <connection>
+        <param name="from">SPONT</param> 
+        <param name="to">DTN</param>
+        <param name="weight">2</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>

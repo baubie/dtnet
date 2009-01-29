@@ -15,6 +15,8 @@ void Neuron::initialize() {
     this->def_params = this->params;
 	this->V = -65; //mV
 	this->w = 0;
+
+    if (this->params.vals.find("EL") != this->params.vals.end()) this->V = this->params.vals["EL"];
 }
 
 void Neuron::init(int steps, double delay) {
