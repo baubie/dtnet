@@ -511,14 +511,18 @@ void dtlang::initialize_functions()
     p.optional = false;
     p.name = "filename";
     f.params.push_back(p);
-
     dtlang::functions["graphspikecounts"] = f;
+
 
     // graphspikecounts3d()
     dtlang::functions["graphspikecounts3d"] = f;
 
     // graphspikecountsmap()
     dtlang::functions["graphspikecountsmap"] = f;
+    
+    // graphfirstspikelatency()
+    f.help = "Plot mean first spike latency over all trials in two dimensions (one on x-axis, on as separate series).";
+    dtlang::functions["graphfirstspikelatency"] = f;
 
     // graphtrial_voltage()
     f.help = "Produce a plot of the voltage traces for each neuron in each population.";
@@ -705,6 +709,14 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
                                           *(static_cast<string*>(params[3].obj)),
                                           dtlang::PLOT_MAP
                                          );
+    }
+    if (name == "graphfirstspikelatency") {
+        return dtlang::f_graphfirstspikelatency(*(static_cast<Results*>(params[0].obj)),
+                                                *(static_cast<string*>(params[1].obj)),
+                                                *(static_cast<string*>(params[2].obj)),
+                                                *(static_cast<string*>(params[3].obj)),
+                                                 dtlang::PLOT_FLAT
+                                               );
     }
 
 	if (name == "vars") {
@@ -1092,6 +1104,87 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
     return true;
 }
 */
+
+bool dtlang::f_graphfirstspikelatency(Results &results, string const &popID, string const &x_axis, string const &filename, int const type) {
+
+    if (results.unconstrained.size() > 2 || results.unconstrained.size() == 0) {
+        cout << "[X] Results must be constrained to a one or two parameters." << endl;
+        return false;
+    }
+    if (type != dtlang::PLOT_FLAT && results.unconstrained.size() != 2) {
+        cout << "[X] Results must be constrained to two parameters." << endl;
+        return false;
+    }
+
+    string series = "";
+    Range series_range = Range(0);
+    map<string, Range>::iterator ucIter;
+    for (ucIter = results.unconstrained.begin(); ucIter != results.unconstrained.end(); ++ucIter) {
+        if (ucIter->first != x_axis) {
+            series = ucIter->first;
+            series_range = ucIter->second;
+        } 
+    }
+    
+    Results seriesResults;
+    GLE gle;
+    GLE::PanelID panelID = GLE::NEW_PANEL;
+    GLE::PlotProperties plotProperties;
+    plotProperties.pointSize = 0.3;
+    plotProperties.zeros = false;
+    GLE::PanelProperties props;
+    double max_value = 0;
+    vector< vector<double> > z;
+
+    switch (type) {
+        case dtlang::PLOT_FLAT:
+            for (Range::iterator sIter = series_range.begin(); sIter != series_range.end(); ++sIter) {
+
+                if (series != "") {
+                    results.constrain(seriesResults, series, *sIter);
+                } else {
+                    seriesResults = results;
+                }
+                
+                vector<double> means = seriesResults.firstSpikeLatency(popID, x_axis);
+                panelID = gle.plot(results.unconstrained[x_axis].values, means, plotProperties, panelID);
+                max_value = max(max_value, *(max_element(means.begin(), means.end())));
+            }
+            props = gle.getPanelProperties(panelID);
+            props.x_title = x_axis;
+            props.y_title = "Mean First Spike Latency per Trial";
+            props.title = "Mean First Spike Latency";
+            props.y_min = 0;
+            props.y_max = (int)(max_value+1); // Use the last y value as the top value.
+            props.y_labels = true;
+            gle.setPanelProperties(props, panelID);
+            break;
+        
+        case dtlang::PLOT_MAP:
+        case dtlang::PLOT_3D:
+            for (Range::iterator sIter = series_range.begin(); sIter != series_range.end(); ++sIter) {
+                results.constrain(seriesResults, series, *sIter);
+                vector<double> means = seriesResults.firstSpikeLatency(popID, x_axis);
+                z.push_back(means);
+            }
+            if (type == dtlang::PLOT_MAP) plotProperties.usemap = true;
+            else plotProperties.usemap = false;
+            panelID = gle.plot3d(results.unconstrained[x_axis].values, results.unconstrained[series].values, z, plotProperties, panelID);
+            props = gle.getPanelProperties(panelID);
+            props.title = "Mean First Spike Latency per Trial";
+            props.x_title = x_axis;
+            props.y_title = series;
+            gle.setPanelProperties(props, panelID);
+        break;
+    }
+
+    gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
+    gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
+    gle.draw(filename);
+
+    return true;
+}
+
 bool dtlang::f_graphspikecounts(Results &results, string const &popID, string const &x_axis, string const &filename, int const type) {
 
     if (results.unconstrained.size() > 2 || results.unconstrained.size() == 0) {

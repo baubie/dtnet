@@ -1,0 +1,24 @@
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+###############################
+
+T = 100
+BPsim= simulation("networks/BP.xml", "inputs/durations.xml")
+BPresults = run(BPsim,"/1/bp.sim",2,5,false)
+
+print(BPresults)
+
+BP2sim = simulation("networks/BP_alt.xml", "inputs/durations.xml")
+BP2results = run(BP2sim,"/1/bp_alt.sim",2,5,false)
+
+print(BP2results)
+print(BPresults)
+
+
+graph_height = 10
+graph_width = 10
+BPsingle = constrain(BPresults, "population.CN.mu", 400)
+BP2single = constrain(BP2results, "population.CN.mu", 400)
+#graphfirstspikelatency(single, "DTN", "trial.main.duration", "latency.eps")
+quit()

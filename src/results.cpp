@@ -2,10 +2,8 @@
 
 using namespace std;
 
-extern vector< Results::Result > Results::results;
-
 // Empty constructor that is only used for passing a results object to the simulation class.
-Results::Results() { }
+Results::Results() {}
 Results::Results(double T, double dt, double delay) : T(T), dt(dt), delay(delay) {}
 
 string Results::toString() {
@@ -25,16 +23,51 @@ vector< Results::Result* > Results::get() {
     return this->get(string(""), 0);
 }
 
+// Return a vector of pointers to the results
 vector< Results::Result* > Results::get(const string ID, const double value) {
     vector< Result* > r;
     vector<Result>::pointer ptr;
-    for (vector<int>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
-        ptr = &(results[*i]);
-        if (ID == "" || this->matches(*ptr, ID, value)) {
-            r.push_back(ptr);
+    for (vector<Result*>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
+        if (ID == "" || this->matches(**i, ID, value)) {
+            r.push_back(*i);
         }
     }
     return r;
+}
+
+vector<double> Results::firstSpikeLatency(const string popID, const string ID) {
+    // Return the mean spike counts over all simulations.
+    // When the result is constrained to have zero parameters, this is
+    // equivalent to mean spike count over all trials.
+    vector<double> latency;
+    if (this->unconstrained.find(ID) == this->unconstrained.end()) {
+        cout << "[X] Mean spike count requested on a parameter that is not unconstrained." << endl;
+        return latency; 
+    }
+
+    for (Range::iterator sIter = this->unconstrained[ID].begin(); sIter != this->unconstrained[ID].end(); ++sIter)
+    {
+        int count = 0;
+        double cur = 0;
+        double total = 0;
+        vector<Results::Result*> r = this->get(ID, *sIter);
+        vector<double>::iterator spike;
+        for (vector<Results::Result*>::iterator result = r.begin(); result != r.end(); ++result) 
+        {
+            for (vector<Neuron>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
+                                          neuron != (*result)->cNetwork.populations[popID].neurons.end();
+                                          ++neuron) 
+            {
+                spike = neuron->spikes.begin(); 
+                while (spike != neuron->spikes.end() && *spike < 0) { ++spike; }
+                if (spike != neuron->spikes.end()) { total += *spike; ++count; }
+            }
+        }
+        if (count == 0) count = 1;
+        latency.push_back((double)total/(double)count);
+    }
+
+    return latency;
 }
 
 vector<double> Results::meanSpikeCount(const string popID, const string ID) {
@@ -59,6 +92,7 @@ vector<double> Results::meanSpikeCount(const string popID, const string ID) {
                 ++count; 
             }
         }
+        if (count == 0) count = 1;
         means.push_back((double)total/(double)count);
     }
 
@@ -67,7 +101,7 @@ vector<double> Results::meanSpikeCount(const string popID, const string ID) {
 
 void Results::add(Result &r) {
     results[results_size] = r; // Add it to the pile.
-    this->filter.push_back(results_size); // Add on the last index
+    this->filter.push_back(&results[results_size]); // Add on the last index
     ++results_size;
 }
 
@@ -125,6 +159,9 @@ bool Results::constrain(Results &r, std::string ID, const double value) {
         return false;
     }
 
+    if (this->results.size() > 0) this->ptrResults = &this->results;
+    r.ptrResults = this->ptrResults;
+
     r.T = this->T;
     r.dt = this->dt;
     r.delay = this->delay;
@@ -135,9 +172,12 @@ bool Results::constrain(Results &r, std::string ID, const double value) {
 
     // Loop over all the results in this collection.
     // Add them onto the new one only if the constraint matches
-    for (vector<int>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
-        if (this->matches(results[*i], ID, value)) { r.filter.push_back(*i); }
+    for (vector<Result*>::iterator i = this->filter.begin(); i != this->filter.end(); ++i) {
+        if (this->matches(**i, ID, value)) { 
+            r.filter.push_back(*i); 
+        }
     }
+
     return true;
 }
 
@@ -167,5 +207,11 @@ bool Results::load(Results &r, string filename) {
     boost::archive::binary_iarchive ia(ifs);
 #endif
     ia >> r;    
+
+    // Load up the filter
+    for (deque<Result>::iterator r_iter = r.results.begin(); r_iter != r.results.end(); ++r_iter) {
+        r.filter.push_back(&(*r_iter));
+    }
+    r.ptrResults = &r.results;
     return true;
 }

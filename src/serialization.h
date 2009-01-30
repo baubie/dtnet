@@ -12,13 +12,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
-
-
-
-
-
-
-
+#include <boost/serialization/deque.hpp>
 
 
 #endif

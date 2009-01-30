@@ -7,6 +7,7 @@
 #include "serialization.h"
 #include "range.h"
 #include <map>
+#include <deque>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -42,11 +43,12 @@ class Results {
 
         std::vector< Result* > get();
         std::vector< Result* > get(const std::string ID, const double value);
+        std::vector< Result* > filter;
         void add(Result &r);
         void init(int size);
-        std::vector<int> filter;
 
         std::vector<double> meanSpikeCount(const std::string popID, const std::string ID);
+        std::vector<double> firstSpikeLatency(const std::string popID, const std::string ID);
 
         Results(double dt, double T, double delay);
         Results();
@@ -57,7 +59,8 @@ class Results {
         bool matches(Result &r, std::string ID, const double value);
 
         int results_size;
-        static std::vector<Result> results;                  /*<< Collection of all results. */
+        std::deque<Result> results;                  /*<< Collection of all results. */
+        std::deque<Result>* ptrResults;
     private:
 
         friend class boost::serialization::access;
@@ -70,7 +73,6 @@ class Results {
             ar & dt;
             ar & T;
             ar & delay;
-            ar & filter;
         }
 };
 

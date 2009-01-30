@@ -73,8 +73,7 @@ void Trial::genSignal(vector<Input>::iterator inputsPos, double T, double dt, do
                 newValues.clear();
                 newValues.resize(steps, 0);
                 for (unsigned int t = 0; t < steps; ++t) {
-                    newValues[t] =  newIter->values[t] + oldIter->values[t];
-                    if (newValues[t] > 1) newValues[t] = 1;
+                    newValues[t] =  sqrt(newIter->values[t] + oldIter->values[t]);
                 }
                 ConstrainedTrial ci(*oldIter);
                 ci.signals.push_back(*newIter);

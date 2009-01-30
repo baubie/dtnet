@@ -132,6 +132,7 @@ namespace dtlang
 	bool f_graphtrial(int type, Results &results, int trial, string const &filename);
     bool f_graphspiketrains(Results &results, string const &popID, int trials, double start, double end, string const &filename); 
     bool f_graphspikecounts(Results &results, string const &popID, string const &x_axis, string const &filename, int const type);
+    bool f_graphfirstspikelatency(Results &results, string const &popID, string const &x_axis, string const &filename, int const type);
 
     /**
      * Comment Parser
