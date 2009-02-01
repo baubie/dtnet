@@ -4,9 +4,9 @@
 ###############################
 
 T = 100
-#sim = simulation("networks/BP.xml", "inputs/durations.xml")
+sim = simulation("networks/BP.xml", "inputs/durations.xml")
 #results = run(sim,"/1/bp.sim",2,5,false)
-results = load("/1/bp.sim")
+#results = load("/1/bp.sim")
 graph_height = 10
 graph_width = 10
 single = constrain(results, "population.CN.mu", 400)

@@ -4,6 +4,7 @@
 
 #include "serialization.h"
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <sstream>
 #include "debug.h"
@@ -13,8 +14,10 @@ class Range {
     public:
         Range();
         Range(double val);
+        Range(double start, double end);
         Range(double start, double end, double step);
         int size();
+        void merge(Range &r);
 
         Range operator=(const double& val);
         operator const double() { return this->values.at(0); }
@@ -26,6 +29,8 @@ class Range {
         std::vector<double>::iterator end();
         double front();
         double back();
+        double max();
+        double min();
 
         std::vector<double> values;
 

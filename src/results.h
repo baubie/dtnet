@@ -19,6 +19,7 @@ class Results {
 
         struct Result {
             int trial_num;                              /**< Keep track of which trial number this is. */
+            int result_set;         /**< When merging results, keep track of the different sets with this value. */
 
             /** Each result has ONE network and ONE trial. **/
             Net::ConstrainedNetwork cNetwork; 
@@ -29,6 +30,7 @@ class Results {
             void serialize(Archive & ar, const unsigned int version)
             {
                 ar & trial_num;
+                ar & result_set;
                 ar & cNetwork;
                 ar & cTrial;
             }
@@ -56,11 +58,11 @@ class Results {
         static bool load(Results &r, std::string filename);
         void save(std::string filename);
         bool constrain(Results &r, std::string ID, const double value);
+        bool merge(Results &r1, Results &r2);
         bool matches(Result &r, std::string ID, const double value);
 
         int results_size;
         std::deque<Result> results;                  /*<< Collection of all results. */
-        std::deque<Result>* ptrResults;
     private:
 
         friend class boost::serialization::access;

@@ -26,18 +26,17 @@ then
     add_ldflags="-L$READLINE_lib_check -lncurses"
 fi
 
-
 LDFLAGS="$LDFLAGS $add_ldflags"
 
 AC_CHECK_LIB([readline], [readline])
 AC_CHECK_LIB([ncurses], [main])
 
 AX_BOOST_BASE(1.37)
+AX_BOOST_FILESYSTEM
 AX_BOOST_SERIALIZATION
 AX_BOOST_IOSTREAMS
-AX_BOOST_DATE_TIME
-AX_BOOST_THREAD
 AX_BOOST_SYSTEM
-AX_BOOST_FILESYSTEM
+AX_BOOST_THREAD
+AX_BOOST_DATE_TIME
 
 AC_OUTPUT(Makefile src/Makefile src/lib/tinyxml/Makefile)

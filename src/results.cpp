@@ -147,8 +147,46 @@ bool Results::matches(Result &r, string ID, const double value) {
     if (type_ID == "population") {
         if (r.cNetwork.populations[item_ID].params.vals[param_ID] == value) matches = true;
     }
+    if (type_ID == "results") {
+        if (item_ID == "merge") {
+            if (r.result_set == value) matches = true;
+        }
+    }
 
     return matches;
+}
+
+bool Results::merge(Results &r1, Results &r2) {
+    this->T = r1.T;
+    this->dt = r1.dt;
+    this->delay = r1.delay;
+    this->timeseries = r1.timeseries;
+    this->filter.clear(); // Make sure we clear the filter and start fresh.
+
+    int result_set = 1; // What to set the r2 result_set to.  Defaults to 1.
+    bool set_first_result_set = true;
+    if (r1.unconstrained.find("results.merge.set") != r1.unconstrained.end()) {
+       result_set = r1.unconstrained["results.merge.set"].max()+1;
+       set_first_result_set = false;
+    }
+    r1.unconstrained["results.merge.set"] = Range(0, result_set, 1);
+
+    for (vector< Result* >::iterator i = r1.filter.begin(); i != r1.filter.end(); ++i) {
+        if (set_first_result_set) {
+            (*i)->result_set = 0;
+        }
+        this->filter.push_back(*i);
+    }
+    for (vector< Result* >::iterator i = r2.filter.begin(); i != r2.filter.end(); ++i) {
+        (*i)->result_set = result_set;
+        this->filter.push_back(*i);
+    }
+
+    this->unconstrained = r1.unconstrained;
+    for (map<string, Range>::iterator i = r2.unconstrained.begin(); i != r2.unconstrained.end(); ++i) {
+        if (r1.unconstrained.find(i->first) == r1.unconstrained.end()) this->unconstrained[i->first] = i->second;
+        else this->unconstrained[i->first].merge(i->second); // Merge the two ranges
+    }
 }
 
 bool Results::constrain(Results &r, std::string ID, const double value) {
@@ -158,9 +196,6 @@ bool Results::constrain(Results &r, std::string ID, const double value) {
         cout << "[WARNING] " << ID << " is not constrained.  Original results collection returned." << endl;
         return false;
     }
-
-    if (this->results.size() > 0) this->ptrResults = &this->results;
-    r.ptrResults = this->ptrResults;
 
     r.T = this->T;
     r.dt = this->dt;
@@ -212,6 +247,5 @@ bool Results::load(Results &r, string filename) {
     for (deque<Result>::iterator r_iter = r.results.begin(); r_iter != r.results.end(); ++r_iter) {
         r.filter.push_back(&(*r_iter));
     }
-    r.ptrResults = &r.results;
     return true;
 }

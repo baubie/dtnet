@@ -5,20 +5,16 @@
 
 T = 100
 BPsim= simulation("networks/BP.xml", "inputs/durations.xml")
-BPresults = run(BPsim,"/1/bp.sim",2,5,false)
-
-print(BPresults)
+BPresults = run(BPsim,"bp.sim",15,5,false)
+BPresults = load("bp.sim")
 
 BP2sim = simulation("networks/BP_alt.xml", "inputs/durations.xml")
-BP2results = run(BP2sim,"/1/bp_alt.sim",2,5,false)
+BP2results = run(BP2sim,"bp_alt.sim",15,5,false)
+BP2results = load("bp_alt.sim")
 
-print(BP2results)
-print(BPresults)
-
+results = merge(BPresults, BP2results)
 
 graph_height = 10
 graph_width = 10
-BPsingle = constrain(BPresults, "population.CN.mu", 400)
-BP2single = constrain(BP2results, "population.CN.mu", 400)
-#graphfirstspikelatency(single, "DTN", "trial.main.duration", "latency.eps")
+graphfirstspikelatency(results, "DTN", "trial.main.duration", "latency_both.eps")
 quit()

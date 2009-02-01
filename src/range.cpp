@@ -15,6 +15,10 @@ Range::Range(double start, double end, double step) {
     this->initialize(start, end, step);
 }
 
+Range::Range(double start, double end) {
+    this->initialize(start, end, 1);
+}
+
 void Range::initialize(double start, double end, double step) {
     this->values.clear();
     for(double i = start; i <= end; i += step) {
@@ -22,10 +26,21 @@ void Range::initialize(double start, double end, double step) {
     }
 }
 
+void Range::merge(Range &r) {
+    for(vector<double>::iterator i = r.values.begin(); i != r.values.end(); ++i) {
+        this->values.push_back(*i);
+    }
+    sort(this->values.begin(), this->values.end());
+    vector<double>::iterator it = unique(this->values.begin(), this->values.end());
+    this->values.resize(it - this->values.begin());
+}
+
 vector<double>::iterator Range::begin() { return this->values.begin(); }
 vector<double>::iterator Range::end() { return this->values.end(); }
 double Range::front() { return this->values.front(); }
 double Range::back() { return this->values.back(); }
+double Range::max() { return *max_element(this->values.begin(), this->values.end()); }
+double Range::min() { return *min_element(this->values.begin(), this->values.end()); }
 
 int Range::size() {
     return this->values.size();

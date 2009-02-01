@@ -58,35 +58,32 @@ namespace dtlang
     using namespace boost::spirit::ascii;
     using namespace boost::spirit::qi;
     using namespace boost::spirit::arg_names;
-    using namespace std;
     namespace phoenix = boost::phoenix;
     namespace fusion = boost::fusion;
-    using phoenix::at_c;
-    using phoenix::push_back;
 
-    typedef vector<string> parameters;
+    typedef std::vector<std::string> parameters;
 
     struct function_call
     {
-        string name;
-        string first_param;
+        std::string name;
+        std::string first_param;
         parameters params;
     };
 
     struct function_param
     {
         int type;
-        string name;
-        string help;
+        std::string name;
+        std::string help;
         bool optional;
-        string def;
+        std::string def;
     };
 
     struct function_def
     {
-        string help;
+        std::string help;
         int return_type;
-        vector<function_param> params;
+        std::vector<function_param> params;
     };
 
     struct variable_def
@@ -97,8 +94,8 @@ namespace dtlang
 
     struct variable_assign
     {
-        string name;
-        string value;
+        std::string name;
+        std::string value;
     };
 
     /**
@@ -107,32 +104,33 @@ namespace dtlang
     void initialize();
     void initialize_functions();
     void initialize_variables();
-    bool parse(const string &str, boost::threadpool::pool &tp, bool &end_input);
-    bool runFunction(const string &name, const vector<variable_def> &params, boost::threadpool::pool &tp, void *&r, int &r_type, bool &end_input);
-    bool parse_statement(const string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input);
-    bool params_to_variables(parameters &params, vector<variable_def> &var_params, boost::threadpool::pool &tp, bool &end_input);
+    bool parse(const std::string &str, boost::threadpool::pool &tp, bool &end_input);
+    bool runFunction(const std::string &name, const std::vector<variable_def> &params, boost::threadpool::pool &tp, void *&r, int &r_type, bool &end_input);
+    bool parse_statement(const std::string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input);
+    bool params_to_variables(parameters &params, std::vector<variable_def> &var_params, boost::threadpool::pool &tp, bool &end_input);
     bool delete_variable(variable_def var);
 
-    bool f_help(string name);
+    bool f_help(std::string name);
     bool f_help();
     bool f_vars();
     bool f_funcs();
     bool f_quit(boost::threadpool::pool &tp);
     bool f_benchmark(boost::threadpool::pool &tp, double mult);
-    bool f_run(Results &result, Simulation &sim, string filename, int number_of_trials, double delay, bool voltage, boost::threadpool::pool &tp);
-    bool f_load(Results &result, const string filename);
-    bool f_simulation(const string net_filename, const string trial_filename, Net *net, Trial *trial);
-    bool f_external(const string filename, boost::threadpool::pool &tp, bool &end_input);
+    bool f_run(Results &result, Simulation &sim, std::string filename, int number_of_trials, double delay, bool voltage, boost::threadpool::pool &tp);
+    bool f_load(Results &result, const std::string filename);
+    bool f_simulation(const std::string net_filename, const std::string trial_filename, Net *net, Trial *trial);
+    bool f_external(const std::string filename, boost::threadpool::pool &tp, bool &end_input);
     bool f_print(void* ptr, int const type);
-    bool f_constrain(Results &result, Results *old_results, const string ID, const double value); 
+    bool f_constrain(Results &result, Results *old_results, const std::string ID, const double value); 
+    bool f_merge(Results &result, Results *r1, Results *r2);
 
     // Graphing functions
    // bool f_graphinputs(Trial &trial, string const &filename); // NO LONGER IMPLEMENTED
-	bool f_graphnetwork(Results &results, string const &filename);
-	bool f_graphtrial(int type, Results &results, int trial, string const &filename);
-    bool f_graphspiketrains(Results &results, string const &popID, int trials, double start, double end, string const &filename); 
-    bool f_graphspikecounts(Results &results, string const &popID, string const &x_axis, string const &filename, int const type);
-    bool f_graphfirstspikelatency(Results &results, string const &popID, string const &x_axis, string const &filename, int const type);
+	bool f_graphnetwork(Results &results, std::string const &filename);
+	bool f_graphtrial(int type, Results &results, int trial, std::string const &filename);
+    bool f_graphspiketrains(Results &results, std::string const &popID, int trials, double start, double end, std::string const &filename); 
+    bool f_graphspikecounts(Results &results, std::string const &popID, std::string const &x_axis, std::string const &filename, int const type);
+    bool f_graphfirstspikelatency(Results &results, std::string const &popID, std::string const &x_axis, std::string const &filename, int const type);
 
     /**
      * Comment Parser
@@ -161,8 +159,8 @@ namespace dtlang
             name        %= raw[lexeme[+(alnum|'_'|'.')]];
         }
         rule<Iter, function_call(), space_type> expr;
-        rule<Iter, string(), space_type> name;
-        rule<Iter, string(), space_type> param;
+        rule<Iter, std::string(), space_type> name;
+        rule<Iter, std::string(), space_type> param;
     };
 
     /**
@@ -178,20 +176,20 @@ namespace dtlang
             name        %= raw[lexeme[+(alnum|'_')]];
         }
         rule<Iter, variable_assign(), space_type> expr;
-        rule<Iter, string(), space_type> name, value;
+        rule<Iter, std::string(), space_type> name, value;
     };
 
     /**
      * String Parser
      */
     template <typename Iter>
-    struct string_parser : grammar<Iter, string(), space_type>
+    struct string_parser : grammar<Iter, std::string(), space_type>
     {
         string_parser(): string_parser::base_type(expr)
         {
             expr       %= lit('"') >> raw[lexeme[*((print) - lit('"'))]] >> lit('"');
         }
-        rule<Iter, string(), space_type> expr;
+        rule<Iter, std::string(), space_type> expr;
     };
 
     /**

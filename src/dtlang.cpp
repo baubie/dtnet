@@ -1,6 +1,8 @@
 
 #include "dtlang.h"
 
+using namespace std;
+
 struct strCmp {
     bool operator()( const std::string &s1, const std::string &s2 ) const {
         return strcmp( s1.c_str(), s2.c_str() ) < 0;
@@ -96,12 +98,12 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_inp
 bool dtlang::parse_statement(const string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input) {
 
     bool r;
+    string::const_iterator iter = str.begin();
+    string::const_iterator end = str.end();
 
     // Is it a function?
     dtlang::function_parser<string::const_iterator> pFunction;
     dtlang::function_call func;
-    string::const_iterator iter = str.begin();
-    string::const_iterator end = str.end();
     r = phrase_parse(iter, end, pFunction, func, boost::spirit::ascii::space);
     if (r && iter == end) {
         if (func.first_param != "") { func.params.insert(func.params.begin(), (string)func.first_param); }
@@ -396,6 +398,25 @@ void dtlang::initialize_functions()
     f.params.push_back(p);
 
     dtlang::functions["constrain"] = f;
+
+    // merge()
+    f.help = "Merge two results objects.";
+    f.return_type = dtlang::TYPE_RESULTS;
+    f.params.clear();
+
+    p.type = dtlang::TYPE_RESULTS;
+    p.help = "First result to merge.  Can already be a merged result.";
+    p.optional = false;
+    p.name = "results1";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_RESULTS;
+    p.help = "Second result to merge. Must NOT be a merged result yet.";
+    p.optional = false;
+    p.name = "results2";
+    f.params.push_back(p);
+
+    dtlang::functions["merge"] = f;
 
     // graphinputs()
     f.help = "Display a graph showing some or all of the inputs from a trial. Uses the graph_width and graph_height variables.";
@@ -773,6 +794,15 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         return dtlang::f_print(params[0].obj, params[0].type);
 	} 
 
+    if (name == "merge") {
+        if (r_type == dtlang::NO_RETURN) {
+			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
+			return false;
+        }
+        r = new Results();
+        return dtlang::f_merge(*(static_cast<Results*>(r)), static_cast<Results*>(params[0].obj), static_cast<Results*>(params[1].obj));
+    }
+
     if (name == "constrain") {
 		if (r_type == dtlang::NO_RETURN) {
 			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
@@ -1081,6 +1111,11 @@ bool dtlang::f_simulation(const string net_filename, const string trial_filename
 bool dtlang::f_constrain(Results &result, Results *old_results, const string ID, const double value) {
     return old_results->constrain(result, ID, value);
 }
+
+bool dtlang::f_merge(Results &result, Results *r1, Results *r2) {
+    return result.merge(*r1, *r2);
+}
+
 
 /*
 bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
