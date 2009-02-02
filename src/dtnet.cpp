@@ -7,6 +7,7 @@
 
 using namespace std;
 using namespace swift;
+namespace po = boost::program_options;
 
 
 int main(int argc, char* argv[]) {
@@ -22,8 +23,36 @@ int main(int argc, char* argv[]) {
     history.append("/.dtnet_history");
 
     /* Parse Command Line Arguments */
-    int result = parseargs(argc, argv, dtlang::verbose, script, procs, GLE::viewer, GLE::qgle);
-    if (result != 0) return result;
+    po::options_description generic("Generic options");
+    generic.add_options()
+        ("help,h", "produce help message")
+        ("verbose,v", "show more messages while the program is running")
+        ("script,s", po::value<string>(), "set a script to run right away")
+    ;
+
+    po::options_description config("Configuration");
+    config.add_options()
+        ("eps", po::value<string>(&GLE::viewer), "specify a program to view eps files with")
+        ("procs,p", po::value<int>(&procs)->default_value(1), "set the number of threads available for simulations")
+        ;
+
+    po::options_description visible("Allowed options");
+    visible.add(generic).add(config);
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv).options(visible).run(), vm);
+    po::notify(vm);
+
+    string config_file(home);
+    config_file.append("/.dtnetrc");
+    ifstream ifs(config_file.c_str());
+    po::store(po::parse_config_file(ifs, config), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        cout << visible << "\n";
+        return 1;
+    }
+    if (vm.count("verbose")) dtlang::verbose = true; 
 
     /* Display A Welcome Message */
     if (dtlang::verbose) cout << endl << "Welcome to the Parallel Network Simulator 2.0" << endl;

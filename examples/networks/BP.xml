@@ -54,7 +54,7 @@
     <population id="DTN" title="Duration Tuned Neuron" type="aEIF">
         <param name="size">1</param>
         <param name="C" sigma="0">250</param>
-        <param name="a" sigma="0">4</param>
+        <param name="a" sigma="0">10</param>
         <param name="b" sigma="0">10</param>
         <param name="tauw" sigma="0">30</param>
         <param name="EL" sigma="0">-55</param>

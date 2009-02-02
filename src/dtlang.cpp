@@ -12,6 +12,7 @@ struct strCmp {
 namespace dtlang {
     map<std::string, function_def> functions;
     map<std::string, variable_def> vars;
+    map<std::string, variable_def> statements;
     map<int, std::string> type_names;
 }
 
@@ -151,6 +152,12 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
     if (r && iter == end) { var.type = dtlang::TYPE_INT; var.obj = int_val; return true; }
     delete int_val;
 
+    // Is it a statement?
+    if (dtlang::statements.find(str) != dtlang::statements.end()) {
+            var = dtlang::statements[str];
+            return true;
+    }
+
     // We'll assume it's a variable
     if (dtlang::vars.find(str) != dtlang::vars.end()) {
         if (make_copy) {
@@ -244,11 +251,11 @@ void dtlang::initialize_variables()
 
     v.type = dtlang::TYPE_DOUBLE;
     v.obj = new double(0);
-    dtlang::vars["false"] = v;
+    dtlang::statements["false"] = v;
 
     v.type = dtlang::TYPE_DOUBLE;
     v.obj = new double(1);
-    dtlang::vars["true"] = v;
+    dtlang::statements["true"] = v;
 }
 
 void dtlang::initialize_functions()

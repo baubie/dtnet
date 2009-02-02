@@ -6,11 +6,11 @@
 T = 100
 BPsim= simulation("networks/BP.xml", "inputs/durations.xml")
 BPresults = run(BPsim,"bp.sim",15,5,false)
-BPresults = load("bp.sim")
+#BPresults = load("bp.sim")
 
 BP2sim = simulation("networks/BP_alt.xml", "inputs/durations.xml")
 BP2results = run(BP2sim,"bp_alt.sim",15,5,false)
-BP2results = load("bp_alt.sim")
+#BP2results = load("bp_alt.sim")
 
 results = merge(BPresults, BP2results)
 
