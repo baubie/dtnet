@@ -32,7 +32,8 @@ class GLE
         static const int NEW_PANEL = -1;
         static const double UNDEFINED = -91348434;
 
-		static std::string viewer;
+		static std::string eps_viewer;
+		static std::string pdf_viewer;
 		static bool qgle;
 
         std::vector<std::string> markers;
@@ -146,11 +147,18 @@ class GLE
         CanvasProperties canvasProperties;
 
         // Various different plot functions
+        
+        //This is the main one that other plot()'s call
+        PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, std::vector<std::vector<double> > &err_up, std::vector<std::vector<double> > &err_down, PlotProperties properties, PanelID panel); // Plot a Multiple x-y curves with the same x by adding it to an existing panel
+
+
+
         PanelID plot(std::vector<double> &x, std::vector<double> &y, PlotProperties properties); // Plot a single x-y curve
         PanelID plot(std::vector< std::pair<double,double> > &points, PlotProperties properties, PanelID ID);  // Plot a set of points
         PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, PlotProperties properties); // Plot a Multiple x-y curves with the same x
+        PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, std::vector<std::vector<double> > &err_up, std::vector<std::vector<double> > &err_down, PlotProperties properties); // Plot a Multiple x-y curves with the same x
         PanelID plot(std::vector<double> &x, std::vector<double> &y, PlotProperties properties, PanelID panel); // Plot a single x-y curve by adding it to an existing panel
-        PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, PlotProperties properties, PanelID panel); // Plot a Multiple x-y curves with the same x by adding it to an existing panel
+        PanelID plot(std::vector<double> &x, std::vector<double> &y, std::vector<double> &err_up, std::vector<double> &err_down, PlotProperties properties, PanelID panel);
 
         PanelID plot3d(std::vector<double> &x, std::vector<double> &y, std::vector< std::vector<double> > &z, PlotProperties properties, PanelID ID);
 
@@ -166,6 +174,8 @@ class GLE
 
         struct Plot {
             std::vector<std::vector<double> > y;
+            std::vector<std::vector<double> > err_up;
+            std::vector<std::vector<double> > err_down;
             std::vector<double> x;
             PlotProperties properties;
             std::string data_file;

@@ -14,6 +14,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
+#include <boost/tuple/tuple.hpp>
 #include "lib/threadpool/threadpool.hpp"
 #include "GLE.h"
 #include "net.h"
@@ -21,6 +22,7 @@
 #include "vt100.h"
 #include "simulation.h"
 #include "results.h"
+#include "settings.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -123,6 +125,9 @@ namespace dtlang
     bool f_print(void* ptr, int const type);
     bool f_constrain(Results &result, Results *old_results, const std::string ID, const double value); 
     bool f_merge(Results &result, Results *r1, Results *r2);
+    bool f_set(const std::string var, double const val);
+    bool f_set(const std::string var, std::string const val);
+    bool f_modsim(Simulation &sim, Simulation &old_sim, const std::string ID, double const val);
 
     // Graphing functions
    // bool f_graphinputs(Trial &trial, string const &filename); // NO LONGER IMPLEMENTED

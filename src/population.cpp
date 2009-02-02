@@ -3,8 +3,6 @@
 
 using namespace std;
 
-
-
 Population::Population(string name, string ID, bool accept_input, bool spontaneous, int position, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), spontaneous(spontaneous), position(position), params(params)  {}
 
 Population::Population() : name(""), ID(""), accept_input(false) {}

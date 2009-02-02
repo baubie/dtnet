@@ -9,14 +9,14 @@ using namespace std;
 using namespace swift;
 namespace po = boost::program_options;
 
+Settings *Settings::s_instance = 0;
 
 int main(int argc, char* argv[]) {
 
     /* Default Values */
     dtlang::verbose = false;
-    int procs = 1;
+    int threads = 1;
 
-    string script;
     string prompt = "> ";
     char* home = getenv("HOME");
     string history(home);
@@ -32,8 +32,14 @@ int main(int argc, char* argv[]) {
 
     po::options_description config("Configuration");
     config.add_options()
-        ("eps", po::value<string>(&GLE::viewer), "specify a program to view eps files with")
-        ("procs,p", po::value<int>(&procs)->default_value(1), "set the number of threads available for simulations")
+        ("eps", po::value<string>(&GLE::eps_viewer), "specify a program to view EPS files with")
+        ("pdf", po::value<string>(&GLE::pdf_viewer), "specify a program to view PDF files with")
+        ("threads,t", po::value<int>(&threads)->default_value(1), "set the number of threads available for simulations")
+        ("graph.width", po::value<double>()->default_value(10), "set the default width of a graph")
+        ("graph.height", po::value<double>()->default_value(10), "set the default height of a graph")
+        ("dt", po::value<double>()->default_value(0.05), "set the default timestep")
+        ("delay", po::value<double>()->default_value(5), "set the default delay for simulations")
+        ("T", po::value<double>()->default_value(50), "set the default duration of a simulation")
         ;
 
     po::options_description visible("Allowed options");
@@ -48,11 +54,13 @@ int main(int argc, char* argv[]) {
     po::store(po::parse_config_file(ifs, config), vm);
     po::notify(vm);
 
-    if (vm.count("help")) {
-        cout << visible << "\n";
-        return 1;
-    }
+    if (vm.count("help")) { cout << visible << "\n"; return 1; }
     if (vm.count("verbose")) dtlang::verbose = true; 
+    if (vm.count("graph.width")) Settings::instance()->set(string("graph.width"), vm["graph.width"].as<double>());
+    if (vm.count("graph.height")) Settings::instance()->set(string("graph.height"), vm["graph.height"].as<double>());
+    if (vm.count("dt")) Settings::instance()->set(string("dt"), vm["dt"].as<double>());
+    if (vm.count("T")) Settings::instance()->set(string("T"), vm["T"].as<double>());
+    if (vm.count("delay")) Settings::instance()->set(string("delay"), vm["delay"].as<double>());
 
     /* Display A Welcome Message */
     if (dtlang::verbose) cout << endl << "Welcome to the Parallel Network Simulator 2.0" << endl;
@@ -65,8 +73,8 @@ int main(int argc, char* argv[]) {
 #endif
 
     /* Setup Threads For Parallel Simulations */
-    if (dtlang::verbose) cout << "...Pooling " << procs << " threads for simulations";
-    boost::threadpool::pool tp(procs+1); // Pool an additional thread for the progress meter
+    if (dtlang::verbose) cout << "...Pooling " << threads << " threads for simulations";
+    boost::threadpool::pool tp(threads+1); // Pool an additional thread for the progress meter
     if (dtlang::verbose) cout << "\t[OK]" << endl;
 
     /* Main Input Loop */
@@ -78,8 +86,8 @@ int main(int argc, char* argv[]) {
 
     bool EndOfInput = false;
     // Run an external script from the command line
-    if (script != "") {
-        dtlang::parse("external(\"" + script + "\")", tp, EndOfInput);
+    if (vm.count("script")) { 
+        dtlang::parse("external(\"" + vm["script"].as<string>() + "\")", tp, EndOfInput);
     }
 
     string input;

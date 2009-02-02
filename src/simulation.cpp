@@ -8,6 +8,32 @@ boost::mt19937 random_engine;
 
 Simulation::Simulation(Net &net, Trial &trial) : net(net), trial(trial) {}
 
+bool Simulation::modify(std::string ID, double const val) {
+
+    // Split up the ID into its three parts.
+    string type_ID;
+    string item_ID;
+    string param_ID;
+    size_t pos;
+    pos = ID.find('.');
+    type_ID = ID.substr(0, pos);
+    string sID = ID.substr(pos+1);
+    pos = sID.find('.');
+    item_ID = sID.substr(0, pos);
+    param_ID = sID.substr(pos+1);
+
+    if (type_ID == "population")
+    {
+        if (this->net.populations.find(item_ID) != this->net.populations.end()) {
+            if (this->net.populations[item_ID].params.vals.find(param_ID) != this->net.populations[item_ID].params.vals.end()) {
+                this->net.populations[item_ID].params.vals[param_ID] = Range(val);
+                return true;
+            }
+        }
+    }
+    cout << "[X] " << ID << " failed to modify the network." << endl;
+    return false;
+}
 
 void Simulation::runSimulation(Results::Result *r, double T, double dt, double delay, bool voltage) {
 
@@ -72,7 +98,7 @@ bool Simulation::simulationProgress(boost::threadpool::pool &tp, int total, boos
         return false;
     }
 
-    double percent_done = (double)(total - pending + active - 1) / (double)total;
+    double percent_done = (double)(total - pending + active) / (double)total;
     boost::posix_time::time_duration dur = now - start;
     double time_left = (double)dur.total_microseconds() / percent_done;
     boost::posix_time::time_duration left = boost::posix_time::microseconds(time_left) - dur;
@@ -142,6 +168,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
                 r.cNetwork = *n;
                 r.cTrial = *t;
                 r.trial_num = i;
+                r.result_set = 0;
                 results.add(r);
             }
             progress += number_of_trials;

@@ -16,8 +16,10 @@
 #include "lib/threadpool/threadpool.hpp"
 #include "dtlang.h"
 #include "lib/SReadline/SReadline.h"
+#include "settings.h"
 
-extern std::string GLE::viewer;
+extern std::string GLE::eps_viewer;
+extern std::string GLE::pdf_viewer;
 extern bool GLE::qgle;
 extern bool dtlang::verbose;
 

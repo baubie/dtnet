@@ -24,12 +24,31 @@ GLE::PanelProperties GLE::getPanelProperties(PanelID ID) {
 bool GLE::verifyData(GLE::Plot &plot)
 {
     vector<vector<double> >::iterator iter;
+    vector<vector<double> >::iterator iter_eu;
+    vector<vector<double> >::iterator iter_ed;
+    iter_eu = plot.err_up.begin();
+    iter_ed = plot.err_down.begin();
     for (iter = plot.y.begin(); iter != plot.y.end(); ++iter)
     {
         if (iter->size() != plot.x.size())
         {
             cout << "[GLE++] Error: x and y vector sizes do not all match (x: " << plot.x.size() << " y: " << iter->size() << ")." << endl;
             return false;
+        }
+
+        if (iter_eu != plot.err_up.end()) {
+            if (!iter_eu->empty() && iter_eu->size() != plot.x.size())
+            {
+                cout << "[GLE++] Error: x and y error_up vector sizes do not all match (x: " << plot.x.size() << " y: " << iter_eu->size() << ")." << endl;
+                return false;
+            }
+            if (!iter_ed->empty() && iter_ed->size() != plot.x.size())
+            {
+                cout << "[GLE++] Error: x and y error_down vector sizes do not all match (x: " << plot.x.size() << " y: " << iter_ed->size() << ")." << endl;
+                return false;
+            }
+            ++iter_eu;
+            ++iter_ed;
         }
     }
     return true;
@@ -74,17 +93,35 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<double> &y, GLE::PlotProperties
 
 GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotProperties properties)
 {
-    return this->plot(x, y, properties, GLE::NEW_PANEL);
+    vector<vector<double> > empty;
+    return this->plot(x, y, empty, empty, properties, GLE::NEW_PANEL);
+}
+
+GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, vector<vector<double> > &err_up, vector<vector<double> > &err_down, GLE::PlotProperties properties)
+{
+    return this->plot(x, y, err_up, err_down, properties, GLE::NEW_PANEL);
 }
 
 GLE::PanelID GLE::plot(vector<double> &x, vector<double> &y, GLE::PlotProperties properties, GLE::PanelID ID)
 {
     vector<vector<double> > tmp;
     tmp.push_back(y);
-    return this->plot(x, tmp, properties, ID);
+    vector<vector<double> > empty;
+    return this->plot(x, tmp, empty, empty, properties, ID);
 }
 
-GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotProperties properties, GLE::PanelID ID)
+GLE::PanelID GLE::plot(vector<double> &x, vector<double> &y, vector<double> &err_up, vector<double> &err_down, GLE::PlotProperties properties, GLE::PanelID ID)
+{
+    vector<vector<double> > tmp;
+    vector<vector<double> > tmp_eu;
+    vector<vector<double> > tmp_ed;
+    tmp.push_back(y);
+    tmp_eu.push_back(err_up);
+    tmp_ed.push_back(err_down);
+    return this->plot(x, tmp, tmp_eu, tmp_ed, properties, ID);
+}
+
+GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, vector<vector<double> > &err_up, vector<vector<double> > &err_down, GLE::PlotProperties properties, GLE::PanelID ID)
 {
     Plot plot;
     plot.x = x;
@@ -118,6 +155,8 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, GLE::PlotP
         plot.y = new_y;
     } else {
         plot.y = y;
+        plot.err_up = err_up;
+        plot.err_down = err_down;
     }
 
 
@@ -209,6 +248,7 @@ bool GLE::draw()
 bool GLE::draw(string const &filename)
 {
     string gle_script_file = this->gle_script_to_file();
+
     string type = filename.substr(filename.find('.')+1);
     string basename = filename.substr(0, filename.find('.'));
     if (type == "jpeg") type = "jpg";
@@ -224,11 +264,18 @@ bool GLE::draw(string const &filename)
 	else
     {
 	    cout << "[GLE] Saved plot to " << filename << endl;
-        if (!GLE::viewer.empty()) {
-            string command = GLE::viewer + filename + " &"; // Try to run ghostview in the background.
+        if (!GLE::eps_viewer.empty() && type == "eps") {
+            string command = GLE::eps_viewer + " " + filename + " &"; // Try to run ghostview in the background.
             int r = system(command.c_str());
             if (r != 0) {
-                cerr << "[GLE] Ghostview preview is unavailable." << endl;
+                cerr << "[GLE] EPS preview is unavailable." << endl;
+            }
+        }
+        if (!GLE::pdf_viewer.empty() && type == "pdf") {
+            string command = GLE::pdf_viewer + " " + filename + " &"; // Try to run ghostview in the background.
+            int r = system(command.c_str());
+            if (r != 0) {
+                cerr << "[GLE] PDF preview is unavailable." << endl;
             }
         }
     }
@@ -336,14 +383,37 @@ bool GLE::data_to_file()
             close ( pTemp );
         }
 
+        // Error bar iterators
+        vector<vector<double> >::iterator iter_aeu;
+        vector<vector<double> >::iterator iter_aed;
+        vector<double>::iterator iter_eu;
+        vector<double>::iterator iter_ed;
+        bool error_bars;
+        
         for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
         { /**< Loop over each plot in this panel. */
+
+            error_bars = false;
+            iter_aeu = plot_iter->err_up.begin();
+            iter_aed = plot_iter->err_down.begin();
+            if (iter_aeu != plot_iter->err_up.end()) error_bars = true;
+
             for ( all_y_iter = plot_iter->y.begin(); all_y_iter != plot_iter->y.end(); ++all_y_iter)
             { /**< Loop over each trace in this plot. */
                 x_iter = plot_iter->x.begin(); // We assume x and y are the same size since verifyData() returned true.
+                if (error_bars) {
+                    iter_eu = iter_aeu->begin();
+                    iter_ed = iter_aed->begin();
+                }
                 for ( y_iter = all_y_iter->begin(); y_iter != all_y_iter->end(); ++y_iter)
                 { /**< Loop over each y value in this trace. */
                     y[*x_iter].push_back(*y_iter);
+                    if (error_bars) {
+                        y[*x_iter].push_back(*iter_eu);
+                        y[*x_iter].push_back(*iter_ed);
+                        ++iter_eu;
+                        ++iter_ed;
+                    }
                     ++x_iter;
                 }
             }    
@@ -514,6 +584,11 @@ string GLE::gle_script_to_file()
 
                         if (plot_iter->properties.nomiss) {
                             out << "d" << plot_num << " nomiss" << endl;
+                        }
+
+                        if (!plot_iter->err_up.empty()) {
+                            out << "d" << plot_num << " errup d" << (plot_num+1) << " errdown d" << (plot_num+2) << endl;
+                            plot_num += 2;
                         }
 
                         color.r += diff.r;

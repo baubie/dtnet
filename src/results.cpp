@@ -6,6 +6,29 @@ using namespace std;
 Results::Results() {}
 Results::Results(double T, double dt, double delay) : T(T), dt(dt), delay(delay) {}
 
+double stddev(vector<double> &vals) {
+    if (vals.empty()) return 0;
+
+    double mean = 0;
+    double stddev = 0;
+    vector<double>::iterator i;
+    for (i = vals.begin(); i != vals.end(); ++i) {
+        mean += *i;
+    }
+    mean /= vals.size();
+    for (i = vals.begin(); i != vals.end(); ++i) {
+        stddev += pow(*i-mean,2);
+    }
+    stddev /= vals.size();
+    stddev = sqrt(stddev);
+    return stddev;
+}
+double stderror(vector<double> &vals) {
+    if (vals.size() == 0) return 0;
+    return stddev(vals) / sqrt(vals.size());
+}
+
+
 string Results::toString() {
     stringstream r;
     r << "Result Collection" << endl;
@@ -35,11 +58,11 @@ vector< Results::Result* > Results::get(const string ID, const double value) {
     return r;
 }
 
-vector<double> Results::firstSpikeLatency(const string popID, const string ID) {
-    // Return the mean spike counts over all simulations.
-    // When the result is constrained to have zero parameters, this is
-    // equivalent to mean spike count over all trials.
+boost::tuple< vector<double>, vector<double>, vector<double> > Results::firstSpikeLatency(const string popID, const string ID) {
     vector<double> latency;
+    vector<double> err_up;
+    vector<double> err_down;
+
     if (this->unconstrained.find(ID) == this->unconstrained.end()) {
         cout << "[X] Mean spike count requested on a parameter that is not unconstrained." << endl;
         return latency; 
@@ -52,6 +75,8 @@ vector<double> Results::firstSpikeLatency(const string popID, const string ID) {
         double total = 0;
         vector<Results::Result*> r = this->get(ID, *sIter);
         vector<double>::iterator spike;
+        vector<double> times;
+        times.clear();
         for (vector<Results::Result*>::iterator result = r.begin(); result != r.end(); ++result) 
         {
             for (vector<Neuron>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
@@ -60,43 +85,54 @@ vector<double> Results::firstSpikeLatency(const string popID, const string ID) {
             {
                 spike = neuron->spikes.begin(); 
                 while (spike != neuron->spikes.end() && *spike < 0) { ++spike; }
-                if (spike != neuron->spikes.end()) { total += *spike; ++count; }
+                if (spike != neuron->spikes.end()) { total += *spike; ++count; times.push_back(*spike); }
             }
         }
         if (count == 0) count = 1;
         latency.push_back((double)total/(double)count);
+        double se = stderror(times);
+        err_up.push_back(se);
+        err_down.push_back(se);
     }
 
-    return latency;
+    return boost::tuple<vector<double>, vector<double>, vector<double> > (latency, err_up, err_down);
 }
 
-vector<double> Results::meanSpikeCount(const string popID, const string ID) {
+boost::tuple< vector<double>, vector<double>, vector<double> > Results::meanSpikeCount(const string popID, const string ID) {
     // Return the mean spike counts over all simulations.
     // When the result is constrained to have zero parameters, this is
     // equivalent to mean spike count over all trials.
     vector<double> means;
+    vector<double> err_up;
+    vector<double> err_down;
     if (this->unconstrained.find(ID) == this->unconstrained.end()) {
         cout << "[X] Mean spike count requested on a parameter that is not unconstrained." << endl;
         return means; 
     }
 
+    vector<double> counts;
     for (Range::iterator sIter = this->unconstrained[ID].begin(); sIter != this->unconstrained[ID].end(); ++sIter) {
         int total = 0;
         int count = 0;
         vector<Results::Result*> r = this->get(ID, *sIter);
+        counts.clear();
         for (vector<Results::Result*>::iterator result = r.begin(); result != r.end(); ++result) {
             for (vector<Neuron>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
                                           neuron != (*result)->cNetwork.populations[popID].neurons.end();
                                           ++neuron) {
                 total += neuron->spikes.size();
+                counts.push_back(neuron->spikes.size()); 
                 ++count; 
             }
         }
         if (count == 0) count = 1;
         means.push_back((double)total/(double)count);
+        double se = stderror(counts);
+        err_up.push_back(se);
+        err_down.push_back(se);
     }
 
-    return means;
+    return boost::tuple<vector<double>, vector<double>, vector<double> > (means, err_up, err_down);
 }
 
 void Results::add(Result &r) {
@@ -227,6 +263,7 @@ void Results::save(string filename) {
     boost::archive::binary_oarchive oa(ofs);
 #endif
     LOG("boost::archive created.");
+
     oa << *this;    
 }
 

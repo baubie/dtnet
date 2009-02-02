@@ -154,8 +154,33 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
 
     // Is it a statement?
     if (dtlang::statements.find(str) != dtlang::statements.end()) {
+        if (make_copy) {
+            variable_def oldvar = dtlang::statements[str];
+            var.type = oldvar.type;
+            switch(oldvar.type) {
+                case dtlang::TYPE_STRING:
+                    var.obj = new string(*(static_cast<string*>(oldvar.obj)));
+                    break;
+
+                case dtlang::TYPE_INT:
+                    var.obj = new int(*(static_cast<int*>(oldvar.obj)));
+                    break;
+
+                case dtlang::TYPE_DOUBLE:
+                    var.obj = new double(*(static_cast<double*>(oldvar.obj)));
+                    break;
+
+				default:
+                    cout << "Unable to determine statement type for copying." << endl;
+                    return false;
+                    break;
+            } 
+
+        } else {
             var = dtlang::statements[str];
             return true;
+        }
+        return true;
     }
 
     // We'll assume it's a variable
@@ -230,26 +255,6 @@ void dtlang::initialize_variables()
 	dtlang::type_names[dtlang::TYPE_RESULTS] = "Results";
 
     v.type = dtlang::TYPE_DOUBLE;
-    v.obj = new double(0.05);
-    dtlang::vars["dt"] = v;
-
-    v.type = dtlang::TYPE_DOUBLE;
-    v.obj = new double(50);
-    dtlang::vars["T"] = v;
-
-    v.type = dtlang::TYPE_DOUBLE;
-    v.obj = new double(10);
-    dtlang::vars["delay"] = v;
-
-    v.type = dtlang::TYPE_DOUBLE;
-    v.obj = new double(8.5);
-    dtlang::vars["graph_width"] = v;
-
-    v.type = dtlang::TYPE_DOUBLE;
-    v.obj = new double(5.0);
-    dtlang::vars["graph_height"] = v;
-
-    v.type = dtlang::TYPE_DOUBLE;
     v.obj = new double(0);
     dtlang::statements["false"] = v;
 
@@ -281,6 +286,54 @@ void dtlang::initialize_functions()
     f.params.push_back(p);
 
     dtlang::functions["help"] = f;
+
+
+    // set()
+    f.help = "Set a system configuration variable.";
+    f.return_type = dtlang::TYPE_VOID;
+    f.params.clear();
+
+    p.type = dtlang::TYPE_STRING;
+    p.help = "Variable name";
+    p.optional = false;
+    p.name = "variable";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_DOUBLE;
+    p.help = "Variable value";
+    p.optional = false;
+    p.name = "value";
+    f.params.push_back(p);
+
+    dtlang::functions["set"] = f;
+
+
+    // modsim()
+    f.help = "Modify a simulation after it has been loaded.";
+    f.return_type = dtlang::TYPE_SIMULATION;
+    f.params.clear();
+
+    p.type = dtlang::TYPE_SIMULATION;
+    p.help = "Simulation to modify.";
+    p.optional = false;
+    p.name = "simulation";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_STRING;
+    p.help = "Parameter ID";
+    p.optional = false;
+    p.name = "ID";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_DOUBLE;
+    p.help = "Value of the parameter";
+    p.optional = false;
+    p.name = "value";
+    f.params.push_back(p);
+
+    dtlang::functions["modsim"] = f;
+
+
 
     // vars()
     f.help = "List the variables currently stored in the register.";
@@ -644,6 +697,15 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         }
 	} 
 
+	if (name == "set") {
+        return dtlang::f_set(*(static_cast<string*>(params[0].obj)), *(static_cast<double*>(params[1].obj)));
+	} 
+
+	if (name == "modsim") {
+        r = new Simulation((static_cast<Simulation*>(params[0].obj))->net, (static_cast<Simulation*>(params[0].obj))->trial);
+        return dtlang::f_modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), *(static_cast<double*>(params[2].obj)));
+	} 
+
     /*
 	if (name == "graphinputs") {
         if (params.size() == 1) {
@@ -766,7 +828,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
                                   *(static_cast<Simulation*>(params[0].obj)),
                                   *(static_cast<string*>(params[1].obj)), 
                                    (int)*(static_cast<double*>(params[2].obj)), 
-                                   5.0, // Default to 5 ms delay
+                                   Settings::instance()->get_dbl("delay"),
                                    true, // Store voltage by default
                                    tp);
         } else if (params.size() == 4) {
@@ -977,7 +1039,10 @@ bool dtlang::f_quit(boost::threadpool::pool &tp) {
     tp.wait();
     map<string, variable_def>::iterator iter;
     for (iter = vars.begin(); iter != vars.end(); ++iter) {
-        dtlang::delete_variable(vars[iter->first]);
+        dtlang::delete_variable(iter->second);
+    }
+    for (iter = statements.begin(); iter != statements.end(); ++iter) {
+        dtlang::delete_variable(iter->second);
     }
     cout << endl;
     return true;
@@ -1028,13 +1093,25 @@ bool dtlang::delete_variable(variable_def var) {
     return true;
 }
 
+bool dtlang::f_set(const string var, double const val) {
+    Settings::instance()->set(var, val);
+    return true;
+}
+bool dtlang::f_set(const string var, string const val) {
+    Settings::instance()->set(var, val);
+    return true;
+}
+
+bool dtlang::f_modsim(Simulation &sim, Simulation &old_sim, const string ID, double const val) {
+    bool r = old_sim.modify(ID, val);
+    sim = old_sim;
+    return r;
+}
 
 bool dtlang::f_run(Results &result, Simulation &sim, string filename, int number_of_trials, double delay, bool voltage, boost::threadpool::pool &tp) {
 
-    if (dtlang::vars.find("T") == dtlang::vars.end() || dtlang::vars["T"].type != dtlang::TYPE_DOUBLE) { cout << "Error: T must be a double!" << endl; return false;}
-    if (dtlang::vars.find("dt") == dtlang::vars.end() || dtlang::vars["dt"].type != dtlang::TYPE_DOUBLE) { cout << "Error: dt must be a double!" << endl; return false;}
-    double T = *(static_cast<double*>(dtlang::vars["T"].obj));
-    double dt = *(static_cast<double*>(dtlang::vars["dt"].obj));
+    double T = Settings::instance()->get_dbl("T");
+    double dt = Settings::instance()->get_dbl("dt");
 
     bool r = sim.run(result, filename, T, dt, delay, number_of_trials, voltage, tp);
     return r;
@@ -1140,8 +1217,8 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
     plotProperties.zeros = false;
     gle.plot(*timesteps, *signals, plotProperties);
 
-    gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
-    gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
+    gle.canvasProperties.width = Settings::instance()->get_dbl("graph.width");
+    gle.canvasProperties.height = Settings::instance()->get_dbl("graph.height");
     gle.draw(filename);
     return true;
 }
@@ -1177,6 +1254,10 @@ bool dtlang::f_graphfirstspikelatency(Results &results, string const &popID, str
     GLE::PanelProperties props;
     double max_value = 0;
     vector< vector<double> > z;
+    boost::tuple < vector<double>, vector<double>, vector<double> > values;
+    vector<double> means;
+    vector<double> err_up;
+    vector<double> err_down;
 
     switch (type) {
         case dtlang::PLOT_FLAT:
@@ -1188,8 +1269,11 @@ bool dtlang::f_graphfirstspikelatency(Results &results, string const &popID, str
                     seriesResults = results;
                 }
                 
-                vector<double> means = seriesResults.firstSpikeLatency(popID, x_axis);
-                panelID = gle.plot(results.unconstrained[x_axis].values, means, plotProperties, panelID);
+                values = seriesResults.firstSpikeLatency(popID, x_axis);
+                means = values.get<0>();
+                err_up = values.get<1>();
+                err_down = values.get<2>();
+                panelID = gle.plot(results.unconstrained[x_axis].values, means, err_up, err_down, plotProperties, panelID);
                 max_value = max(max_value, *(max_element(means.begin(), means.end())));
             }
             props = gle.getPanelProperties(panelID);
@@ -1201,27 +1285,10 @@ bool dtlang::f_graphfirstspikelatency(Results &results, string const &popID, str
             props.y_labels = true;
             gle.setPanelProperties(props, panelID);
             break;
-        
-        case dtlang::PLOT_MAP:
-        case dtlang::PLOT_3D:
-            for (Range::iterator sIter = series_range.begin(); sIter != series_range.end(); ++sIter) {
-                results.constrain(seriesResults, series, *sIter);
-                vector<double> means = seriesResults.firstSpikeLatency(popID, x_axis);
-                z.push_back(means);
-            }
-            if (type == dtlang::PLOT_MAP) plotProperties.usemap = true;
-            else plotProperties.usemap = false;
-            panelID = gle.plot3d(results.unconstrained[x_axis].values, results.unconstrained[series].values, z, plotProperties, panelID);
-            props = gle.getPanelProperties(panelID);
-            props.title = "Mean First Spike Latency per Trial";
-            props.x_title = x_axis;
-            props.y_title = series;
-            gle.setPanelProperties(props, panelID);
-        break;
     }
 
-    gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
-    gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
+    gle.canvasProperties.width = Settings::instance()->get_dbl("graph.width");
+    gle.canvasProperties.height = Settings::instance()->get_dbl("graph.height");
     gle.draw(filename);
 
     return true;
@@ -1256,6 +1323,10 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
     GLE::PanelProperties props;
     double max_value = 0;
     vector< vector<double> > z;
+    boost::tuple < vector<double>, vector<double>, vector<double> > values;
+    vector<double> means;
+    vector<double> err_up;
+    vector<double> err_down;
 
     switch (type) {
         case dtlang::PLOT_FLAT:
@@ -1266,8 +1337,11 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
                     seriesResults = results;
                 }
                 
-                vector<double> means = seriesResults.meanSpikeCount(popID, x_axis);
-                panelID = gle.plot(results.unconstrained[x_axis].values, means, plotProperties, panelID);
+                values = seriesResults.meanSpikeCount(popID, x_axis);
+                means = values.get<0>();
+                err_up = values.get<1>();
+                err_down = values.get<2>();
+                panelID = gle.plot(results.unconstrained[x_axis].values, means, err_up, err_down, plotProperties, panelID);
                 max_value = max(max_value, *(max_element(means.begin(), means.end())));
             }
             props = gle.getPanelProperties(panelID);
@@ -1284,7 +1358,8 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
         case dtlang::PLOT_3D:
             for (Range::iterator sIter = series_range.begin(); sIter != series_range.end(); ++sIter) {
                 results.constrain(seriesResults, series, *sIter);
-                vector<double> means = seriesResults.meanSpikeCount(popID, x_axis);
+                values = seriesResults.meanSpikeCount(popID, x_axis);
+                means = values.get<0>();
                 z.push_back(means);
             }
             if (type == dtlang::PLOT_MAP) plotProperties.usemap = true;
@@ -1299,8 +1374,8 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
     }
 
 
-    gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
-    gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
+    gle.canvasProperties.width = Settings::instance()->get_dbl("graph.width");
+    gle.canvasProperties.height = Settings::instance()->get_dbl("graph.height");
     gle.draw(filename);
 
     return true;
@@ -1396,8 +1471,8 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     props.y_labels = true;
     bool r = gle.setPanelProperties(props, panelID);
 
-    gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
-    gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
+    gle.canvasProperties.width = Settings::instance()->get_dbl("graph.width");
+    gle.canvasProperties.height = Settings::instance()->get_dbl("graph.height");
     gle.draw(filename);
     return true;
 }
@@ -1443,11 +1518,11 @@ bool dtlang::f_graphnetwork(Results &results, string const &filename) {
 		cout << "[X] Error running dot." << endl;
 	} else { cout << "Saved to " << filename << endl; }
 	
-	if (!GLE::viewer.empty()) {
-		string command = GLE::viewer + filename + " &"; // Try to run ghostview in the background.
+	if (!GLE::eps_viewer.empty()) {
+		string command = GLE::eps_viewer + " " + filename + " &"; // Try to run ghostview in the background.
 		int r = system(command.c_str());
 		if (r != 0) {
-			cout << "[X] Ghostview preview is unavailable." << endl;
+			cout << "[X] EPS preview is unavailable." << endl;
 		}
 	}
 	remove(data_filename);		
@@ -1532,8 +1607,8 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
         bool r = gle.setPanelProperties(props, panelID);
     }
 
-    gle.canvasProperties.width = *(static_cast<double*>(dtlang::vars["graph_width"].obj));
-    gle.canvasProperties.height = *(static_cast<double*>(dtlang::vars["graph_height"].obj));
+    gle.canvasProperties.width = Settings::instance()->get_dbl("graph.width");
+    gle.canvasProperties.height = Settings::instance()->get_dbl("graph.height");
     gle.draw(filename);
     return true;
 }
