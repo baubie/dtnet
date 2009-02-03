@@ -85,6 +85,8 @@ boost::tuple< vector<double>, vector<double>, vector<double> > Results::firstSpi
             {
                 spike = neuron->spikes.begin(); 
                 while (spike != neuron->spikes.end() && *spike < 0) { ++spike; }
+                
+                // We found a spike beyond time 0
                 if (spike != neuron->spikes.end()) { total += *spike; ++count; times.push_back(*spike); }
             }
         }

@@ -1,0 +1,25 @@
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+###############################
+
+T = 100
+LPsim = simulation("networks/LP.xml", "inputs/durations.xml")
+
+LPsimA = modsim(modsim(LPsim, "population.CN.mu", 350), "population.CN2.mu", 100) 
+LPsimB = modsim(modsim(LPsim, "population.CN.mu", 400), "population.CN2.mu", 250) 
+LPsimC = modsim(modsim(LPsim, "population.CN.mu", 450), "population.CN2.mu", 400) 
+LPsimD = modsim(modsim(LPsim, "population.CN.mu", 500), "population.CN2.mu", 550) 
+
+LPresultsA = run(LPsimA,"/1/lp_a.sim",15,5,false)
+LPresultsB = run(LPsimB,"/1/lp_b.sim",15,5,false)
+LPresultsC = run(LPsimC,"/1/lp_c.sim",15,5,false)
+LPresultsD = run(LPsimD,"/1/lp_d.sim",15,5,false)
+
+graphspiketrains(LPresultsC, "DTN", "LP_train.eps")
+
+LPresults = merge(merge(merge(LPresultsA, LPresultsB), LPresultsC), LPresultsD)
+
+graphfirstspikelatency(LPresults, "DTN", "trial.main.duration", "LP_latency_both.eps")
+graphspikecounts(LPresults, "DTN", "trial.main.duration", "LP_counts_both.eps")
+quit()

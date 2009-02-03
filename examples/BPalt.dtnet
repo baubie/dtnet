@@ -12,6 +12,9 @@ BP2sim = simulation("networks/BP_alt.xml", "inputs/durations.xml")
 BP2results = run(BP2sim,"/1/bp_alt.sim",20,5,false)
 #BP2results = load("/1/bp_alt.sim")
 
+graphspiketrains(BPresults, "DTN", "norm_train.eps")
+graphspiketrains(BP2results, "DTN", "alt_train.eps")
+
 # Merging Results
 results = merge(BPresults, BP2results)
 graphfirstspikelatency(results, "DTN", "trial.main.duration", "latency_both.eps")
