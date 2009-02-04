@@ -20,7 +20,7 @@ void Neuron::initialize() {
 }
 
 void Neuron::init(int steps, double delay) {
-    if (this->params.toggles["record_voltage"]) this->voltage.resize(steps, 0.0);
+    this->voltage.resize(steps, 0.0);
     this->delay = delay;
     this->jitter();
 }
@@ -69,7 +69,7 @@ void Neuron::Poisson(double current, int position, double dt) {
 
     static string s_mu = "mu";
 
-    if (current == 0) { this->active = 0; return; }
+    if (current == 0) { voltage[position] = -65; this->active = 0; return; }
 
     this->active += dt;
     double mu = this->params.vals[s_mu];
@@ -105,6 +105,7 @@ void Neuron::Poisson(double current, int position, double dt) {
     p *= current; // Decrease or increase depending on current;
     
     if (r < p) Spike(position, dt);
+    else voltage[position] = -65;
 }
 
 void Neuron::Euler(double current, int position, double dt) {
@@ -154,6 +155,7 @@ void Neuron::Spike(int position, double dt) {
             break;
         case NeuronParams::POISSON:
         // We assume this is only called when a spike actually occurred.
+            this->voltage[position] = spikeHeight;
             spikes.push_back(position*dt - this->delay);
             break;
     }

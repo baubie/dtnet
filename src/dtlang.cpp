@@ -1432,7 +1432,7 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     vector<double> values;
     vector<double> values_raw;
     double y;
-    double y_inc = (1 / (4*(double)(*(params.begin()+1) - *(params.begin())))); // Fill a quarter of  the verticle area
+    double y_inc = (1 / (2*(double)(*(params.begin()+1) - *(params.begin())))); // Fill a half of  the verticle area
 
     vector< pair<double,double> > points;
 
@@ -1553,12 +1553,17 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
     GLE gle;
     GLE::PlotProperties plotProperties;
     GLE::Color start;
+    GLE::Color end;
 
     if (type == dtlang::PLOT_VOLTAGE) {
-        start.r = 0.5;
-        start.g = 0.5;
-        start.b = 0.5;
+        start.r = 0;
+        start.g = 0;
+        start.b = 0;
+        end.r = 0.25;
+        end.g = 0.25;
+        end.b = 0.25;
         plotProperties.first = start; 
+        plotProperties.last = end;
     }
     
     GLE::PanelID panelID;
@@ -1571,14 +1576,9 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
         for (neuron_iter = (**pop_iter).neurons.begin(); neuron_iter != (**pop_iter).neurons.end(); ++neuron_iter) {
             switch(type) {
                 case dtlang::PLOT_VOLTAGE:
-                    if (neuron_iter->params.toggles["record_voltage"]) {
-                        signals.push_back(neuron_iter->voltage);
-                        plotProperties.pointSize = 0;
-                        plotProperties.no_y = false;
-                    } else {
-                        signals.push_back(neuron_iter->spikes);
-                        plotProperties.no_y = true;
-                    }
+                    signals.push_back(neuron_iter->voltage);
+                    plotProperties.pointSize = 0;
+                    plotProperties.no_y = false;
                     break;
                 case dtlang::PLOT_SPIKES:
                     signals.push_back(neuron_iter->spikes);
@@ -1592,7 +1592,8 @@ bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &f
         GLE::PanelProperties props=gle.getPanelProperties(panelID);
         switch(type) {
             case dtlang::PLOT_VOLTAGE:
-                props.x_title = "Time (ms)";
+                if (pop_iter == --(pops.end())) props.x_title = "Time (ms)";
+                else props.x_title = "";
                 props.y_title = "Voltage (mV)";
                 props.y_max = -20;
                 props.y_min = -100;

@@ -13,11 +13,9 @@ void NeuronParams::initialize() {
             vals["mu"] = Range(300);
             vals["size"] = Range(1);
             toggles["spontaneous"] = false;
-            toggles["record_voltage"] = false;
             break;
 
         case AEIF:
-            toggles["record_voltage"] = true;
 
             vals["size"] = Range(1);
 

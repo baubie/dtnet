@@ -1,0 +1,44 @@
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+###############################
+
+T = 100
+BPsim = simulation("networks/BP.xml", "inputs/durations.xml")
+BPsim = modsim(BPsim, "population.CN.mu", 400)
+rBP = run(BPsim,"sim/bp_volt.sim",1,5)
+
+SPsim = simulation("networks/SP.xml", "inputs/durations.xml")
+SPsim = modsim(SPsim, "population.CN.mu", 400)
+rSP = run(SPsim,"sim/bp_volt.sim",1,5)
+
+LPsim = simulation("networks/LP.xml", "inputs/durations.xml")
+LPsim = modsim(modsim(LPsim, "population.CN.mu", 400), "population.CN2.mu", 250) 
+rLP = run(LPsim,"sim/lp_volt.sim",1,5)
+
+
+set("graph.width", 8)
+set("graph.height", 15)
+
+rBP5 = constrain(rBP, "trial.main.duration", 5)
+graphtrial_voltage(rBP5, 0, "bp_5ms.eps")
+
+rBP15 = constrain(rBP, "trial.main.duration", 15)
+graphtrial_voltage(rBP15, 0, "bp_15ms.eps")
+
+rSP1 = constrain(rSP, "trial.main.duration", 1)
+graphtrial_voltage(rSP1, 0, "sp_1ms.eps")
+
+rSP8 = constrain(rSP, "trial.main.duration", 8)
+graphtrial_voltage(rSP8, 0, "sp_8ms.eps")
+
+set("graph.width", 8)
+set("graph.height", 13)
+
+rLP2 = constrain(rLP, "trial.main.duration", 2)
+graphtrial_voltage(rLP2, 0, "lp_2ms.eps")
+
+rLP15 = constrain(rLP, "trial.main.duration", 15)
+graphtrial_voltage(rLP15, 0, "lp_15ms.eps")
+
+quit()

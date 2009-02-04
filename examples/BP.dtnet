@@ -5,12 +5,10 @@
 
 T = 100
 sim = simulation("networks/BP.xml", "inputs/durations.xml")
-#results = run(sim,"/1/bp.sim",2,5,false)
+results = run(sim,"bp.sim",20,5,false)
 #results = load("/1/bp.sim")
-graph_height = 10
-graph_width = 10
+graphfirstspikelatency(results, "DTN", "trial.main.duration", "bp_latency.eps")
+graphspikecounts(results, "DTN", "trial.main.duration", "bp_counts.eps")
 single = constrain(results, "population.CN.mu", 400)
-graphfirstspikelatency(single, "DTN", "trial.main.duration", "latency.eps")
-graphspikecounts(single, "DTN", "trial.main.duration", "counts.eps")
-graphspiketrains(single, "DTN", "spikes.eps")
+graphspiketrains(single, "DTN", "bp400_spikes.eps")
 quit()
