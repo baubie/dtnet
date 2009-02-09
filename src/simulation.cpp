@@ -31,6 +31,20 @@ bool Simulation::modify(std::string ID, double const val) {
             }
         }
     }
+    if (type_ID == "connection")
+    {
+        string from, to;
+        pos = item_ID.find(':');
+        from = item_ID.substr(0, pos);
+        to = item_ID.substr(pos+1);
+        if (this->net.connections.find(to) != this->net.connections.end()) {
+            if (this->net.connections[to].find(from) != this->net.connections[to].end()) {
+                if (param_ID == "weight") { this->net.connections[to][from].weight = Range(val); return true; }
+                if (param_ID == "delay") { this->net.connections[to][from].delay = Range(val); return true; }
+                if (param_ID == "density") { this->net.connections[to][from].density = Range(val); return true; }
+            }
+        }
+    }
     cout << "[X] " << ID << " failed to modify the network." << endl;
     return false;
 }

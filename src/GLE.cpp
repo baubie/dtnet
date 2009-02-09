@@ -519,7 +519,7 @@ string GLE::gle_script_to_file()
                         out << "ytitle \"" << panel_iter->properties.y_title << "\"" << endl;
                         out << "title \"" << panel_iter->properties.title << "\"" << endl;
                         out << "colormap \"" << panel_iter->plots3d[0].data_file << "\"";
-                        out << " " << panel_iter->plots3d[0].x.size()*4 << " " << panel_iter->plots3d[0].y.size()*4; // *4 to smooth out graph
+                        out << " " << panel_iter->plots3d[0].x.size() << " " << panel_iter->plots3d[0].y.size();
                         out << " zmin " << panel_iter->plots3d[0].z_min << " zmax " << panel_iter->plots3d[0].z_max;
                         out << endl;
                         out << "end graph" << endl;
@@ -548,6 +548,8 @@ string GLE::gle_script_to_file()
                 out << "scale auto" << endl;
                 out << "xtitle \"" << panel_iter->properties.x_title << "\"" << endl;
                 out << "ytitle \"" << panel_iter->properties.y_title << "\"" << endl;
+                out << "xticks length -0.1" << endl;
+                out << "yticks length -0.1" << endl;
                 out << "title \"" << panel_iter->properties.title << "\"" << endl;
                 out << "xaxis min " << panel_iter->plots[0].x.front() << " max " << panel_iter->plots[0].x.back() << endl;
 
@@ -555,6 +557,13 @@ string GLE::gle_script_to_file()
                     out << "yaxis ";
                     if (panel_iter->properties.y_min != GLE::UNDEFINED) out << "min " << panel_iter->properties.y_min << " ";
                     if (panel_iter->properties.y_max != GLE::UNDEFINED) out << "max " << panel_iter->properties.y_max << " ";
+                    out << endl;
+                }
+
+                if (panel_iter->properties.x_min != GLE::UNDEFINED || panel_iter->properties.x_max != GLE::UNDEFINED) {
+                    out << "xaxis ";
+                    if (panel_iter->properties.x_min != GLE::UNDEFINED) out << "min " << panel_iter->properties.x_min << " ";
+                    if (panel_iter->properties.x_max != GLE::UNDEFINED) out << "max " << panel_iter->properties.x_max << " ";
                     out << endl;
                 }
 
@@ -567,6 +576,30 @@ string GLE::gle_script_to_file()
                 }
                 if (panel_iter->properties.y_labels == false) {
                     out << "yaxis off" << endl;
+                }
+                if (panel_iter->properties.x_dsubticks != GLE::UNDEFINED) {
+                    out << "xaxis dsubticks " << panel_iter->properties.x_dsubticks << endl;
+                }
+                if (panel_iter->properties.x_dticks != GLE::UNDEFINED) {
+                    out << "xaxis dticks " << panel_iter->properties.x_dticks << endl;
+                }
+                if (panel_iter->properties.y_dsubticks != GLE::UNDEFINED) {
+                    out << "yaxis dsubticks " << panel_iter->properties.y_dsubticks << endl;
+                }
+                if (panel_iter->properties.y_dticks != GLE::UNDEFINED) {
+                    out << "yaxis dticks " << panel_iter->properties.y_dticks << endl;
+                }
+                if (panel_iter->properties.x_labels_hei != GLE::UNDEFINED) {
+                    out << "xlabels hei " << panel_iter->properties.x_labels_hei << endl;
+                }
+                if (panel_iter->properties.y_labels_hei != GLE::UNDEFINED) {
+                    out << "ylabels hei " << panel_iter->properties.y_labels_hei << endl;
+                }
+                if (panel_iter->properties.x_labels_dist != GLE::UNDEFINED) {
+                    out << "xlabels dist " << panel_iter->properties.x_labels_dist << endl;
+                }
+                if (panel_iter->properties.y_labels_dist != GLE::UNDEFINED) {
+                    out << "ylabels dist " << panel_iter->properties.y_labels_dist << endl;
                 }
 
                 plot_num = 1;
@@ -584,11 +617,17 @@ string GLE::gle_script_to_file()
                             out << "d" << plot_num << " line color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << " lwidth " << plot_iter->properties.lineWidth << endl;
                         }
 
+                        string marker;
                         if (plot_iter->properties.pointSize > 0) {
-                            string marker;
                             marker = plot_iter->properties.marker;
                             if (marker == "__series__") marker = this->getMarker();
-                            out << "d" << plot_num << " marker " << marker << " msize " << plot_iter->properties.pointSize << endl; 
+                            out << "d" << plot_num << " marker " << marker << " msize " << plot_iter->properties.pointSize;
+                            if (panel_iter->properties.legend && plot_iter->properties.inlegend) {
+                                out << " key  \"Legend Text\"";
+                            } else {
+                                out << " !key  \"Legend Text\"";
+                            }
+                            out << endl;
                             if (plot_iter->properties.lineWidth > 0) {
                                 out << "d" << plot_num << " color CVTRGB(" << color.r << "," << color.g << "," << color.b << ")" << endl;
                             }
@@ -603,6 +642,7 @@ string GLE::gle_script_to_file()
                             plot_num += 2;
                         }
 
+
                         color.r += diff.r;
                         color.g += diff.g;
                         color.b += diff.b;
@@ -614,6 +654,10 @@ string GLE::gle_script_to_file()
                     out << "data \"" << points_iter->data_file << "\"" << endl;
                     out << "d" << plot_num << " marker dot msize " << points_iter->properties.pointSize << endl;
                     ++plot_num;
+                }
+                if (panel_iter->properties.legend ) {
+                    out << "key compact" << endl;
+                    out << "key nobox" << endl;
                 }
                 out << "end graph" << endl;
                 }

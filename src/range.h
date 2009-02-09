@@ -16,7 +16,6 @@ class Range {
         Range(double val);
         Range(double start, double end);
         Range(double start, double end, double step);
-        int size();
         void merge(Range &r);
 
         Range operator=(const double& val);
@@ -31,6 +30,7 @@ class Range {
         double back();
         double max();
         double min();
+        int size();
 
         std::vector<double> values;
 

@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
         ("threads,t", po::value<int>(&threads)->default_value(1), "set the number of threads available for simulations")
         ("graph.width", po::value<double>()->default_value(10), "set the default width of a graph")
         ("graph.height", po::value<double>()->default_value(10), "set the default height of a graph")
+        ("graph.legend", po::value<double>()->default_value(1), "set whether or not to show a legend on graphs.  Set 0 for no and 1 for yes.")
         ("dt", po::value<double>()->default_value(0.05), "set the default timestep")
         ("delay", po::value<double>()->default_value(5), "set the default delay for simulations")
         ("T", po::value<double>()->default_value(50), "set the default duration of a simulation")
@@ -58,6 +59,7 @@ int main(int argc, char* argv[]) {
     if (vm.count("verbose")) dtlang::verbose = true; 
     if (vm.count("graph.width")) Settings::instance()->set(string("graph.width"), vm["graph.width"].as<double>());
     if (vm.count("graph.height")) Settings::instance()->set(string("graph.height"), vm["graph.height"].as<double>());
+    if (vm.count("graph.legend")) Settings::instance()->set(string("graph.legend"), vm["graph.legend"].as<double>());
     if (vm.count("dt")) Settings::instance()->set(string("dt"), vm["dt"].as<double>());
     if (vm.count("T")) Settings::instance()->set(string("T"), vm["T"].as<double>());
     if (vm.count("delay")) Settings::instance()->set(string("delay"), vm["delay"].as<double>());

@@ -24,6 +24,8 @@ void Input::generateSignals(double T, double dt, double global_delay) {
     double rt; // Used to keep track of the "real time" in ms
     unsigned int steps = (int)(T/dt); // Number of time steps in the signal
     vector<double> values (steps,0.0);
+    double ramp_up = 0.2;
+    double ramp_down = 0.2;
 
     switch (this->type) {
 
@@ -38,6 +40,15 @@ void Input::generateSignals(double T, double dt, double global_delay) {
 
                             if ( (rt-*del) >= 0 && (rt-*del) <= *dur ) {
                                 values[step] = *amp;
+
+                                // Add in the up and down ramps to the signal
+                                if ((rt-*del) <= ramp_up && ramp_up > 0) {
+                                    values[step] *= (rt-*del) / ramp_up;
+                                }
+                                if ((rt-*del) >= *dur-ramp_down && ramp_down > 0) {
+                                    values[step] *= (*dur - (rt-*del)) / ramp_down;
+                                }
+
                             } else {
                                 values[step] = 0;
                             }

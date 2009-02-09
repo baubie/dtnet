@@ -17,6 +17,7 @@ void Net::genNetworks() {
         this->populationCollections.push_back(p->second.populationFactory());
     }
 
+
     this->genConnections( this->connections.begin(), 
                           this->connections.begin()->second.begin() );
 
@@ -345,7 +346,7 @@ bool Net::parseXML(string filename, string &error)
                 }
             }
 
-            if (weight != 0) {
+            if (weight != 0 || weight.size() > 1) {
                 this->connections[to][from].weight = Range(weight);
                 this->connections[to][from].delay = Range(delay);
             }

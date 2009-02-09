@@ -21,8 +21,14 @@ Range::Range(double start, double end) {
 
 void Range::initialize(double start, double end, double step) {
     this->values.clear();
-    for(double i = start; i <= end; i += step) {
-        this->values.push_back(i);
+    if (end >= start) {
+        for(double i = start; i <= end; i += step) {
+            this->values.push_back(i);
+        }
+    } else {
+        for(double i = start; i >= end; i += step) {
+            this->values.push_back(i);
+        }
     }
 }
 

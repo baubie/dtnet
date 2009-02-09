@@ -41,14 +41,14 @@ class GLE
         std::vector<std::string>::iterator iter_marker;
 
         GLE() {
-            this->markers.push_back("wcircle");
             this->markers.push_back("fcircle");
             this->markers.push_back("wsquare");
-            this->markers.push_back("fsquare");
-            this->markers.push_back("wtriangle");
             this->markers.push_back("ftriangle");
             this->markers.push_back("wdiamond");
-            this->markers.push_back("ftriangle");
+            this->markers.push_back("wcircle");
+            this->markers.push_back("fsquare");
+            this->markers.push_back("wtriangle");
+            this->markers.push_back("fdiamond");
             this->iter_marker = this->markers.begin();
         }
 
@@ -90,6 +90,7 @@ class GLE
             bool nomiss;
             bool no_y;
             bool usemap;
+            bool inlegend;
 
             /** For use when no_y = true **/
             double y_start;
@@ -106,6 +107,7 @@ class GLE
                 nomiss(true),
                 no_y(false),
                 usemap(false),
+                inlegend(true),
                 y_start(1),
                 y_inc(1)
             {}
@@ -113,15 +115,26 @@ class GLE
 
         struct PanelProperties {
             bool box;
+            bool legend;
             std::string title;
             std::string x_title;
             std::string y_title;
             std::string z_title;
             bool y_labels;
             bool x_labels;
+            double x_min;
+            double x_max;
             double y_min;
             double y_max;
             int y_nticks;
+            double x_dsubticks;
+            double x_dticks;
+            double y_dsubticks;
+            double y_dticks;
+            double x_labels_hei;
+            double y_labels_hei;
+            double x_labels_dist;
+            double y_labels_dist;
 
             // Only used when the canvas has autoplacement turned off
             // Not yet implemented
@@ -132,15 +145,26 @@ class GLE
 
             PanelProperties() :
                 box(true),
+                legend(false),
                 title("Some Plot"),
                 x_title("x"),
                 y_title("y"),
                 z_title("z"),
                 y_labels(true),
                 x_labels(true),
+                x_min(UNDEFINED),
+                x_max(UNDEFINED),
                 y_min(UNDEFINED),
                 y_max(UNDEFINED),
-                y_nticks(UNDEFINED)
+                y_nticks(UNDEFINED),
+                x_dsubticks(UNDEFINED),
+                x_dticks(UNDEFINED),
+                y_dsubticks(UNDEFINED),
+                y_dticks(UNDEFINED),
+                x_labels_hei(UNDEFINED),
+                y_labels_hei(UNDEFINED),
+                x_labels_dist(UNDEFINED),
+                y_labels_dist(UNDEFINED)
             {}
         };
         

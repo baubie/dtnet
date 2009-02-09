@@ -1093,6 +1093,10 @@ bool dtlang::delete_variable(variable_def var) {
     return true;
 }
 
+bool f_delete(const std::string var) {
+   return true; 
+}
+
 bool dtlang::f_set(const string var, double const val) {
     Settings::instance()->set(var, val);
     return true;
@@ -1249,7 +1253,7 @@ bool dtlang::f_graphfirstspikelatency(Results &results, string const &popID, str
     GLE gle;
     GLE::PanelID panelID = GLE::NEW_PANEL;
     GLE::PlotProperties plotProperties;
-    plotProperties.pointSize = 0.3;
+    plotProperties.pointSize = 0.2;
     plotProperties.zeros = false;
     GLE::PanelProperties props;
     double max_value = 0;
@@ -1277,12 +1281,14 @@ bool dtlang::f_graphfirstspikelatency(Results &results, string const &popID, str
                 max_value = max(max_value, *(max_element(means.begin(), means.end())));
             }
             props = gle.getPanelProperties(panelID);
-            props.x_title = x_axis;
-            props.y_title = "Mean First Spike Latency per Trial";
-            props.title = "Mean First Spike Latency";
+            props.x_title = "";
+            props.y_title = "";
+            props.title = "";
             props.y_min = 0;
             props.y_max = (int)(max_value+1); // Use the last y value as the top value.
             props.y_labels = true;
+            if (Settings::instance()->get_dbl("graph.legend") == 1) props.legend = true;
+            props.x_dsubticks = 1;
             gle.setPanelProperties(props, panelID);
             break;
     }
@@ -1319,7 +1325,7 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
     GLE gle;
     GLE::PanelID panelID = GLE::NEW_PANEL;
     GLE::PlotProperties plotProperties;
-    plotProperties.pointSize = 0.3;
+    plotProperties.pointSize = 0.2;
     GLE::PanelProperties props;
     double max_value = 0;
     vector< vector<double> > z;
@@ -1345,12 +1351,14 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
                 max_value = max(max_value, *(max_element(means.begin(), means.end())));
             }
             props = gle.getPanelProperties(panelID);
-            props.x_title = x_axis;
-            props.y_title = "Mean Spike Count per Trial";
-            props.title = "Mean Spike Counts";
+            props.x_title = "";
+            props.y_title = "";
+            props.title = "";
             props.y_min = 0;
             props.y_max = (int)(max_value+1); // Use the last y value as the top value.
             props.y_labels = true;
+            if (Settings::instance()->get_dbl("graph.legend") == 1) props.legend = true;
+            props.x_dsubticks = 1;
             gle.setPanelProperties(props, panelID);
             break;
         
@@ -1366,9 +1374,9 @@ bool dtlang::f_graphspikecounts(Results &results, string const &popID, string co
             else plotProperties.usemap = false;
             panelID = gle.plot3d(results.unconstrained[x_axis].values, results.unconstrained[series].values, z, plotProperties, panelID);
             props = gle.getPanelProperties(panelID);
-            props.title = "Mean Spike Count per Trial";
-            props.x_title = x_axis;
-            props.y_title = series;
+            props.title = "";
+            props.x_title = "";
+            props.y_title = "";
             gle.setPanelProperties(props, panelID);
         break;
     }
@@ -1417,7 +1425,7 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     plotProperties.zeros = false;
     plotProperties.no_y = true;
     plotProperties.lineWidth = 0;
-    plotProperties.pointSize = 0.2;
+    plotProperties.pointSize = 0.1;
     plotProperties.marker = "fcircle";
 
     GLE::PlotProperties sigPlotProperties;
@@ -1432,7 +1440,7 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     vector<double> values;
     vector<double> values_raw;
     double y;
-    double y_inc = (1 / (2*(double)(*(params.begin()+1) - *(params.begin())))); // Fill a half of  the verticle area
+    double y_inc = (1 / (1.5*(double)(*(params.begin()+1) - *(params.begin())))); // Fill a half of  the verticle area
 
     vector< pair<double,double> > points;
 
@@ -1463,12 +1471,19 @@ bool dtlang::f_graphspiketrains(Results &results, string const &popID, int trial
     panelID = gle.plot(points, plotProperties, panelID);
 
     GLE::PanelProperties props = gle.getPanelProperties(panelID);
-    props.x_title = "Time (ms)";
-    props.y_title = param_name;
-    props.title = "Spike Trains";
+    props.x_title = "";
+    props.y_title = "";
+    props.title = "";
     props.y_min = params.front();
     props.y_max = max(params.back(), y); // Use the last y value as the top value.
+    props.x_min = start;
+    props.x_max = end;
     props.y_labels = true;
+    props.y_labels_hei = 0.2;
+    props.x_labels_hei = 0.25;
+    props.x_labels_dist = 0.15;
+    props.y_dticks = 1;
+    props.x_dsubticks = 1;
     bool r = gle.setPanelProperties(props, panelID);
 
     gle.canvasProperties.width = Settings::instance()->get_dbl("graph.width");

@@ -116,6 +116,7 @@ namespace dtlang
     bool f_help();
     bool f_vars();
     bool f_funcs();
+    bool f_delete(const std::string var);
     bool f_quit(boost::threadpool::pool &tp);
     bool f_benchmark(boost::threadpool::pool &tp, double mult);
     bool f_run(Results &result, Simulation &sim, std::string filename, int number_of_trials, double delay, bool voltage, boost::threadpool::pool &tp);
