@@ -11,12 +11,12 @@ LPsimB = modsim(modsim(LPsim, "population.CN.mu", 400), "population.CN2.mu", 250
 LPsimC = modsim(modsim(LPsim, "population.CN.mu", 450), "population.CN2.mu", 400) 
 LPsimD = modsim(modsim(LPsim, "population.CN.mu", 500), "population.CN2.mu", 550) 
 
-LPresultsA = run(LPsimA,"sim/lp_a.sim",15,5,false)
-LPresultsB = run(LPsimB,"sim/lp_b.sim",15,5,false)
-LPresultsC = run(LPsimC,"sim/lp_c.sim",15,5,false)
-LPresultsD = run(LPsimD,"sim/lp_d.sim",15,5,false)
+LPresultsA = run(LPsimA,"/1/lp_a.sim",15,5,false)
+LPresultsB = run(LPsimB,"/1/lp_b.sim",15,5,false)
+LPresultsC = run(LPsimC,"/1/lp_c.sim",15,5,false)
+LPresultsD = run(LPsimD,"/1/lp_d.sim",15,5,false)
 
-graphspiketrains(LPresultsC, "DTN", "LP_train.eps")
+graphspiketrains(LPresultsC, "DTN", "LP_train.eps", 15, 0, 40)
 
 LPresults = merge(merge(merge(LPresultsA, LPresultsB), LPresultsC), LPresultsD)
 

@@ -1,2 +1,2 @@
 #!/bin/bash
-valgrind --leak-check=full dtnet -s BPalt.dtnet -v -t 2
+valgrind --leak-check=full dtnet -s SIcontrib.dtnet -v

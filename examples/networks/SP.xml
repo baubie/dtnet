@@ -17,7 +17,7 @@
         <param name="size">10</param>
         <param name="C" sigma="5">220</param>
         <param name="a" sigma="0">40</param>
-        <param name="b" sigma="2">20</param>
+        <param name="b" sigma="2">10</param>
         <param name="tauw" sigma="0">250</param>
         <param name="EL" sigma="0">-65</param>
         <param name="VR" sigma="0">-63</param>
@@ -84,7 +84,7 @@
     <connection>
         <param name="from">SI</param> 
         <param name="to">DTN</param>
-        <param name="weight">-5</param>
+        <param name="weight"><range start="0" end="-7" step="-1" /></param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>

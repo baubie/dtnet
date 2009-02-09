@@ -5,8 +5,9 @@
 
 T = 100
 sim = simulation("networks/SP.xml", "inputs/durations.xml")
-results = run(sim,"sp.sim",15,5,false)
-#results = load("sp.sim")
+sim = modsim(sim, "connection.SI:DTN.weight", -5)
+results = run(sim,"/1/sp.sim",15,5,false)
+#results = load("/1/sp.sim")
 graphfirstspikelatency(results, "DTN", "trial.main.duration", "sp_latency.eps")
 graphspikecounts(results, "DTN", "trial.main.duration", "sp_counts.eps")
 single = constrain(results, "population.CN.mu", 400)

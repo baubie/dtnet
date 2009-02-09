@@ -1,0 +1,7 @@
+BPalt.dtnet
+    * Coincidence detection & Anti-coincidence detection BP.
+
+LP.dtnet
+    * Long-pass coincidence detection.
+    * trial.main.duration
+    * population.CN.mu

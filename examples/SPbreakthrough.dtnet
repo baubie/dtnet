@@ -1,0 +1,14 @@
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+###############################
+
+T = 100
+sim = simulation("networks/SP.xml", "inputs/durations.xml")
+sim = modsim(sim, "connection.SI:DTN.weight", -4.3)
+sim = modsim(sim, "population.CN.mu", 400)
+sim = modsim(sim, "connection.SI:DTN.delay", 2.8)
+results = run(sim,"/1/spbreakthrough.sim",15,5,false)
+#results = load("/1/spbreakthrough.sim")
+graphspiketrains(results, "DTN", "spbreakthrough.eps", 15, 0, 40)
+quit()

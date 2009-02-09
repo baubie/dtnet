@@ -1,0 +1,22 @@
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+###############################
+
+T = 100
+set("graph.legend", 0)
+
+#sim = simulation("networks/BP.xml", "inputs/durations.xml")
+#sim = modsim(sim, "population.CN.mu", 400)
+#sim = modsim(sim, "connection.OFF:DTN.weight", 3)
+#results = run(sim,"/1/bpsi.sim",20,5,false)
+results = load("/1/bpsi.sim")
+graphspikecounts(results, "DTN", "trial.main.duration", "SIcontrib_BP_graph.eps")
+
+#sim = simulation("networks/SP.xml", "inputs/durations.xml")
+#sim = modsim(sim, "population.CN.mu", 400)
+#results = run(sim,"/1/spsi.sim",20,5,false)
+results = load("/1/spsi.sim")
+graphspikecounts(results, "DTN", "trial.main.duration", "SIcontrib_SP_graph.eps")
+
+quit()

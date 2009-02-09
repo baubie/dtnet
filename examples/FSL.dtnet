@@ -1,0 +1,59 @@
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+###############################
+
+T = 100
+
+# Long Pass
+LPsim = simulation("networks/LP.xml", "inputs/durations.xml")
+LPsimA = modsim(modsim(LPsim, "population.CN.mu", 350), "population.CN2.mu", 100) 
+LPsimB = modsim(modsim(LPsim, "population.CN.mu", 400), "population.CN2.mu", 250) 
+LPsimC = modsim(modsim(LPsim, "population.CN.mu", 450), "population.CN2.mu", 400) 
+LPsimD = modsim(modsim(LPsim, "population.CN.mu", 500), "population.CN2.mu", 550) 
+#LPresultsA = run(LPsimA,"/1/lp_a.sim",15,5,false)
+#LPresultsB = run(LPsimB,"/1/lp_b.sim",15,5,false)
+#LPresultsC = run(LPsimC,"/1/lp_c.sim",15,5,false)
+#LPresultsD = run(LPsimD,"/1/lp_d.sim",15,5,false)
+LPresultsA = load("/1/lp_a.sim")
+LPresultsB = load("/1/lp_b.sim")
+LPresultsC = load("/1/lp_c.sim")
+LPresultsD = load("/1/lp_d.sim")
+
+# Coincidence Detecting
+COsim= simulation("networks/BP.xml", "inputs/durations.xml")
+COsim = modsim(COsim, "connection.SI:DTN.weight", -5)
+COsim = modsim(COsim, "connection.OFF:DTN.weight", 3)
+COsim = modsim(COsim, "population.CN.mu", 400)
+#COresults = run(COsim,"/1/CO_FSL.sim",20,5,false)
+COresults = load("/1/CO_FSL.sim")
+
+# Anti-Coincidence Band-pass
+ACsim = simulation("networks/BP.xml", "inputs/durations.xml")
+ACsim = modsim(ACsim, "population.CN.mu", 400)
+ACsim = modsim(ACsim, "connection.OFF:DTN.weight", 0)
+ACsim = modsim(ACsim, "connection.SI:DTN.weight", -3)
+ACsim = modsim(ACsim, "connection.ONDelay:DTN.weight", 7)
+#ACresults = run(ACsim,"/1/AC_FSL.sim",20,5,false)
+ACresults = load("/1/AC_FSL.sim")
+
+# Anti-Coincidence Short-pass
+ACspsim = simulation("networks/SP.xml", "inputs/durations.xml")
+ACspsim = modsim(ACspsim, "population.CN.mu", 400)
+ACspsim = modsim(ACspsim, "connection.SI:DTN.weight", -5)
+#ACspresults = run(ACspsim,"/1/ACsp_FSL.sim",20,5,false)
+ACspresults = load("/1/ACsp_FSL.sim")
+
+
+# Merging Results to compare first spike latencies
+set("graph.legend", 0)
+LPresults = merge(merge(merge(LPresultsA, LPresultsB), LPresultsC), LPresultsD)
+graphfirstspikelatency(LPresults, "DTN", "trial.main.duration", "LP_latency_both.eps")
+
+results = merge(merge(COresults, ACresults), ACspresults)
+graphfirstspikelatency(results, "DTN", "trial.main.duration", "FSL_COvsAC.eps")
+
+
+
+
+quit()

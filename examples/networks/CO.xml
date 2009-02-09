@@ -3,7 +3,7 @@
 <network title="Bandpass Network">
     <population id="CN" title="Cochlear Nucleus" type="Poisson">
         <param name="size">25</param>
-        <param name="mu"><range start="350" end="500" step="50" /></param>
+        <param name="mu">400</param>
         <param name="accept_input">true</param>
     </population>
 
@@ -11,11 +11,11 @@
         <param name="size">10</param>
         <param name="C" sigma="5">220</param>
         <param name="a" sigma="0">40</param>
-        <param name="b" sigma="2">10</param>
+        <param name="b" sigma="2">20</param>
         <param name="tauw" sigma="0">250</param>
-        <param name="EL" sigma="1">-65</param>
+        <param name="EL" sigma="0">-65</param>
         <param name="VR" sigma="0">-63</param>
-        <param name="VT" sigma="3">-52</param>
+        <param name="VT" sigma="1">-52</param>
     </population>
 
     <population id="ON" title="Onset" type="aEIF">
@@ -53,7 +53,7 @@
 
     <population id="DTN" title="Duration Tuned Neuron" type="aEIF">
         <param name="size">1</param>
-        <param name="C" sigma="0">260</param>
+        <param name="C" sigma="0">250</param>
         <param name="a" sigma="0">4</param>
         <param name="b" sigma="0">10</param>
         <param name="tauw" sigma="0">30</param>
@@ -97,7 +97,7 @@
     <connection>
         <param name="from">SI</param> 
         <param name="to">DTN</param>
-        <param name="weight"><range start="0" end="-7" step="-1" /></param>
+        <param name="weight">-3</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
@@ -113,15 +113,15 @@
     <connection>
         <param name="from">ONDelay</param> 
         <param name="to">DTN</param>
-        <param name="weight">4</param>
-        <param name="delay">1</param>
+        <param name="weight">3</param>
+        <param name="delay"><range start="0" end="12" step="2" /></param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
     </connection>
     <connection>
         <param name="from">OFF</param> 
         <param name="to">DTN</param>
-        <param name="weight"><range start="0" end="5" step="1" /></param>
+        <param name="weight">2.5</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
