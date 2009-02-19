@@ -128,12 +128,13 @@ namespace dtlang
     bool f_merge(Results &result, Results *r1, Results *r2);
     bool f_set(const std::string var, double const val);
     bool f_set(const std::string var, std::string const val);
-    bool f_modsim(Simulation &sim, Simulation &old_sim, const std::string ID, double const val);
+    bool f_modsim(Simulation &sim, Simulation &old_sim, const std::string ID, Range const val);
 
     // Graphing functions
    // bool f_graphinputs(Trial &trial, string const &filename); // NO LONGER IMPLEMENTED
 	bool f_graphnetwork(Results &results, std::string const &filename);
 	bool f_graphtrial(int type, Results &results, int trial, std::string const &filename);
+	bool f_graphpsth(Results &results, std::string const &popID, std::string const &filename);
     bool f_graphspiketrains(Results &results, std::string const &popID, int trials, double start, double end, std::string const &filename); 
     bool f_graphspikecounts(Results &results, std::string const &popID, std::string const &x_axis, std::string const &filename, int const type);
     bool f_graphfirstspikelatency(Results &results, std::string const &popID, std::string const &x_axis, std::string const &filename, int const type);

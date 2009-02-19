@@ -20,8 +20,8 @@ LPresultsB = load("/1/lp_b.sim")
 LPresultsC = load("/1/lp_c.sim")
 LPresultsD = load("/1/lp_d.sim")
 
-# Coincidence Detecting
-COsim= simulation("networks/BP.xml", "inputs/durations.xml")
+# Coincidence Detecting Band-pass
+COsim = simulation("networks/BP.xml", "inputs/durations.xml")
 COsim = modsim(COsim, "connection.SI:DTN.weight", -5)
 COsim = modsim(COsim, "connection.OFF:DTN.weight", 3)
 COsim = modsim(COsim, "population.CN.mu", 400)
@@ -37,6 +37,12 @@ ACsim = modsim(ACsim, "connection.ONDelay:DTN.weight", 7)
 #ACresults = run(ACsim,"/1/AC_FSL.sim",20,5,false)
 ACresults = load("/1/AC_FSL.sim")
 
+# Coincidence Detecting Short-pass
+COspsim = simulation("networks/SP_Coincidence.xml", "inputs/durations.xml")
+COspsim = modsim(COspsim, "population.CN.mu", 400)
+COspresults = run(COspsim,"/1/sp_FSL_coincidence.sim",20,5,false)
+COspresults = load("/1/sp_FSL_coincidence.sim")
+
 # Anti-Coincidence Short-pass
 ACspsim = simulation("networks/SP.xml", "inputs/durations.xml")
 ACspsim = modsim(ACspsim, "population.CN.mu", 400)
@@ -46,11 +52,11 @@ ACspresults = load("/1/ACsp_FSL.sim")
 
 
 # Merging Results to compare first spike latencies
-set("graph.legend", 0)
-LPresults = merge(merge(merge(LPresultsA, LPresultsB), LPresultsC), LPresultsD)
-graphfirstspikelatency(LPresults, "DTN", "trial.main.duration", "LP_latency_both.eps")
+set("graph.legend", 1)
+#LPresults = merge(merge(merge(LPresultsA, LPresultsB), LPresultsC), LPresultsD)
+#graphfirstspikelatency(LPresults, "DTN", "trial.main.duration", "LP_latency_both.eps")
 
-results = merge(merge(COresults, ACresults), ACspresults)
+results = merge(merge(merge(COresults, ACresults), COspresults), ACspresults)
 graphfirstspikelatency(results, "DTN", "trial.main.duration", "FSL_COvsAC.eps")
 
 

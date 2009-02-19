@@ -8,7 +8,7 @@ boost::mt19937 random_engine;
 
 Simulation::Simulation(Net &net, Trial &trial) : net(net), trial(trial) {}
 
-bool Simulation::modify(std::string ID, double const val) {
+bool Simulation::modify(std::string ID, Range const val) {
 
     // Split up the ID into its three parts.
     string type_ID;
@@ -26,7 +26,7 @@ bool Simulation::modify(std::string ID, double const val) {
     {
         if (this->net.populations.find(item_ID) != this->net.populations.end()) {
             if (this->net.populations[item_ID].params.vals.find(param_ID) != this->net.populations[item_ID].params.vals.end()) {
-                this->net.populations[item_ID].params.vals[param_ID] = Range(val);
+                this->net.populations[item_ID].params.vals[param_ID] = val;
                 return true;
             }
         }
@@ -39,9 +39,9 @@ bool Simulation::modify(std::string ID, double const val) {
         to = item_ID.substr(pos+1);
         if (this->net.connections.find(to) != this->net.connections.end()) {
             if (this->net.connections[to].find(from) != this->net.connections[to].end()) {
-                if (param_ID == "weight") { this->net.connections[to][from].weight = Range(val); return true; }
-                if (param_ID == "delay") { this->net.connections[to][from].delay = Range(val); return true; }
-                if (param_ID == "density") { this->net.connections[to][from].density = Range(val); return true; }
+                if (param_ID == "weight") { this->net.connections[to][from].weight = val; return true; }
+                if (param_ID == "delay") { this->net.connections[to][from].delay = val; return true; }
+                if (param_ID == "density") { this->net.connections[to][from].density = val; return true; }
             }
         }
     }

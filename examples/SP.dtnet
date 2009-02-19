@@ -3,7 +3,7 @@
 # Written by Brandon Aubie    #
 ###############################
 
-T = 100
+set("T", 100)
 sim = simulation("networks/SP.xml", "inputs/durations.xml")
 sim = modsim(sim, "connection.SI:DTN.weight", -5)
 results = run(sim,"/1/sp.sim",15,5,false)

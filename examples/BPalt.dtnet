@@ -3,7 +3,7 @@
 # Written by Brandon Aubie    #
 ###############################
 
-T = 100
+set("T", 100)
 BPsim= simulation("networks/BP.xml", "inputs/durations.xml")
 BPsim = modsim(BPsim, "connection.SI:DTN.weight", -5)
 BPsim = modsim(BPsim, "connection.OFF:DTN.weight", -3)

@@ -20,7 +20,7 @@
 
     <population id="ON" title="Onset" type="aEIF">
         <param name="size">10</param>
-        <param name="C" sigma="2">200</param>
+        <param name="C" sigma="2">260</param>
         <param name="a" sigma="0">10</param>
         <param name="b" sigma="0">400</param>
         <param name="tauw" sigma="0">100</param>
@@ -73,7 +73,7 @@
     <connection>
         <param name="from">CN</param> 
         <param name="to">ON</param>
-        <param name="weight">3</param>
+        <param name="weight">1</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
@@ -81,7 +81,7 @@
     <connection>
         <param name="from">SI</param> 
         <param name="to">ON</param>
-        <param name="weight">-3</param>
+        <param name="weight">0</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>

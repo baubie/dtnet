@@ -3,7 +3,7 @@
 # Written by Brandon Aubie    #
 ###############################
 
-T = 100
+set("T", 100)
 set("graph.legend", 0)
 
 sim = simulation("networks/BP.xml", "inputs/durations.xml")
@@ -14,7 +14,7 @@ sim = modsim(sim, "connection.SI:DTN.weight", -3)
 results = load("/1/bpoff.sim")
 graphspikecounts(results, "DTN", "trial.main.duration", "OFFcontrib_BP_graph.eps")
 rhigh = constrain(results, "connection.OFF:DTN.weight", 5)
-graphspiketrains(rhigh, "DTN", "OFFcontrib_BP_5_spikes.eps", 20, 0, 40)
+graphspiketrains(rhigh, "DTN", "OFFcontrib_BP_5_spikes.eps", 20, 0, 60)
 rlow = constrain(results, "connection.OFF:DTN.weight", 2)
 graphspiketrains(rlow, "DTN", "OFFcontrib_BP_2_spikes.eps", 20, 0, 40)
 

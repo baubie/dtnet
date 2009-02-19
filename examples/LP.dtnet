@@ -3,7 +3,7 @@
 # Written by Brandon Aubie    #
 ###############################
 
-T = 100
+set("T", 100)
 LPsim = simulation("networks/LP.xml", "inputs/durations.xml")
 
 LPsimA = modsim(modsim(LPsim, "population.CN.mu", 350), "population.CN2.mu", 100) 

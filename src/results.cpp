@@ -100,6 +100,37 @@ boost::tuple< vector<double>, vector<double>, vector<double> > Results::firstSpi
     return boost::tuple<vector<double>, vector<double>, vector<double> > (latency, err_up, err_down);
 }
 
+boost::tuple< vector<double>, vector<double> > Results::psth(const std::string popID, double window_size) {
+
+    vector<double> c;
+    vector<double> x;
+
+    int count = 0;
+    double window = this->timeseries.front();
+    vector<Results::Result*> r = this->get();
+    for (vector<double>::iterator i = this->timeseries.begin(); i != this->timeseries.end(); ++i) {
+        if (*i - window >= window_size) {
+           x.push_back(window);
+           c.push_back(count);
+           window = *i;
+           count = 0; 
+        }
+        // Loop over the spikes
+        for (vector<Results::Result*>::iterator result = r.begin(); result != r.end(); ++result) {
+            for (vector<Neuron>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
+                                          neuron != (*result)->cNetwork.populations[popID].neurons.end();
+                                          ++neuron) {
+                for (vector<double>::iterator s = neuron->spikes.begin(); s != neuron->spikes.end(); ++s) {
+                    if (*s >= window && *s <= *i) {
+                        ++count;
+                    }
+                }
+            }
+        }
+    }
+    return boost::tuple<vector<double>, vector<double> > (x, c);
+}
+
 boost::tuple< vector<double>, vector<double>, vector<double> > Results::meanSpikeCount(const string popID, const string ID) {
     // Return the mean spike counts over all simulations.
     // When the result is constrained to have zero parameters, this is

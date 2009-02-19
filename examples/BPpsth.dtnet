@@ -1,0 +1,11 @@
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+###############################
+
+set("T", 40)
+sim = simulation("networks/Poisson.xml", "inputs/single.xml")
+results = run(sim, "/1/single.sim", 20, 10, false)
+#results = load("/1/single.sim")
+graphpsth(results, "CN", "psth.eps")
+quit()

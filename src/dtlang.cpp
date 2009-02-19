@@ -309,7 +309,7 @@ void dtlang::initialize_functions()
 
 
     // modsim()
-    f.help = "Modify a simulation after it has been loaded.";
+    f.help = "Modify a simulation parameter with a single value after it has been loaded.";
     f.return_type = dtlang::TYPE_SIMULATION;
     f.params.clear();
 
@@ -333,7 +333,42 @@ void dtlang::initialize_functions()
 
     dtlang::functions["modsim"] = f;
 
+    //modsimr()
+    f.help = "Modify a simulation parameter with a range of values after it has been loaded.";
+    f.return_type = dtlang::TYPE_SIMULATION;
+    f.params.clear();
 
+    p.type = dtlang::TYPE_SIMULATION;
+    p.help = "Simulation to modify.";
+    p.optional = false;
+    p.name = "simulation";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_STRING;
+    p.help = "Parameter ID";
+    p.optional = false;
+    p.name = "ID";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_DOUBLE;
+    p.help = "Value of the range start.";
+    p.optional = false;
+    p.name = "start";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_DOUBLE;
+    p.help = "Value of the range end.";
+    p.optional = false;
+    p.name = "end";
+    f.params.push_back(p);
+
+    p.type = dtlang::TYPE_DOUBLE;
+    p.help = "Value of the range step value.";
+    p.optional = false;
+    p.name = "step";
+    f.params.push_back(p);
+
+    dtlang::functions["modsimr"] = f;
 
     // vars()
     f.help = "List the variables currently stored in the register.";
@@ -605,6 +640,30 @@ void dtlang::initialize_functions()
     f.help = "Plot mean first spike latency over all trials in two dimensions (one on x-axis, on as separate series).";
     dtlang::functions["graphfirstspikelatency"] = f;
 
+    // graphpsth()
+    f.help = "Produce a plot of the peri-stimulus time histogram";
+    f.return_type = dtlang::TYPE_VOID;
+    f.params.clear();
+
+    p.type = dtlang::TYPE_RESULTS;
+    p.help = "A results object constrained to have no free parameters.";
+    p.optional = false;
+    p.name = "results";
+    f.params.push_back(p);
+
+    p.type == dtlang::TYPE_STRING;
+    p.help = "Population ID to graph.";
+    p.optional = false;
+    p.name = "popID";
+    f.params.push_back(p);
+
+    p.type == dtlang::TYPE_STRING;
+    p.help = "Filename to save the graph to.";
+    p.optional = false;
+    p.name = "filename";
+    f.params.push_back(p);
+    dtlang::functions["graphpsth"] = f;
+
     // graphtrial_voltage()
     f.help = "Produce a plot of the voltage traces for each neuron in each population.";
     f.return_type = dtlang::TYPE_VOID;
@@ -703,7 +762,14 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
 	if (name == "modsim") {
         r = new Simulation((static_cast<Simulation*>(params[0].obj))->net, (static_cast<Simulation*>(params[0].obj))->trial);
-        return dtlang::f_modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), *(static_cast<double*>(params[2].obj)));
+        Range new_val(*(static_cast<double*>(params[2].obj)));
+        return dtlang::f_modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), new_val);
+	} 
+
+	if (name == "modsimr") {
+        r = new Simulation((static_cast<Simulation*>(params[0].obj))->net, (static_cast<Simulation*>(params[0].obj))->trial);
+        Range new_val(*(static_cast<double*>(params[2].obj)), *(static_cast<double*>(params[3].obj)), *(static_cast<double*>(params[4].obj)));
+        return dtlang::f_modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), new_val);
 	} 
 
     /*
@@ -723,6 +789,12 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
             return dtlang::f_graphnetwork(*(static_cast<Results*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
         }
 	} 
+
+    if (name == "graphpsth") {
+        return dtlang::f_graphpsth(*(static_cast<Results*>(params[0].obj)),
+                                   *(static_cast<string*>(params[1].obj)),
+                                   *(static_cast<string*>(params[2].obj)));
+    }
 
     if (name == "graphtrial_voltage") {
         return dtlang::f_graphtrial(dtlang::PLOT_VOLTAGE, *(static_cast<Results*>(params[0].obj)), 
@@ -1106,7 +1178,7 @@ bool dtlang::f_set(const string var, string const val) {
     return true;
 }
 
-bool dtlang::f_modsim(Simulation &sim, Simulation &old_sim, const string ID, double const val) {
+bool dtlang::f_modsim(Simulation &sim, Simulation &old_sim, const string ID, Range const val) {
     bool r = old_sim.modify(ID, val);
     sim = old_sim;
     return r;
@@ -1542,6 +1614,48 @@ bool dtlang::f_graphnetwork(Results &results, string const &filename) {
 	}
 	remove(data_filename);		
 	return true;
+}
+
+bool dtlang::f_graphpsth(Results &results, std::string const &popID, std::string const &filename) {
+
+    if (results.unconstrained.size() > 0) {
+        cout << "[X] Results must be fully constrained." << endl;
+        return false;
+    }
+
+    GLE gle;
+    GLE::PanelID panelID = GLE::NEW_PANEL;
+    GLE::PlotProperties plotProperties;
+    plotProperties.pointSize = 0.2;
+    GLE::PanelProperties props;
+    double max_value = 0;
+    vector<double> x;
+    vector<double> counts;
+
+    boost::tuple < vector<double>, vector<double> > values;
+    values = results.psth(popID, 1.0);
+    x = values.get<0>();
+    counts = values.get<1>();
+
+    panelID = gle.plot(x, counts, plotProperties, panelID);
+    max_value = max(max_value, *(max_element(counts.begin(), counts.end())));
+    props = gle.getPanelProperties(panelID);
+    props.x_title = "";
+    props.y_title = "";
+    props.title = "";
+    props.y_min = 0;
+    props.y_max = (int)(max_value+1); // Use the last y value as the top value.
+    props.y_labels = true;
+    if (Settings::instance()->get_dbl("graph.legend") == 1) props.legend = true;
+    props.x_dsubticks = 1;
+    gle.setPanelProperties(props, panelID);
+
+    gle.canvasProperties.width = Settings::instance()->get_dbl("graph.width");
+    gle.canvasProperties.height = Settings::instance()->get_dbl("graph.height");
+    gle.draw(filename);
+
+    return true;
+
 }
 
 bool dtlang::f_graphtrial(int type, Results &results, int trial, string const &filename)  {

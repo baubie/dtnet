@@ -1,0 +1,15 @@
+###############################
+# Coincidence Detection Model #
+# Written by Brandon Aubie    #
+###############################
+
+set("T", 100)
+sim = simulation("networks/BP.xml", "inputs/durations.xml")
+sim = modsim(sim, "connection.OFF:DTN.weight", 0)
+sim = modsim(sim, "connection.ONDelay:DTN.weight", 8)
+#results = run(sim,"bp_ac.sim",20,5,false)
+results = load("bp_ac.sim")
+graphspikecounts(results, "DTN", "trial.main.duration", "ac_bp_counts.eps")
+single = constrain(results, "population.CN.mu", 400)
+graphspiketrains(single, "DTN", "ac_bp_spikes.eps",20,0,40)
+quit()

@@ -23,6 +23,9 @@ rLP = run(LPsim,"sim/lp_volt.sim",1,5)
 set("graph.width", 8.5)
 set("graph.height", 16)
 
+rBP2 = constrain(rBP, "trial.main.duration", 2)
+graphtrial_voltage(rBP2, 0, "bp_2ms.eps")
+
 rBP5 = constrain(rBP, "trial.main.duration", 5)
 graphtrial_voltage(rBP5, 0, "bp_5ms.eps")
 

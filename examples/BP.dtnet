@@ -3,7 +3,7 @@
 # Written by Brandon Aubie    #
 ###############################
 
-T = 100
+set("T", 100)
 sim = simulation("networks/BP.xml", "inputs/durations.xml")
 #results = run(sim,"bp.sim",20,5,false)
 results = load("/1/bp.sim")

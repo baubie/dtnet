@@ -53,6 +53,7 @@ class Results {
 
         boost::tuple<std::vector<double>, std::vector<double>, std::vector<double> > meanSpikeCount(const std::string popID, const std::string ID);
         boost::tuple<std::vector<double>, std::vector<double>, std::vector<double> > firstSpikeLatency(const std::string popID, const std::string ID);
+        boost::tuple<std::vector<double>, std::vector<double> > psth(const std::string popID, double window);
 
         Results(double dt, double T, double delay);
         Results();

@@ -30,7 +30,7 @@ class Simulation
 
         bool run(Results &r, std::string filename, double T, double dt, double delay, int number_of_trials, bool voltage, boost::threadpool::pool &tp);
 
-        bool modify(std::string ID, double const val);
+        bool modify(std::string ID, Range const val);
 		std::string toString();
 
         static bool simulationProgress(boost::threadpool::pool &tp, int total, boost::posix_time::ptime start);

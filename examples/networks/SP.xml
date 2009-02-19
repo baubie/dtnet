@@ -84,7 +84,7 @@
     <connection>
         <param name="from">SI</param> 
         <param name="to">DTN</param>
-        <param name="weight"><range start="0" end="-7" step="-1" /></param>
+        <param name="weight">-5</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>

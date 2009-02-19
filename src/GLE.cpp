@@ -642,7 +642,6 @@ string GLE::gle_script_to_file()
                             plot_num += 2;
                         }
 
-
                         color.r += diff.r;
                         color.g += diff.g;
                         color.b += diff.b;
@@ -667,7 +666,7 @@ string GLE::gle_script_to_file()
                 if (panel_iter == this->panels.end()) { c = this->canvasProperties.columns + 1; r = rows + 1; }
             }
         }
-        
+
         // Now display them backwards (bottom->top, left->right)
         stringstream str_y("0.1");
         stringstream str_x("0");
