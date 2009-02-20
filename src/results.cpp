@@ -121,7 +121,7 @@ boost::tuple< vector<double>, vector<double> > Results::psth(const std::string p
                                           neuron != (*result)->cNetwork.populations[popID].neurons.end();
                                           ++neuron) {
                 for (vector<double>::iterator s = neuron->spikes.begin(); s != neuron->spikes.end(); ++s) {
-                    if (*s >= window && *s <= *i) {
+                    if (*s == *i) {
                         ++count;
                     }
                 }

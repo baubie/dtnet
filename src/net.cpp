@@ -17,6 +17,13 @@ void Net::genNetworks() {
         this->populationCollections.push_back(p->second.populationFactory());
     }
 
+    // It's easier if we have at least one connection.
+    // When there are none, make a fake one that just loops back onto the first population with 0 weight.
+    if (this->connections.empty()) {
+        string popID = this->populations.begin()->first;
+        this->connections[popID][popID].weight = 0;
+        this->connections[popID][popID].delay = 0;
+    }
 
     this->genConnections( this->connections.begin(), 
                           this->connections.begin()->second.begin() );
