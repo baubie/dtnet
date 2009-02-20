@@ -110,7 +110,7 @@ boost::tuple< vector<double>, vector<double> > Results::psth(const std::string p
     vector<Results::Result*> r = this->get();
     for (vector<double>::iterator i = this->timeseries.begin(); i != this->timeseries.end(); ++i) {
         if (*i - window >= window_size) {
-           x.push_back(window);
+           x.push_back(window + window_size / 2);
            c.push_back(count);
            window = *i;
            count = 0; 
