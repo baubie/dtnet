@@ -16,7 +16,7 @@ namespace dtlang {
     map<int, std::string> type_names;
 }
 
-void dtlang::initialize() 
+void dtlang::initialize()
 {
     dtlang::initialize_variables();
     dtlang::initialize_functions();
@@ -34,11 +34,11 @@ bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::vari
             // Clean up the work we've already done.
             for (int i = 0; i < count -1; i++) {
                 dtlang::delete_variable(var_params[i]);
-            } 
+            }
             cout << "Unable to parse " << *param_iter << endl << endl;
             return false;
        }
-       ++count; 
+       ++count;
     }
     return true;
 }
@@ -54,7 +54,7 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_inp
     dtlang::comment_parser<string::const_iterator> pComment;
     iter = str.begin();
     end = str.end();
-    r = phrase_parse(iter, end, pComment, boost::spirit::ascii::space); 
+    r = phrase_parse(iter, end, pComment, boost::spirit::ascii::space);
     if (r && iter == end) {
         return true;
     }
@@ -76,7 +76,7 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_inp
             return true;
         }
         cout << "Syntax error: " << var.value << endl << endl;
-        return false; 
+        return false;
     }
 
     // Perhaps it's just a function call?
@@ -111,7 +111,7 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
         void *ret;
         int r_type = dtlang::NO_RETURN;
         if (assignment) r_type = dtlang::TYPE_VOID;
-        vector<dtlang::variable_def> var_params; 
+        vector<dtlang::variable_def> var_params;
         if (!dtlang::params_to_variables(func.params, var_params, tp, end_input)) return false;
         bool run_result = dtlang::runFunction(func.name, var_params, tp, ret, r_type, end_input);
         var.type = r_type;
@@ -120,7 +120,7 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
         vector<dtlang::variable_def>::iterator iter;
         for (iter = var_params.begin(); iter != var_params.end(); ++iter) {
             dtlang::delete_variable(*iter);
-        } 
+        }
         if (func.name == "quit") { end_input = true; }
         return true;
     }
@@ -174,7 +174,7 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
                     cout << "Unable to determine statement type for copying." << endl;
                     return false;
                     break;
-            } 
+            }
 
         } else {
             var = dtlang::statements[str];
@@ -204,15 +204,15 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
                 case dtlang::TYPE_TRIAL:
                     var.obj = new Trial(*(static_cast<Trial*>(oldvar.obj)));
                     break;
-                
+
                 case dtlang::TYPE_NET:
                     var.obj = new Net(*(static_cast<Net*>(oldvar.obj)));
                     break;
-					
+
                 case dtlang::TYPE_RESULTS:
                     var.obj = new Results(*(static_cast<Results*>(oldvar.obj)));
                     break;
-					
+
 				case dtlang::TYPE_SIMULATION:
 					var.obj = new Simulation(*(static_cast<Simulation*>(oldvar.obj)));
 					break;
@@ -225,7 +225,7 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
                     cout << "Unable to determine variable type for copying." << endl;
                     return false;
                     break;
-            } 
+            }
 
         } else {
             // We create a new variable
@@ -273,10 +273,10 @@ void dtlang::initialize_functions()
     f.return_type = dtlang::TYPE_VOID;
     f.params.clear();
     dtlang::functions["quit"] = f;
-    
+
     // help()
     f.help = "Display general usage information or help for a particular function.";
-    f.return_type = dtlang::TYPE_VOID; 
+    f.return_type = dtlang::TYPE_VOID;
     f.params.clear();
 
     p.type = dtlang::TYPE_STRING;
@@ -414,8 +414,8 @@ void dtlang::initialize_functions()
     p.name = "trial";
 	f.params.push_back(p);
 
-	dtlang::functions["simulation"] = f;	
-	
+	dtlang::functions["simulation"] = f;
+
 
     // run()
     f.help = "Run the current simulation. Will only work if at least one population has an input connected.";
@@ -635,7 +635,7 @@ void dtlang::initialize_functions()
 
     // graphspikecountsmap()
     dtlang::functions["graphspikecountsmap"] = f;
-    
+
     // graphfirstspikelatency()
     f.help = "Plot mean first spike latency over all trials in two dimensions (one on x-axis, on as separate series).";
     dtlang::functions["graphfirstspikelatency"] = f;
@@ -691,7 +691,7 @@ void dtlang::initialize_functions()
 
     // graphtrial_spikes()
     dtlang::functions["graphtrial_spikes"] = dtlang::functions["graphtrial_voltage"];
-	
+
     // external()
     f.help = "Execute a series of commands as stored in an external file.";
     f.return_type = dtlang::TYPE_VOID;
@@ -723,7 +723,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
     if (iter == dtlang::functions.end()) {
         cout << "Error: Unknown function" << endl;
         return false;
-    } 
+    }
     f = iter->second;
 
     unsigned int req = 0;
@@ -740,13 +740,13 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
     //TODO: Check if paramter type is correct
 
     if (r_type != dtlang::NO_RETURN) {
-        r_type = dtlang::functions[name].return_type; 
+        r_type = dtlang::functions[name].return_type;
     }
 
     // Execute Functions
 	if (name == "quit") {
         return dtlang::f_quit(tp);
-	} 
+	}
 
 	if (name == "help") {
         if (params.size() == 0) {
@@ -754,23 +754,23 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         } else if (params.size() == 1) {
             return dtlang::f_help(*(static_cast<string*>(params[0].obj)));
         }
-	} 
+	}
 
 	if (name == "set") {
         return dtlang::f_set(*(static_cast<string*>(params[0].obj)), *(static_cast<double*>(params[1].obj)));
-	} 
+	}
 
 	if (name == "modsim") {
         r = new Simulation((static_cast<Simulation*>(params[0].obj))->net, (static_cast<Simulation*>(params[0].obj))->trial);
         Range new_val(*(static_cast<double*>(params[2].obj)));
         return dtlang::f_modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), new_val);
-	} 
+	}
 
 	if (name == "modsimr") {
         r = new Simulation((static_cast<Simulation*>(params[0].obj))->net, (static_cast<Simulation*>(params[0].obj))->trial);
         Range new_val(*(static_cast<double*>(params[2].obj)), *(static_cast<double*>(params[3].obj)), *(static_cast<double*>(params[4].obj)));
         return dtlang::f_modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), new_val);
-	} 
+	}
 
     /*
 	if (name == "graphinputs") {
@@ -779,7 +779,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         } else if (params.size() == 2) {
             return dtlang::f_graphinputs(*(static_cast<Trial*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
         }
-	} 
+	}
     */
 
 	if (name == "graphnetwork") {
@@ -788,7 +788,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         } else if (params.size() == 2) {
             return dtlang::f_graphnetwork(*(static_cast<Results*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
         }
-	} 
+	}
 
     if (name == "graphpsth") {
         return dtlang::f_graphpsth(*(static_cast<Results*>(params[0].obj)),
@@ -797,53 +797,53 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
     }
 
     if (name == "graphtrial_voltage") {
-        return dtlang::f_graphtrial(dtlang::PLOT_VOLTAGE, *(static_cast<Results*>(params[0].obj)), 
-                                                          (int)*(static_cast<double*>(params[1].obj)), 
+        return dtlang::f_graphtrial(dtlang::PLOT_VOLTAGE, *(static_cast<Results*>(params[0].obj)),
+                                                          (int)*(static_cast<double*>(params[1].obj)),
                                                           *(static_cast<string*>(params[2].obj)));
     }
     if (name == "graphtrial_spikes") {
-        return dtlang::f_graphtrial(dtlang::PLOT_SPIKES, *(static_cast<Results*>(params[0].obj)), 
-                                                         (int)*(static_cast<double*>(params[1].obj)), 
+        return dtlang::f_graphtrial(dtlang::PLOT_SPIKES, *(static_cast<Results*>(params[0].obj)),
+                                                         (int)*(static_cast<double*>(params[1].obj)),
                                                          *(static_cast<string*>(params[2].obj)));
     }
 
     if (name == "graphspiketrains") {
-        if (params.size() == 2) {  
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
-                                              *(static_cast<string*>(params[1].obj)), 
+        if (params.size() == 2) {
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+                                              *(static_cast<string*>(params[1].obj)),
                                               dtlang::DEFAULT,
                                               dtlang::DEFAULT,
                                               dtlang::DEFAULT,
                                               "spikes.eps");
         } else if (params.size() == 3) {
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
-                                              *(static_cast<string*>(params[1].obj)), 
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+                                              *(static_cast<string*>(params[1].obj)),
                                               dtlang::DEFAULT,
                                               dtlang::DEFAULT,
                                               dtlang::DEFAULT,
                                               *(static_cast<string*>(params[2].obj)));
 
         } else if (params.size() == 4) {
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
-                                              *(static_cast<string*>(params[1].obj)), 
-                                              (int)*(static_cast<double*>(params[3].obj)), 
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+                                              *(static_cast<string*>(params[1].obj)),
+                                              (int)*(static_cast<double*>(params[3].obj)),
                                               dtlang::DEFAULT,
                                               dtlang::DEFAULT,
                                               *(static_cast<string*>(params[2].obj)));
         } else if (params.size() == 5) {
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
-                                              *(static_cast<string*>(params[1].obj)), 
-                                              (int)*(static_cast<double*>(params[3].obj)), 
-                                              *(static_cast<double*>(params[4].obj)), 
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+                                              *(static_cast<string*>(params[1].obj)),
+                                              (int)*(static_cast<double*>(params[3].obj)),
+                                              *(static_cast<double*>(params[4].obj)),
                                               dtlang::DEFAULT,
                                               *(static_cast<string*>(params[2].obj)));
 
         } else if (params.size() == 6) {
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)), 
-                                              *(static_cast<string*>(params[1].obj)), 
-                                              (int)*(static_cast<double*>(params[3].obj)), 
-                                              *(static_cast<double*>(params[4].obj)), 
-                                              *(static_cast<double*>(params[5].obj)), 
+            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+                                              *(static_cast<string*>(params[1].obj)),
+                                              (int)*(static_cast<double*>(params[3].obj)),
+                                              *(static_cast<double*>(params[4].obj)),
+                                              *(static_cast<double*>(params[5].obj)),
                                               *(static_cast<string*>(params[2].obj)));
         }
     }
@@ -883,11 +883,11 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
 	if (name == "vars") {
         return dtlang::f_vars();
-	} 
-	
+	}
+
 	if (name == "funcs") {
         return dtlang::f_funcs();
-	} 
+	}
 
 	if (name == "run") {
 		if (r_type == dtlang::NO_RETURN) {
@@ -896,31 +896,31 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 		}
         r = new Results();
         if (params.size() == 3) {
-            return dtlang::f_run( *(static_cast<Results*>(r)), 
+            return dtlang::f_run( *(static_cast<Results*>(r)),
                                   *(static_cast<Simulation*>(params[0].obj)),
-                                  *(static_cast<string*>(params[1].obj)), 
-                                   (int)*(static_cast<double*>(params[2].obj)), 
+                                  *(static_cast<string*>(params[1].obj)),
+                                   (int)*(static_cast<double*>(params[2].obj)),
                                    Settings::instance()->get_dbl("delay"),
                                    true, // Store voltage by default
                                    tp);
         } else if (params.size() == 4) {
-            return dtlang::f_run( *(static_cast<Results*>(r)), 
+            return dtlang::f_run( *(static_cast<Results*>(r)),
                                   *(static_cast<Simulation*>(params[0].obj)),
-                                  *(static_cast<string*>(params[1].obj)), 
-                                   (int)*(static_cast<double*>(params[2].obj)), 
-                                  *(static_cast<double*>(params[3].obj)), 
+                                  *(static_cast<string*>(params[1].obj)),
+                                   (int)*(static_cast<double*>(params[2].obj)),
+                                  *(static_cast<double*>(params[3].obj)),
                                    true, // Store voltage by default
                                    tp);
         } else if (params.size() == 5) {
-            return dtlang::f_run( *(static_cast<Results*>(r)), 
+            return dtlang::f_run( *(static_cast<Results*>(r)),
                                   *(static_cast<Simulation*>(params[0].obj)),
-                                  *(static_cast<string*>(params[1].obj)), 
-                                   (int)*(static_cast<double*>(params[2].obj)), 
-                                  *(static_cast<double*>(params[3].obj)), 
+                                  *(static_cast<string*>(params[1].obj)),
+                                   (int)*(static_cast<double*>(params[2].obj)),
+                                  *(static_cast<double*>(params[3].obj)),
                                   *(static_cast<int*>(params[4].obj)) != 0,
                                    tp);
         }
-	} 
+	}
 
     if (name == "load") {
 		if (r_type == dtlang::NO_RETURN) {
@@ -933,7 +933,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
 	if (name == "print") {
         return dtlang::f_print(params[0].obj, params[0].type);
-	} 
+	}
 
     if (name == "merge") {
         if (r_type == dtlang::NO_RETURN) {
@@ -955,8 +955,8 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
 	if (name == "print") {
         return dtlang::f_print(params[0].obj, params[0].type);
-	} 
-	
+	}
+
 	if (name == "benchmark") {
         if (params.size() == 0) {
             return dtlang::f_benchmark(tp, 1.0);
@@ -974,7 +974,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 		if (r_type == dtlang::NO_RETURN) {
 			cout << "Error: \"" << name << "\" must be assigned to a variable." << endl;
 			return false;
-		}		
+		}
 
         Net network;
         Trial trial;
@@ -1015,7 +1015,7 @@ bool dtlang::f_vars() {
             case dtlang::TYPE_TRIAL:
                 cout << "[Trial Object]";
                 break;
-            
+
             case dtlang::TYPE_NET:
                 cout << "[Net Object]";
                 break;
@@ -1027,7 +1027,7 @@ bool dtlang::f_vars() {
             default:
                 cout << "Unknown";
                 break;
-        } 
+        }
         cout << endl;
     }
     cout << endl;
@@ -1043,7 +1043,7 @@ bool dtlang::f_funcs() {
         cout << iter->first << "\t";
         if (iter->first.length() < 8) cout << "\t";
         cout << dtlang::type_names[iter->second.return_type] << "\t";
-        cout << iter->second.help << endl; 
+        cout << iter->second.help << endl;
     }
     cout << endl;
     return true;
@@ -1069,7 +1069,7 @@ bool dtlang::f_help(string name) {
     if (iter == dtlang::functions.end()) {
         cout << "Cannot find a function named \"" << name << "\"" << endl << endl;
         return false;
-    } 
+    }
     f = iter->second;
     vector<function_param>::iterator iter_param;
 
@@ -1092,8 +1092,8 @@ bool dtlang::f_help(string name) {
         } else {
             cout << "\t[Required]" << endl;
         }
-        cout << "\t" << iter_param->help << endl; 
-    } 
+        cout << "\t" << iter_param->help << endl;
+    }
     cout << endl;
     return true;
 }
@@ -1132,23 +1132,23 @@ bool dtlang::delete_variable(variable_def var) {
         case dtlang::TYPE_TRIAL:
             delete static_cast<Trial*>(var.obj);
             break;
-        
+
         case dtlang::TYPE_NET:
             delete static_cast<Net*>(var.obj);
             break;
-        
+
         case dtlang::TYPE_RESULTS:
             delete static_cast<Results*>(var.obj);
             break;
-        
+
 		case dtlang::TYPE_SIMULATION:
 			delete static_cast<Simulation*>(var.obj);
 			break;
-		
+
 		case dtlang::TYPE_POPULATION:
 			delete static_cast<Population*>(var.obj);
 			break;
-			
+
         default:
             cout << "Attempted to free an unknown variable type.  MEMORY LEAK!" << endl;
             return false;
@@ -1158,16 +1158,7 @@ bool dtlang::delete_variable(variable_def var) {
 }
 
 bool f_delete(const std::string var) {
-   return true; 
-}
-
-bool dtlang::f_set(const string var, double const val) {
-    Settings::instance()->set(var, val);
-    return true;
-}
-bool dtlang::f_set(const string var, string const val) {
-    Settings::instance()->set(var, val);
-    return true;
+   return true;
 }
 
 void __benchmark(double h) {
@@ -1193,11 +1184,11 @@ bool dtlang::f_benchmark(boost::threadpool::pool &tp, double mult) {
 bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool &end_input) {
     string line;
     ifstream script(filename.c_str());
-    if (script.is_open()) 
+    if (script.is_open())
     {
-        while (!script.eof() && !end_input) 
+        while (!script.eof() && !end_input)
         {
-            getline(script, line);    
+            getline(script, line);
 			if (line != "") // Skip blank lines
 			{
 				cout << VT_set_colors(VT_RED, VT_DEFAULT) << "extern" << VT_default_attributes << "> " << line << endl;
@@ -1206,7 +1197,7 @@ bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool
 					cout << "Error encountered in script.  Halting execution." << endl << endl;
 					break;
 				}
-			} 
+			}
         }
 
         script.close();
@@ -1281,24 +1272,24 @@ bool dtlang::f_print(void* ptr, int const type) {
 
         case dtlang::TYPE_NET:
             cout << static_cast<Net*>(ptr)->toString();
-            break;    
-			
+            break;
+
         case dtlang::TYPE_RESULTS:
             cout << static_cast<Results*>(ptr)->toString();
-            break;    
-			
+            break;
+
 		case dtlang::TYPE_SIMULATION:
 			cout << static_cast<Simulation*>(ptr)->toString();
-			break;    
-			
+			break;
+
         case dtlang::TYPE_INT:
             cout << *(static_cast<int*>(ptr)) << endl;
-            break;    
+            break;
 
         case dtlang::TYPE_DOUBLE:
             cout << *(static_cast<double*>(ptr)) << endl;
-            break;        
-            
+            break;
+
         default:
             cout << "Cannot print this data type." << endl;
             return false;

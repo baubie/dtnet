@@ -2,6 +2,8 @@
 #ifndef DTLANG_H
 #define DTLANG_H
 
+#include <libdtnet.h>
+
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
@@ -16,13 +18,7 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/tuple/tuple.hpp>
 #include "lib/threadpool/threadpool.hpp"
-#include "GLE.h"
-#include "net.h"
-#include "trial.h"
 #include "vt100.h"
-#include "simulation.h"
-#include "results.h"
-#include "settings.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -33,15 +29,9 @@
 /**
  * dtlang namespace
  */
-namespace dtlang 
+namespace dtlang
 {
     static const int NO_RETURN = 999999;
-    static const double DEFAULT = -9999999;
-    static const int PLOT_VOLTAGE = 1;
-    static const int PLOT_SPIKES = 2; 
-    static const int PLOT_FLAT = 1;
-    static const int PLOT_3D = 2;
-    static const int PLOT_MAP = 3;
     static const int TYPE_ANY = 2948242;
     static const int TYPE_VOID = 1;
     static const int TYPE_STRING = 2;
@@ -91,7 +81,7 @@ namespace dtlang
     struct variable_def
     {
         int type;
-        void* obj; 
+        void* obj;
     };
 
     struct variable_assign
@@ -113,10 +103,7 @@ namespace dtlang
     bool simulation(const std::string net_filename, const std::string trial_filename, Net *net, Trial *trial);
     bool delete_variable(variable_def var);
 
-    bool f_load(Results &result, const std::string filename);
     bool f_external(const std::string filename, boost::threadpool::pool &tp, bool &end_input);
-    bool f_set(const std::string var, double const val);
-    bool f_set(const std::string var, std::string const val);
     bool f_help(std::string name);
     bool f_help();
     bool f_vars();
@@ -147,7 +134,7 @@ namespace dtlang
         function_parser(): function_parser::base_type(expr)
         {
             expr        %= name >> "(" >> -param >> *("," > param) >> ")";
-            param       %= raw[lexeme[(lit('"') >> *(print - lit('"')) >> lit('"'))] 
+            param       %= raw[lexeme[(lit('"') >> *(print - lit('"')) >> lit('"'))]
                                | lexeme[+(alnum|'_'|'.'|'-')] >> -('(' >> -param >> *("," > param)  >> ')')];
             name        %= raw[lexeme[+(alnum|'_'|'.')]];
         }

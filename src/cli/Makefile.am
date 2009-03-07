@@ -1,0 +1,6 @@
+bin_PROGRAMS = dtnet
+dtnet_SOURCES = dtnet.cpp dtlang.cpp 
+LDADD = $(BOOST_PROGRAM_OPTIONS_LIB) -llibdtnet
+
+AM_CXXFLAGS = $(BOOST_CPPFLAGS)
+AM_LDFLAGS = $(BOOST_LDFLAGS)

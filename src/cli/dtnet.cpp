@@ -56,13 +56,13 @@ int main(int argc, char* argv[]) {
     po::notify(vm);
 
     if (vm.count("help")) { cout << visible << "\n"; return 1; }
-    if (vm.count("verbose")) dtlang::verbose = true; 
-    if (vm.count("graph.width")) Settings::instance()->set(string("graph.width"), vm["graph.width"].as<double>());
-    if (vm.count("graph.height")) Settings::instance()->set(string("graph.height"), vm["graph.height"].as<double>());
-    if (vm.count("graph.legend")) Settings::instance()->set(string("graph.legend"), vm["graph.legend"].as<double>());
-    if (vm.count("dt")) Settings::instance()->set(string("dt"), vm["dt"].as<double>());
-    if (vm.count("T")) Settings::instance()->set(string("T"), vm["T"].as<double>());
-    if (vm.count("delay")) Settings::instance()->set(string("delay"), vm["delay"].as<double>());
+    if (vm.count("verbose")) dtlang::verbose = true;
+    if (vm.count("graph.width")) dtnet::set(string("graph.width"), vm["graph.width"].as<double>());
+    if (vm.count("graph.height")) dtnet::set(string("graph.height"), vm["graph.height"].as<double>());
+    if (vm.count("graph.legend")) dtnet::set(string("graph.legend"), vm["graph.legend"].as<double>());
+    if (vm.count("dt")) dtnet::set(string("dt"), vm["dt"].as<double>());
+    if (vm.count("T")) dtnet::set(string("T"), vm["T"].as<double>());
+    if (vm.count("delay")) dtnet::set(string("delay"), vm["delay"].as<double>());
 
     /* Display A Welcome Message */
     if (dtlang::verbose) cout << endl << "Welcome to the Parallel Network Simulator 2.0" << endl;
@@ -74,11 +74,6 @@ int main(int argc, char* argv[]) {
     if (dtlang::verbose) cout << "Archive format is binary." << endl;
 #endif
 
-    /* Setup Threads For Parallel Simulations */
-    if (dtlang::verbose) cout << "...Pooling " << threads << " threads for simulations";
-    boost::threadpool::pool tp(threads+1); // Pool an additional thread for the progress meter
-    if (dtlang::verbose) cout << "\t[OK]" << endl;
-
     /* Main Input Loop */
     if (dtlang::verbose) cout << "Initialization Complete" << endl;
     if (dtlang::verbose) cout << "Simulation is Empty" << endl << endl;
@@ -88,7 +83,7 @@ int main(int argc, char* argv[]) {
 
     bool EndOfInput = false;
     // Run an external script from the command line
-    if (vm.count("script")) { 
+    if (vm.count("script")) {
         dtlang::parse("external(\"" + vm["script"].as<string>() + "\")", tp, EndOfInput);
     }
 

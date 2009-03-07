@@ -27,14 +27,10 @@
 class GLE
 {
     public:
-        
+
         typedef int PanelID;
         static const int NEW_PANEL = -1;
         static const double UNDEFINED = -91348434;
-
-		static std::string eps_viewer;
-		static std::string pdf_viewer;
-		static bool qgle;
 
         std::vector<std::string> markers;
         std::string getMarker();
@@ -167,11 +163,11 @@ class GLE
                 y_labels_dist(UNDEFINED)
             {}
         };
-        
+
         CanvasProperties canvasProperties;
 
         // Various different plot functions
-        
+
         //This is the main one that other plot()'s call
         PanelID plot(std::vector<double> &x, std::vector<std::vector<double> > &y, std::vector<std::vector<double> > &err_up, std::vector<std::vector<double> > &err_down, PlotProperties properties, PanelID panel); // Plot a Multiple x-y curves with the same x by adding it to an existing panel
 

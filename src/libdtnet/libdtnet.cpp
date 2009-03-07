@@ -1,3 +1,30 @@
+#include "libdtnet.h"
+
+Settings *Settings::s_instance = 0;
+boost::threadpool::pool tp(2); // Pool an additional thread for the progress meter
+
+
+using namespace std;
+
+
+bool dtnet::set_threads(int threads) {
+    if (threads > 0) {
+        tp = boost::threadpool::pool(threads+1);
+        return true;
+    }
+
+    return false;
+}
+
+bool dtnet::set(const string var, double const val) {
+    Settings::instance()->set(var, val);
+    return true;
+}
+bool dtnet::set(const string var, string const val) {
+    Settings::instance()->set(var, val);
+    return true;
+}
+
 
 bool dtnet::run(Results &result, Simulation &sim, string filename, int number_of_trials, double delay, bool voltage, boost::threadpool::pool &tp) {
 
@@ -17,7 +44,7 @@ bool dtnet::modsim(Simulation &sim, Simulation &old_sim, const string ID, Range 
     sim = old_sim;
     return r;
 }
-j
+
 bool dtnet::constrain(Results &result, Results *old_results, const string ID, const double value) {
     return old_results->constrain(result, ID, value);
 }
@@ -44,9 +71,9 @@ bool dtnet::graphfirstspikelatency(Results &results, string const &popID, string
         if (ucIter->first != x_axis) {
             series = ucIter->first;
             series_range = ucIter->second;
-        } 
+        }
     }
-    
+
     Results seriesResults;
     GLE gle;
     GLE::PanelID panelID = GLE::NEW_PANEL;
@@ -70,7 +97,7 @@ bool dtnet::graphfirstspikelatency(Results &results, string const &popID, string
                 } else {
                     seriesResults = results;
                 }
-                
+
                 values = seriesResults.firstSpikeLatency(popID, x_axis);
                 means = values.get<0>();
                 err_up = values.get<1>();
@@ -116,9 +143,9 @@ bool dtnet::graphspikecounts(Results &results, string const &popID, string const
         if (ucIter->first != x_axis) {
             series = ucIter->first;
             series_range = ucIter->second;
-        } 
+        }
     }
-    
+
     Results seriesResults;
     GLE gle;
     GLE::PanelID panelID = GLE::NEW_PANEL;
@@ -140,7 +167,7 @@ bool dtnet::graphspikecounts(Results &results, string const &popID, string const
                 } else {
                     seriesResults = results;
                 }
-                
+
                 values = seriesResults.meanSpikeCount(popID, x_axis);
                 means = values.get<0>();
                 err_up = values.get<1>();
@@ -159,7 +186,7 @@ bool dtnet::graphspikecounts(Results &results, string const &popID, string const
             props.x_dsubticks = 1;
             gle.setPanelProperties(props, panelID);
             break;
-        
+
         case dtnet::PLOT_MAP:
         case dtnet::PLOT_3D:
             for (Range::iterator sIter = series_range.begin(); sIter != series_range.end(); ++sIter) {
@@ -232,8 +259,8 @@ bool dtnet::graphspiketrains(Results &results, string const &popID, int trials, 
     sigPlotProperties.marker = "dot";
     sigPlotProperties.pointSize = 0.05;
     GLE::PanelID panelID = GLE::NEW_PANEL;
-   
-    vector< vector<double> > signals; 
+
+    vector< vector<double> > signals;
     int trial;
     vector<double> values;
     vector<double> values_raw;
@@ -248,7 +275,7 @@ bool dtnet::graphspiketrains(Results &results, string const &popID, int trials, 
         trial = 0;
         y = *pIter;
         for (vector<Results::Result*>::iterator rIter = r.begin(); rIter != r.end(); ++rIter) {
-            Population::ConstrainedPopulation pop = (*rIter)->cNetwork.populations[popID]; 
+            Population::ConstrainedPopulation pop = (*rIter)->cNetwork.populations[popID];
             for (vector<double>::iterator nIter = pop.neurons[0].spikes.begin(); nIter != pop.neurons[0].spikes.end(); ++nIter) {
                 points.push_back(make_pair(*nIter, y));
             }
@@ -307,12 +334,12 @@ bool dtnet::graphnetwork(Results &results, string const &filename) {
     }
 
     Results::Result *r = results.get().at(0);
-	
+
 	of << "digraph G {" << endl;
-	
+
 	// Setup the input box style
     of << "Input [shape=box];" << endl;
-			
+
     for (map<string, map<string, Net::Connection<double> > >::iterator a = r->cNetwork.connections.begin(); a != r->cNetwork.connections.end(); ++a)
     {
         for (map<string, Net::Connection<double> >::iterator b = a->second.begin(); b != a->second.end(); ++b)
@@ -324,21 +351,14 @@ bool dtnet::graphnetwork(Results &results, string const &filename) {
         }
 	}
 	of << "}" << endl;
-	
+
 	string command = "dot -Tps " + string(data_filename) + " -o " + filename;
 	int ret = system(command.c_str());
 	if (ret != 0) {
 		cout << "[X] Error running dot." << endl;
 	} else { cout << "Saved to " << filename << endl; }
-	
-	if (!GLE::eps_viewer.empty()) {
-		string command = GLE::eps_viewer + " " + filename + " &"; // Try to run ghostview in the background.
-		int r = system(command.c_str());
-		if (r != 0) {
-			cout << "[X] EPS preview is unavailable." << endl;
-		}
-	}
-	remove(data_filename);		
+
+	remove(data_filename);
 	return true;
 }
 
@@ -417,10 +437,10 @@ bool dtnet::graphtrial(int type, Results &results, int trial, string const &file
         end.r = 0.25;
         end.g = 0.25;
         end.b = 0.25;
-        plotProperties.first = start; 
+        plotProperties.first = start;
         plotProperties.last = end;
     }
-    
+
     GLE::PanelID panelID;
     vector<Population::ConstrainedPopulation*>::iterator pop_iter;
     vector<Neuron>::iterator neuron_iter;
@@ -442,7 +462,7 @@ bool dtnet::graphtrial(int type, Results &results, int trial, string const &file
                     plotProperties.marker = "fcircle";
                     break;
             }
-        } 
+        }
         panelID = gle.plot(timesteps, signals, plotProperties);
         GLE::PanelProperties props=gle.getPanelProperties(panelID);
         switch(type) {

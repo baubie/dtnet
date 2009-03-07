@@ -61,7 +61,7 @@ GLE::PanelID GLE::plot(vector< pair<double,double> > &points, PlotProperties pro
     new_points.properties = properties;
 
     Panel panel;
-    if (ID == GLE::NEW_PANEL) 
+    if (ID == GLE::NEW_PANEL)
     {
         // Get a new ID
         this->panels.push_back(panel);
@@ -72,13 +72,13 @@ GLE::PanelID GLE::plot(vector< pair<double,double> > &points, PlotProperties pro
         try
         {
             panel = this->panels.at(ID);
-        } 
+        }
         catch (out_of_range outOfRange)
         {
             cout << "[GLE++] Attempted to add to a non-existent panel (" << outOfRange.what() << ")." << endl;
             return false;
         }
-        
+
     }
 
     panel.points.push_back(new_points);
@@ -164,7 +164,7 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, vector<vec
 
     Panel panel;
 
-    if (ID == GLE::NEW_PANEL) 
+    if (ID == GLE::NEW_PANEL)
     {
         // Get a new ID
         this->panels.push_back(panel);
@@ -175,13 +175,13 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, vector<vec
         try
         {
             panel = this->panels.at(ID);
-        } 
+        }
         catch (out_of_range outOfRange)
         {
             cout << "[GLE++] Attempted to add to a non-existent panel (" << outOfRange.what() << ")." << endl;
             return -1;
         }
-        
+
     }
 
     panel.plots.push_back(plot);
@@ -207,7 +207,7 @@ GLE::PanelID GLE::plot3d(vector<double> &x, vector<double> &y, vector< vector<do
 
     Panel panel;
 
-    if (ID == GLE::NEW_PANEL) 
+    if (ID == GLE::NEW_PANEL)
     {
         // Get a new ID
         this->panels.push_back(panel);
@@ -218,13 +218,13 @@ GLE::PanelID GLE::plot3d(vector<double> &x, vector<double> &y, vector< vector<do
         try
         {
             panel = this->panels.at(ID);
-        } 
+        }
         catch (out_of_range outOfRange)
         {
             cout << "[GLE++] Attempted to add to a non-existent panel (" << outOfRange.what() << ")." << endl;
             return -1;
         }
-        
+
     }
 
     panel.plots3d.push_back(plot3d);
@@ -252,14 +252,12 @@ bool GLE::draw(string const &filename)
     string type = filename.substr(filename.find('.')+1);
     string basename = filename.substr(0, filename.find('.'));
     if (type == "jpeg") type = "jpg";
-    string qgle_preview;
-    if (GLE::qgle) qgle_preview = " -p ";
 
     string graphics_dir = type+"_graphics";
     string image_name = graphics_dir + "/" + filename;
     bfs::create_directory(bfs::path(graphics_dir));
 
-    string command = string("gle -d ") + type + qgle_preview + string(" -output ") + image_name + " " + gle_script_file;
+    string command = string("gle -d ") + type + string(" -output ") + image_name + " " + gle_script_file;
 
     int r = system(command.c_str());
 	if (r != 0) {
@@ -268,20 +266,6 @@ bool GLE::draw(string const &filename)
 	else
     {
 	    cout << "[GLE] Saved plot to " << filename << endl;
-        if (!GLE::eps_viewer.empty() && type == "eps") {
-            string command = GLE::eps_viewer + " " + image_name + " &"; // Try to run ghostview in the background.
-            int r = system(command.c_str());
-            if (r != 0) {
-                cerr << "[GLE] EPS preview is unavailable." << endl;
-            }
-        }
-        if (!GLE::pdf_viewer.empty() && type == "pdf") {
-            string command = GLE::pdf_viewer + " " + image_name + " &"; // Try to run ghostview in the background.
-            int r = system(command.c_str());
-            if (r != 0) {
-                cerr << "[GLE] PDF preview is unavailable." << endl;
-            }
-        }
     }
 
     // Move the temporary files to folder
@@ -299,7 +283,7 @@ bool GLE::draw(string const &filename)
     string dataName;
     bfs::copy_file(bfs::path(gle_script_file), bfs::path(scriptName));
     bfs::remove(bfs::path(gle_script_file));
-    for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter) 
+    for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter)
     {
         for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
         {
@@ -339,16 +323,16 @@ bool GLE::data_to_file()
     vector<double>::iterator values_y_iter;
     map<double, vector<double> >::iterator values_iter;
 
-    for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter) 
+    for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter)
     { /**< Loop over each panel. */
 
-        for ( plot3d_iter = panel_iter->plots3d.begin(); plot3d_iter != panel_iter->plots3d.end(); ++plot3d_iter ) 
+        for ( plot3d_iter = panel_iter->plots3d.begin(); plot3d_iter != panel_iter->plots3d.end(); ++plot3d_iter )
         { /**< Loop over each set of 3D data (probably only one, but this is general). **/
             char data_filename[] = "gle_data_XXXXXX";
             int pTemp = mkstemp(data_filename);
             boost::iostreams::file_descriptor_sink sink( pTemp );
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
-            if (!of) 
+            if (!of)
             {
                cerr << "[GLE] Unable to create temporary file." << endl;
                return false;
@@ -378,7 +362,7 @@ bool GLE::data_to_file()
             int pTemp = mkstemp(data_filename);
             boost::iostreams::file_descriptor_sink sink( pTemp );
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
-            if (!of) 
+            if (!of)
             {
                cerr << "[GLE] Unable to create temporary file." << endl;
                return false;
@@ -396,7 +380,7 @@ bool GLE::data_to_file()
         vector<double>::iterator iter_eu;
         vector<double>::iterator iter_ed;
         bool error_bars;
-        
+
         for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
         { /**< Loop over each plot in this panel. */
 
@@ -423,13 +407,13 @@ bool GLE::data_to_file()
                     }
                     ++x_iter;
                 }
-            }    
+            }
 
             char data_filename[] = "gle_data_XXXXXX";
             int pTemp = mkstemp(data_filename);
             boost::iostreams::file_descriptor_sink sink( pTemp );
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
-            if (!of) 
+            if (!of)
             {
                cerr << "[GLE] Unable to create temporary file." << endl;
                return false;
@@ -543,7 +527,7 @@ string GLE::gle_script_to_file()
                 out << "begin graph" << endl;
                 out << "nobox" << endl;
                 out << "x2axis off" << endl;
-                out << "y2axis off" << endl;                
+                out << "y2axis off" << endl;
                 out << "size " << panel_width << " " << panel_height << endl;
                 out << "scale auto" << endl;
                 out << "xtitle \"" << panel_iter->properties.x_title << "\"" << endl;
@@ -610,7 +594,7 @@ string GLE::gle_script_to_file()
                     diff.g = (plot_iter->properties.last.g - plot_iter->properties.first.g) / plot_iter->y.size();
                     diff.b = (plot_iter->properties.last.b - plot_iter->properties.first.b) / plot_iter->y.size();
                     color = plot_iter->properties.first;
-                    
+
                     for ( y_iter = plot_iter->y.begin(); y_iter != plot_iter->y.end(); ++y_iter)
                     {
                         if (plot_iter->properties.lineWidth > 0) {
@@ -648,7 +632,7 @@ string GLE::gle_script_to_file()
                         ++plot_num;
                     }
                 }
-                for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter ) 
+                for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter )
                 {
                     out << "data \"" << points_iter->data_file << "\"" << endl;
                     out << "d" << plot_num << " marker dot msize " << points_iter->properties.pointSize << endl;
@@ -700,6 +684,6 @@ string GLE::gle_script_to_file()
     string new_filename = string(filename) + ".gle";
     bfs::copy_file(bfs::path(old_filename), bfs::path(new_filename));
     bfs::remove(bfs::path(old_filename));
-    return new_filename; 
+    return new_filename;
 }
 
