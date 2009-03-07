@@ -6,6 +6,19 @@ AC_PROG_RANLIB
 
 CXXFLAGS="$CXXFLAGS -O3"
 
+CLI=true
+GUI=false
+
+AC_ARG_DISABLE(cli,
+    [ --disable-cli    Disable the command line interface to dtnet ],
+      CLI=false
+     ])
+
+AC_ARG_DISABLE(gui,
+    [ --disable-gui    Disable the graphical user interface to dtnet ],
+      GUI=false
+     ])
+
 AC_ARG_ENABLE(debug,
     [ --enable-debug    Enable debugging symbols ],
     [ CXXFLAGS="$CXXFLAGS -g"
@@ -14,7 +27,11 @@ AC_ARG_ENABLE(debug,
 
 AC_ARG_ENABLE(text-archive,
     [ --enable-text-archive     Use text archiving mode to save simulations.  Uses more disk space but is required on Mac OSX ],
-    [ AC_DEFINE([SERIALIZE_TEXT]) ]) 
+    [ AC_DEFINE([SERIALIZE_TEXT]) 
+    ]) 
+
+AM_CONDITIONAL([BUILD_CLI], [test x$CLI = xtrue])
+AM_CONDITIONAL([BUILD_GUI], [test x$GUI = xtrue])
 
 add_ldflags=""
 READLINE_lib_check=""
@@ -31,7 +48,7 @@ LDFLAGS="$LDFLAGS $add_ldflags"
 AC_CHECK_LIB([readline], [readline])
 AC_CHECK_LIB([ncurses], [main])
 
-AX_BOOST_BASE(1.37)
+AX_BOOST_BASE(1.38)
 AX_BOOST_PROGRAM_OPTIONS
 AX_BOOST_FILESYSTEM
 AX_BOOST_SERIALIZATION
