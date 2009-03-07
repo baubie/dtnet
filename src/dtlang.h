@@ -110,8 +110,13 @@ namespace dtlang
     bool runFunction(const std::string &name, const std::vector<variable_def> &params, boost::threadpool::pool &tp, void *&r, int &r_type, bool &end_input);
     bool parse_statement(const std::string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input);
     bool params_to_variables(parameters &params, std::vector<variable_def> &var_params, boost::threadpool::pool &tp, bool &end_input);
+    bool simulation(const std::string net_filename, const std::string trial_filename, Net *net, Trial *trial);
     bool delete_variable(variable_def var);
 
+    bool f_load(Results &result, const std::string filename);
+    bool f_external(const std::string filename, boost::threadpool::pool &tp, bool &end_input);
+    bool f_set(const std::string var, double const val);
+    bool f_set(const std::string var, std::string const val);
     bool f_help(std::string name);
     bool f_help();
     bool f_vars();
@@ -119,25 +124,6 @@ namespace dtlang
     bool f_delete(const std::string var);
     bool f_quit(boost::threadpool::pool &tp);
     bool f_benchmark(boost::threadpool::pool &tp, double mult);
-    bool f_run(Results &result, Simulation &sim, std::string filename, int number_of_trials, double delay, bool voltage, boost::threadpool::pool &tp);
-    bool f_load(Results &result, const std::string filename);
-    bool f_simulation(const std::string net_filename, const std::string trial_filename, Net *net, Trial *trial);
-    bool f_external(const std::string filename, boost::threadpool::pool &tp, bool &end_input);
-    bool f_print(void* ptr, int const type);
-    bool f_constrain(Results &result, Results *old_results, const std::string ID, const double value); 
-    bool f_merge(Results &result, Results *r1, Results *r2);
-    bool f_set(const std::string var, double const val);
-    bool f_set(const std::string var, std::string const val);
-    bool f_modsim(Simulation &sim, Simulation &old_sim, const std::string ID, Range const val);
-
-    // Graphing functions
-   // bool f_graphinputs(Trial &trial, string const &filename); // NO LONGER IMPLEMENTED
-	bool f_graphnetwork(Results &results, std::string const &filename);
-	bool f_graphtrial(int type, Results &results, int trial, std::string const &filename);
-	bool f_graphpsth(Results &results, std::string const &popID, std::string const &filename);
-    bool f_graphspiketrains(Results &results, std::string const &popID, int trials, double start, double end, std::string const &filename); 
-    bool f_graphspikecounts(Results &results, std::string const &popID, std::string const &x_axis, std::string const &filename, int const type);
-    bool f_graphfirstspikelatency(Results &results, std::string const &popID, std::string const &x_axis, std::string const &filename, int const type);
 
     /**
      * Comment Parser

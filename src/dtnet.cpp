@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
         ("dt", po::value<double>()->default_value(0.05), "set the default timestep")
         ("delay", po::value<double>()->default_value(5), "set the default delay for simulations")
         ("T", po::value<double>()->default_value(50), "set the default duration of a simulation")
-        ;
+    ;
 
     po::options_description visible("Allowed options");
     visible.add(generic).add(config);
