@@ -9,8 +9,6 @@ using namespace std;
 using namespace swift;
 namespace po = boost::program_options;
 
-Settings *Settings::s_instance = 0;
-
 int main(int argc, char* argv[]) {
 
     /* Default Values */
@@ -32,8 +30,6 @@ int main(int argc, char* argv[]) {
 
     po::options_description config("Configuration");
     config.add_options()
-        ("eps", po::value<string>(&GLE::eps_viewer), "specify a program to view EPS files with")
-        ("pdf", po::value<string>(&GLE::pdf_viewer), "specify a program to view PDF files with")
         ("threads,t", po::value<int>(&threads)->default_value(1), "set the number of threads available for simulations")
         ("graph.width", po::value<double>()->default_value(10), "set the default width of a graph")
         ("graph.height", po::value<double>()->default_value(10), "set the default height of a graph")
@@ -84,7 +80,7 @@ int main(int argc, char* argv[]) {
     bool EndOfInput = false;
     // Run an external script from the command line
     if (vm.count("script")) {
-        dtlang::parse("external(\"" + vm["script"].as<string>() + "\")", tp, EndOfInput);
+        dtlang::parse("external(\"" + vm["script"].as<string>() + "\")", EndOfInput);
     }
 
     string input;
@@ -92,11 +88,10 @@ int main(int argc, char* argv[]) {
     ssprompt << VT_set_colors(VT_BLUE, VT_DEFAULT) << "dtnet" << VT_default_attributes << "> ";
     while (!EndOfInput) {
         input = Reader.GetLine(ssprompt.str(), EndOfInput);
-        if (dtlang::parse(input, tp, EndOfInput)) {
+        if (dtlang::parse(input, EndOfInput)) {
             Reader.SaveHistory(history);
         }
     }
-    tp.wait();
     return 0;
 }
 

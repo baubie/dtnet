@@ -2,7 +2,7 @@
 #ifndef DTLANG_H
 #define DTLANG_H
 
-#include <libdtnet.h>
+#include "../libdtnet/libdtnet.h"
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
@@ -17,7 +17,6 @@
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/tuple/tuple.hpp>
-#include "lib/threadpool/threadpool.hpp"
 #include "vt100.h"
 #include <string>
 #include <vector>
@@ -96,21 +95,21 @@ namespace dtlang
     void initialize();
     void initialize_functions();
     void initialize_variables();
-    bool parse(const std::string &str, boost::threadpool::pool &tp, bool &end_input);
-    bool runFunction(const std::string &name, const std::vector<variable_def> &params, boost::threadpool::pool &tp, void *&r, int &r_type, bool &end_input);
-    bool parse_statement(const std::string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input);
-    bool params_to_variables(parameters &params, std::vector<variable_def> &var_params, boost::threadpool::pool &tp, bool &end_input);
+    bool parse(const std::string &str, bool &end_input);
+    bool runFunction(const std::string &name, const std::vector<variable_def> &params, void *&r, int &r_type, bool &end_input);
+    bool parse_statement(const std::string &str, variable_def &var, const bool assignment, const bool make_copy, bool &end_input);
+    bool params_to_variables(parameters &params, std::vector<variable_def> &var_params, bool &end_input);
     bool simulation(const std::string net_filename, const std::string trial_filename, Net *net, Trial *trial);
     bool delete_variable(variable_def var);
 
-    bool f_external(const std::string filename, boost::threadpool::pool &tp, bool &end_input);
+    bool f_print(void* ptr, int const type);
+    bool f_external(const std::string filename, bool &end_input);
     bool f_help(std::string name);
     bool f_help();
     bool f_vars();
     bool f_funcs();
     bool f_delete(const std::string var);
-    bool f_quit(boost::threadpool::pool &tp);
-    bool f_benchmark(boost::threadpool::pool &tp, double mult);
+    bool f_quit();
 
     /**
      * Comment Parser

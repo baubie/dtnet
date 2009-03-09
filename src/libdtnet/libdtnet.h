@@ -35,11 +35,12 @@ namespace dtnet {
 
     bool set(const std::string var, double const val);
     bool set(const std::string var, std::string const val);
+    double get_dbl(const std::string var);
+    std::string get_str(const std::string var);
 
 
     bool load(Results &result, const std::string filename);
-    bool run(Results &result, Simulation &sim, std::string filename, int number_of_trials, double delay, bool voltage, boost::threadpool::pool &tp);
-    bool print(void* ptr, int const type);
+    bool run(Results &result, Simulation &sim, std::string filename, int number_of_trials, double delay, bool voltage);
     bool constrain(Results &result, Results *old_results, const std::string ID, const double value);
     bool merge(Results &result, Results *r1, Results *r2);
     bool modsim(Simulation &sim, Simulation &old_sim, const std::string ID, Range const val);

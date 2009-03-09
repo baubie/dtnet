@@ -25,8 +25,16 @@ bool dtnet::set(const string var, string const val) {
     return true;
 }
 
+double dtnet::get_dbl(const std::string var) {
+    return Settings::instance()->get_dbl(var);
+}
 
-bool dtnet::run(Results &result, Simulation &sim, string filename, int number_of_trials, double delay, bool voltage, boost::threadpool::pool &tp) {
+std::string dtnet::get_str(const std::string var) {
+    return Settings::instance()->get_str(var);
+}
+
+
+bool dtnet::run(Results &result, Simulation &sim, string filename, int number_of_trials, double delay, bool voltage) {
 
     double T = Settings::instance()->get_dbl("T");
     double dt = Settings::instance()->get_dbl("dt");

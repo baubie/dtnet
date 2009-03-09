@@ -22,13 +22,13 @@ void dtlang::initialize()
     dtlang::initialize_functions();
 }
 
-bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::variable_def> &var_params, boost::threadpool::pool &tp, bool &end_input)
+bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::variable_def> &var_params, bool &end_input)
 {
     var_params.resize(params.size());
     dtlang::parameters::iterator param_iter;
     int count = 0;
     for (param_iter = params.begin(); param_iter != params.end(); ++param_iter) {
-       if (!dtlang::parse_statement(*param_iter, var_params[count], true, true, tp, end_input))
+       if (!dtlang::parse_statement(*param_iter, var_params[count], true, true, end_input))
        {
             // Something bad happened
             // Clean up the work we've already done.
@@ -43,7 +43,7 @@ bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::vari
     return true;
 }
 
-bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_input) {
+bool dtlang::parse(const string &str, bool &end_input) {
 
 	if (str == "") return true;
 
@@ -70,7 +70,7 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_inp
         iter = var.value.begin();
         end = var.value.end();
         dtlang::variable_def new_var;
-        if (dtlang::parse_statement(var.value, new_var, true, true, tp, end_input)) {
+        if (dtlang::parse_statement(var.value, new_var, true, true, end_input)) {
             if (dtlang::vars.find(var.name) != dtlang::vars.end()) dtlang::delete_variable(dtlang::vars[var.name]);
             dtlang::vars[var.name] = new_var;
             return true;
@@ -81,7 +81,7 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_inp
 
     // Perhaps it's just a function call?
     dtlang::variable_def dud_var; // A place holder
-    if (!dtlang::parse_statement(str, dud_var, false, false, tp, end_input))
+    if (!dtlang::parse_statement(str, dud_var, false, false, end_input))
     {
         /* Failed To Parse */
         string::const_iterator some = iter+30;
@@ -96,7 +96,7 @@ bool dtlang::parse(const string &str, boost::threadpool::pool &tp, bool &end_inp
 }
 
 
-bool dtlang::parse_statement(const string &str, variable_def &var, const bool assignment, const bool make_copy, boost::threadpool::pool &tp, bool &end_input) {
+bool dtlang::parse_statement(const string &str, variable_def &var, const bool assignment, const bool make_copy, bool &end_input) {
 
     bool r;
     string::const_iterator iter = str.begin();
@@ -112,8 +112,8 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
         int r_type = dtlang::NO_RETURN;
         if (assignment) r_type = dtlang::TYPE_VOID;
         vector<dtlang::variable_def> var_params;
-        if (!dtlang::params_to_variables(func.params, var_params, tp, end_input)) return false;
-        bool run_result = dtlang::runFunction(func.name, var_params, tp, ret, r_type, end_input);
+        if (!dtlang::params_to_variables(func.params, var_params, end_input)) return false;
+        bool run_result = dtlang::runFunction(func.name, var_params, ret, r_type, end_input);
         var.type = r_type;
         var.obj = ret;
         // Clean up the parameters
@@ -715,7 +715,7 @@ void dtlang::initialize_functions()
     dtlang::functions["print"] = f;
 }
 
-bool dtlang::runFunction(const string &name, const vector<variable_def> &params, boost::threadpool::pool &tp, void *&r, int &r_type, bool &end_input)
+bool dtlang::runFunction(const string &name, const vector<variable_def> &params, void *&r, int &r_type, bool &end_input)
 {
     dtlang::function_def f;
     map<string, function_def>::iterator iter = dtlang::functions.find(name);
@@ -745,7 +745,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
     // Execute Functions
 	if (name == "quit") {
-        return dtlang::f_quit(tp);
+        return dtlang::f_quit();
 	}
 
 	if (name == "help") {
@@ -757,19 +757,19 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	}
 
 	if (name == "set") {
-        return dtlang::f_set(*(static_cast<string*>(params[0].obj)), *(static_cast<double*>(params[1].obj)));
+        return dtnet::set(*(static_cast<string*>(params[0].obj)), *(static_cast<double*>(params[1].obj)));
 	}
 
 	if (name == "modsim") {
         r = new Simulation((static_cast<Simulation*>(params[0].obj))->net, (static_cast<Simulation*>(params[0].obj))->trial);
         Range new_val(*(static_cast<double*>(params[2].obj)));
-        return dtlang::f_modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), new_val);
+        return dtnet::modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), new_val);
 	}
 
 	if (name == "modsimr") {
         r = new Simulation((static_cast<Simulation*>(params[0].obj))->net, (static_cast<Simulation*>(params[0].obj))->trial);
         Range new_val(*(static_cast<double*>(params[2].obj)), *(static_cast<double*>(params[3].obj)), *(static_cast<double*>(params[4].obj)));
-        return dtlang::f_modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), new_val);
+        return dtnet::modsim(*(static_cast<Simulation*>(r)), *(static_cast<Simulation*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), new_val);
 	}
 
     /*
@@ -784,62 +784,62 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 
 	if (name == "graphnetwork") {
         if (params.size() == 1) {
-            return dtlang::f_graphnetwork(*(static_cast<Results*>(params[0].obj)), "network.eps");
+            return dtnet::graphnetwork(*(static_cast<Results*>(params[0].obj)), "network.eps");
         } else if (params.size() == 2) {
-            return dtlang::f_graphnetwork(*(static_cast<Results*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
+            return dtnet::graphnetwork(*(static_cast<Results*>(params[0].obj)), *(static_cast<string*>(params[1].obj)));
         }
 	}
 
     if (name == "graphpsth") {
-        return dtlang::f_graphpsth(*(static_cast<Results*>(params[0].obj)),
+        return dtnet::graphpsth(*(static_cast<Results*>(params[0].obj)),
                                    *(static_cast<string*>(params[1].obj)),
                                    *(static_cast<string*>(params[2].obj)));
     }
 
     if (name == "graphtrial_voltage") {
-        return dtlang::f_graphtrial(dtlang::PLOT_VOLTAGE, *(static_cast<Results*>(params[0].obj)),
+        return dtnet::graphtrial(dtnet::PLOT_VOLTAGE, *(static_cast<Results*>(params[0].obj)),
                                                           (int)*(static_cast<double*>(params[1].obj)),
                                                           *(static_cast<string*>(params[2].obj)));
     }
     if (name == "graphtrial_spikes") {
-        return dtlang::f_graphtrial(dtlang::PLOT_SPIKES, *(static_cast<Results*>(params[0].obj)),
+        return dtnet::graphtrial(dtnet::PLOT_SPIKES, *(static_cast<Results*>(params[0].obj)),
                                                          (int)*(static_cast<double*>(params[1].obj)),
                                                          *(static_cast<string*>(params[2].obj)));
     }
 
     if (name == "graphspiketrains") {
         if (params.size() == 2) {
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+            return dtnet::graphspiketrains(*(static_cast<Results*>(params[0].obj)),
                                               *(static_cast<string*>(params[1].obj)),
-                                              dtlang::DEFAULT,
-                                              dtlang::DEFAULT,
-                                              dtlang::DEFAULT,
+                                              dtnet::DEFAULT,
+                                              dtnet::DEFAULT,
+                                              dtnet::DEFAULT,
                                               "spikes.eps");
         } else if (params.size() == 3) {
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+            return dtnet::graphspiketrains(*(static_cast<Results*>(params[0].obj)),
                                               *(static_cast<string*>(params[1].obj)),
-                                              dtlang::DEFAULT,
-                                              dtlang::DEFAULT,
-                                              dtlang::DEFAULT,
+                                              dtnet::DEFAULT,
+                                              dtnet::DEFAULT,
+                                              dtnet::DEFAULT,
                                               *(static_cast<string*>(params[2].obj)));
 
         } else if (params.size() == 4) {
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+            return dtnet::graphspiketrains(*(static_cast<Results*>(params[0].obj)),
                                               *(static_cast<string*>(params[1].obj)),
                                               (int)*(static_cast<double*>(params[3].obj)),
-                                              dtlang::DEFAULT,
-                                              dtlang::DEFAULT,
+                                              dtnet::DEFAULT,
+                                              dtnet::DEFAULT,
                                               *(static_cast<string*>(params[2].obj)));
         } else if (params.size() == 5) {
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+            return dtnet::graphspiketrains(*(static_cast<Results*>(params[0].obj)),
                                               *(static_cast<string*>(params[1].obj)),
                                               (int)*(static_cast<double*>(params[3].obj)),
                                               *(static_cast<double*>(params[4].obj)),
-                                              dtlang::DEFAULT,
+                                              dtnet::DEFAULT,
                                               *(static_cast<string*>(params[2].obj)));
 
         } else if (params.size() == 6) {
-            return dtlang::f_graphspiketrains(*(static_cast<Results*>(params[0].obj)),
+            return dtnet::graphspiketrains(*(static_cast<Results*>(params[0].obj)),
                                               *(static_cast<string*>(params[1].obj)),
                                               (int)*(static_cast<double*>(params[3].obj)),
                                               *(static_cast<double*>(params[4].obj)),
@@ -849,35 +849,35 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
     }
 
     if (name == "graphspikecounts") {
-        return dtlang::f_graphspikecounts(*(static_cast<Results*>(params[0].obj)),
+        return dtnet::graphspikecounts(*(static_cast<Results*>(params[0].obj)),
                                           *(static_cast<string*>(params[1].obj)),
                                           *(static_cast<string*>(params[2].obj)),
                                           *(static_cast<string*>(params[3].obj)),
-                                          dtlang::PLOT_FLAT
+                                          dtnet::PLOT_FLAT
                                          );
     }
     if (name == "graphspikecounts3d") {
-        return dtlang::f_graphspikecounts(*(static_cast<Results*>(params[0].obj)),
+        return dtnet::graphspikecounts(*(static_cast<Results*>(params[0].obj)),
                                           *(static_cast<string*>(params[1].obj)),
                                           *(static_cast<string*>(params[2].obj)),
                                           *(static_cast<string*>(params[3].obj)),
-                                          dtlang::PLOT_3D
+                                          dtnet::PLOT_3D
                                          );
     }
     if (name == "graphspikecountsmap") {
-        return dtlang::f_graphspikecounts(*(static_cast<Results*>(params[0].obj)),
+        return dtnet::graphspikecounts(*(static_cast<Results*>(params[0].obj)),
                                           *(static_cast<string*>(params[1].obj)),
                                           *(static_cast<string*>(params[2].obj)),
                                           *(static_cast<string*>(params[3].obj)),
-                                          dtlang::PLOT_MAP
+                                          dtnet::PLOT_MAP
                                          );
     }
     if (name == "graphfirstspikelatency") {
-        return dtlang::f_graphfirstspikelatency(*(static_cast<Results*>(params[0].obj)),
+        return dtnet::graphfirstspikelatency(*(static_cast<Results*>(params[0].obj)),
                                                 *(static_cast<string*>(params[1].obj)),
                                                 *(static_cast<string*>(params[2].obj)),
                                                 *(static_cast<string*>(params[3].obj)),
-                                                 dtlang::PLOT_FLAT
+                                                 dtnet::PLOT_FLAT
                                                );
     }
 
@@ -896,29 +896,29 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 		}
         r = new Results();
         if (params.size() == 3) {
-            return dtlang::f_run( *(static_cast<Results*>(r)),
+            return dtnet::run( *(static_cast<Results*>(r)),
                                   *(static_cast<Simulation*>(params[0].obj)),
                                   *(static_cast<string*>(params[1].obj)),
                                    (int)*(static_cast<double*>(params[2].obj)),
-                                   Settings::instance()->get_dbl("delay"),
-                                   true, // Store voltage by default
-                                   tp);
+                                   dtnet::get_dbl("delay"),
+                                   true // Store voltage by default
+                                   );
         } else if (params.size() == 4) {
-            return dtlang::f_run( *(static_cast<Results*>(r)),
+            return dtnet::run( *(static_cast<Results*>(r)),
                                   *(static_cast<Simulation*>(params[0].obj)),
                                   *(static_cast<string*>(params[1].obj)),
                                    (int)*(static_cast<double*>(params[2].obj)),
                                   *(static_cast<double*>(params[3].obj)),
-                                   true, // Store voltage by default
-                                   tp);
+                                   true // Store voltage by default
+                                   );
         } else if (params.size() == 5) {
-            return dtlang::f_run( *(static_cast<Results*>(r)),
+            return dtnet::run( *(static_cast<Results*>(r)),
                                   *(static_cast<Simulation*>(params[0].obj)),
                                   *(static_cast<string*>(params[1].obj)),
                                    (int)*(static_cast<double*>(params[2].obj)),
                                   *(static_cast<double*>(params[3].obj)),
-                                  *(static_cast<int*>(params[4].obj)) != 0,
-                                   tp);
+                                  *(static_cast<int*>(params[4].obj)) != 0
+                                   );
         }
 	}
 
@@ -928,7 +928,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 			return false;
 		}
         r = new Results();
-        return dtlang::f_load(*(static_cast<Results*>(r)), *(static_cast<string*>(params[0].obj)));
+        return dtnet::load(*(static_cast<Results*>(r)), *(static_cast<string*>(params[0].obj)));
     }
 
 	if (name == "print") {
@@ -941,7 +941,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 			return false;
         }
         r = new Results();
-        return dtlang::f_merge(*(static_cast<Results*>(r)), static_cast<Results*>(params[0].obj), static_cast<Results*>(params[1].obj));
+        return dtnet::merge(*(static_cast<Results*>(r)), static_cast<Results*>(params[0].obj), static_cast<Results*>(params[1].obj));
     }
 
     if (name == "constrain") {
@@ -950,23 +950,15 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 			return false;
 		}
         r = new Results();
-        return dtlang::f_constrain(*(static_cast<Results*>(r)), static_cast<Results*>(params[0].obj), *(static_cast<string*>(params[1].obj)), *(static_cast<double*>(params[2].obj)));
+        return dtnet::constrain(*(static_cast<Results*>(r)), static_cast<Results*>(params[0].obj), *(static_cast<string*>(params[1].obj)), *(static_cast<double*>(params[2].obj)));
     }
 
 	if (name == "print") {
         return dtlang::f_print(params[0].obj, params[0].type);
 	}
 
-	if (name == "benchmark") {
-        if (params.size() == 0) {
-            return dtlang::f_benchmark(tp, 1.0);
-        } else if (params.size() == 1) {
-            return dtlang::f_benchmark(tp, *(static_cast<double*>(params[0].obj)));
-        }
-	}
-
 	if (name == "external") {
-        return dtlang::f_external(*(static_cast<string*>(params[0].obj)), tp, end_input);
+        return dtlang::f_external(*(static_cast<string*>(params[0].obj)), end_input);
 	}
 
 
@@ -979,7 +971,7 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
         Net network;
         Trial trial;
 
-        if (dtlang::f_simulation(*(static_cast<string*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), &network, &trial)) {
+        if (dtlang::simulation(*(static_cast<string*>(params[0].obj)), *(static_cast<string*>(params[1].obj)), &network, &trial)) {
             r = new Simulation(network,trial);
         } else {
             return false;
@@ -1099,8 +1091,7 @@ bool dtlang::f_help(string name) {
 }
 
 
-bool dtlang::f_quit(boost::threadpool::pool &tp) {
-    tp.wait();
+bool dtlang::f_quit() {
     map<string, variable_def>::iterator iter;
     for (iter = vars.begin(); iter != vars.end(); ++iter) {
         dtlang::delete_variable(iter->second);
@@ -1161,27 +1152,7 @@ bool f_delete(const std::string var) {
    return true;
 }
 
-void __benchmark(double h) {
-    double i = 2524224.942842;
-    double j = 2431.204820482;
-    double k = 1141.2394293333231113934893;
-    double r;
-    for (double x = 0; x <= 100000; ++x) { r = ((i+j/h)*k + (x*1942.4194814)) / j; }
-}
-bool dtlang::f_benchmark(boost::threadpool::pool &tp, double mult) {
-
-    boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
-    for (int i = 0; i <= (int)(100000*mult); ++i) {
-        tp.schedule(boost::bind(&__benchmark, (double)i));
-    }
-    tp.wait();
-    boost::posix_time::ptime end(boost::posix_time::microsec_clock::local_time());
-    boost::posix_time::time_duration dur = end - start;
-    cout << dur << endl << endl;
-    return true;
-}
-
-bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool &end_input) {
+bool dtlang::f_external(const string filename, bool &end_input) {
     string line;
     ifstream script(filename.c_str());
     if (script.is_open())
@@ -1192,7 +1163,7 @@ bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool
 			if (line != "") // Skip blank lines
 			{
 				cout << VT_set_colors(VT_RED, VT_DEFAULT) << "extern" << VT_default_attributes << "> " << line << endl;
-				if (!dtlang::parse(line, tp, end_input))
+				if (!dtlang::parse(line, end_input))
 				{
 					cout << "Error encountered in script.  Halting execution." << endl << endl;
 					break;
@@ -1208,7 +1179,7 @@ bool dtlang::f_external(const string filename, boost::threadpool::pool &tp, bool
     }
 }
 
-bool dtlang::f_simulation(const string net_filename, const string trial_filename, Net *net, Trial *trial) {
+bool dtlang::simulation(const string net_filename, const string trial_filename, Net *net, Trial *trial) {
 
     string error;
     /* Load Network */

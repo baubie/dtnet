@@ -1,23 +1,26 @@
-AC_INIT(src/dtnet.cpp)
+AC_INIT(src/libdtnet/libdtnet.cpp)
 
-AM_INIT_AUTOMAKE(dtnet,2.0)
+AM_INIT_AUTOMAKE(libdtnet,1.0.0)
 
 AC_PROG_RANLIB
-
+AC_PROG_LIBTOOL
+AC_PROG_CXX
 CXXFLAGS="$CXXFLAGS -O3"
 
-CLI=true
-GUI=false
+CLI=no
+GUI=no
 
-AC_ARG_DISABLE(cli,
+AC_ARG_ENABLE([cli],
     [ --disable-cli    Disable the command line interface to dtnet ],
-      CLI=false
-     ])
+    [],
+    [CLI=yes]
+     )
 
-AC_ARG_DISABLE(gui,
+AC_ARG_ENABLE([gui],
     [ --disable-gui    Disable the graphical user interface to dtnet ],
-      GUI=false
-     ])
+    [],
+    [GUI=yes]
+     )
 
 AC_ARG_ENABLE(debug,
     [ --enable-debug    Enable debugging symbols ],
@@ -30,8 +33,8 @@ AC_ARG_ENABLE(text-archive,
     [ AC_DEFINE([SERIALIZE_TEXT]) 
     ]) 
 
-AM_CONDITIONAL([BUILD_CLI], [test x$CLI = xtrue])
-AM_CONDITIONAL([BUILD_GUI], [test x$GUI = xtrue])
+AM_CONDITIONAL([BUILD_CLI], [test x$CLI != xno])
+AM_CONDITIONAL([BUILD_GUI], [test x$GUI != xno])
 
 add_ldflags=""
 READLINE_lib_check=""
@@ -57,4 +60,10 @@ AX_BOOST_SYSTEM
 AX_BOOST_THREAD
 AX_BOOST_DATE_TIME
 
-AC_OUTPUT(Makefile src/Makefile src/lib/tinyxml/Makefile)
+AC_OUTPUT(Makefile \
+          src/Makefile \
+          src/libdtnet/Makefile \
+          src/libdtnet/lib/tinyxml/Makefile \
+          src/cli/Makefile \
+          )
+
