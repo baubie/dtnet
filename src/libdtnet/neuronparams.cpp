@@ -8,6 +8,7 @@ NeuronParams::NeuronParams(ModelType type, Integrator integrator) : type(type), 
 NeuronParams::NeuronParams(ModelType type, Integrator integrator, bool init) : type(type), integrator(integrator) { if (init) initialize(); }
 
 void NeuronParams::initialize() {
+
     switch(this->type) {
         case POISSON:
             vals["mu"] = Range(300);

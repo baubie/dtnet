@@ -11,14 +11,6 @@ class NeuronParams {
 
     public:
         enum Integrator { Euler, Euler2, RungeKutta } integrator;
-        enum ModelType { AEIF, POISSON } type;
-
-        NeuronParams();
-        NeuronParams(ModelType type);
-        NeuronParams(ModelType type, bool init);
-        NeuronParams(ModelType type, Integrator integrator);
-        NeuronParams(ModelType type, Integrator integrator, bool init);
-        void initialize();
 
         std::map<std::string, Range> vals;
         std::map<std::string, double> sigmas;

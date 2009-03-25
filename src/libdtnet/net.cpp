@@ -227,14 +227,10 @@ bool Net::parseXML(string filename, string &error)
             bool accept_input = false;
             bool spontaneous = false;
             NeuronParams np;
+            string model_type;
             hPopulation = pElem;        
 
-            if (strcmp(pElem->Attribute("type"), "Poisson") == 0) {
-                np = NeuronParams(NeuronParams::POISSON);
-            }
-            else if (strcmp(pElem->Attribute("type"), "aEIF") == 0) {
-                np = NeuronParams(NeuronParams::AEIF);
-            }
+            pElem->QueryStringAttribute("type", &model_type);
             pElem->QueryStringAttribute("id", &pop_id);             
             pElem->QueryStringAttribute("title", &pop_name);
             
@@ -290,7 +286,7 @@ bool Net::parseXML(string filename, string &error)
 
                 }	
 			} // Parameter Loop            
-            this->populations[pop_id] = Population(pop_name, pop_id, accept_input, spontaneous, position, np);
+            this->populations[pop_id] = Population(pop_name, pop_id, accept_input, spontaneous, position, model_type, np);
             ++position;
         }
 

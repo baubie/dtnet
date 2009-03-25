@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <list>
 #include "neuron.h"
 #include "serialization.h"
 #include "debug.h"
@@ -15,15 +16,16 @@ class Population {
 		// Parameters
         std::string name;
         std::string ID;
+        std::string model_type;
         bool accept_input;
         bool spontaneous;
         int position;
-        std::vector<Neuron> neurons;
+        std::list<Neuron*> neurons;
         NeuronParams params;
         std::map< std::string, Range > unconstrained;       /*<< Collection of unconstrained IDs. */
 		
 		// Methods
-		Population(std::string name, std::string ID, bool accept_input, bool spontaneous, int position, NeuronParams params);
+		Population(std::string name, std::string ID, bool accept_input, bool spontaneous, int position, std::string model_type, NeuronParams params);
         Population();
 		std::string toString();
 
@@ -32,7 +34,7 @@ class Population {
             std::string ID;
             std::string name;
             NeuronParams params;
-            std::vector<Neuron> neurons;
+            std::list<Neuron> neurons;
             int position;
             bool accept_input;
             bool spontaneous;
@@ -44,6 +46,7 @@ class Population {
                 ar & ID;
                 ar & name;
                 ar & params;
+                ar & model_type;
                 ar & neurons;
                 ar & position;
                 ar & accept_input;

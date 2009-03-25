@@ -22,14 +22,16 @@ class Neuron {
 		// Recording Variables
         std::vector<double> voltage;
         std::vector<double> spikes;
-		
+		NeuronParams params;        /**< Parameters to run simulation with after jitter(). **/
+
 		// Methods
 		Neuron(NeuronParams params);
         Neuron();
 		void init(int steps, double delay);
 		void jitter();
-		void update(double current, int position, double dt);
-		NeuronParams params;        /**< Parameters to run simulation with after jitter(). **/
+
+        // Virtual Methods
+		virtual void update(double &current, int &position, double &dt) = 0;
 
 	private:
         friend class boost::serialization::access;
@@ -41,23 +43,20 @@ class Neuron {
             ar & params;
         }
 
+        // Differential Equation Solvers
+		void Euler(double& current, int& position, double& dt);
+		void Euler2(double& current, int& position, double& dt);
+		void RungeKutta(double& current, int& position, double& dt);
 		
-		static const int spikeHeight = -20;
-			
 		// Model Parameters
 		NeuronParams def_params;    /**< Parameters passed in before jittering. **/	
         double active;                /**< Used for Poisson to decide if it is currently active. **/
 		double V;                   /**< Voltage (mV) **/
-		double w;                   /**< Adaptation value for aEIF. **/
         double delay;               /**< Global delay parameter (specifies time zero). **/
 		
 		// Calculate next voltage change with different methods
-		double V_update(double V, double current, int position);
-		double w_update();
 		void Spike(int position, double dt);
-		void Euler(double current, int position, double dt);
-		void Euler2(double current, int position, double dt);
-		void RungeKutta(double current, int position, double dt);
+
 	
 		// Calculuate poisson spikes
 		void Poisson(double current, int position, double dt);

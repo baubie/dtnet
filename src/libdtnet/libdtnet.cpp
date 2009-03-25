@@ -6,6 +6,9 @@ boost::threadpool::pool tp(2); // Pool an additional thread for the progress met
 
 using namespace std;
 
+string dtnet::version() {
+    return LIBDTNET_VERSION;
+}
 
 bool dtnet::set_threads(int threads) {
     if (threads > 0) {

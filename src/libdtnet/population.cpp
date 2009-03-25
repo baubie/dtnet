@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Population::Population(string name, string ID, bool accept_input, bool spontaneous, int position, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), spontaneous(spontaneous), position(position), params(params)  {}
+Population::Population(string name, string ID, bool accept_input, bool spontaneous, int position, std::string model_type, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), spontaneous(spontaneous), position(position), model_type(model_type), params(params)  {}
 
 Population::Population() : name(""), ID(""), accept_input(false) {}
 
@@ -14,7 +14,9 @@ std::vector<Population::ConstrainedPopulation>* Population::populationFactory() 
     for (vector<ConstrainedPopulation>::iterator p = this->cPopulations.begin(); p != this->cPopulations.end(); ++p) {
         int size = 1;
         if (p->params.vals.find("size") != p->params.vals.end()) size = p->params.vals["size"];
-        p->neurons = vector<Neuron>(size,Neuron(p->params));
+
+        // Build a list of neurons
+        p->neurons = list<Neuron*>(size,Neuron(p->params));
     }
 
     return &(this->cPopulations);

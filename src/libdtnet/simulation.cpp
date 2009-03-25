@@ -59,7 +59,7 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
     unsigned int steps = (unsigned int)(T/dt);
 
     map<string, Population::ConstrainedPopulation>::iterator cpIter;
-    vector<Neuron>::iterator nIter;
+    list<Neuron>::iterator nIter;
     map<string, Net::Connection<double> >::iterator fromIter; 
     
     for (unsigned int ts=0; ts < steps; ++ts) { // Loop over time steps
@@ -170,7 +170,7 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
             for (int i = 0; i < number_of_trials; ++i) {
                 // Initialize the neurons
                 map<string, Population::ConstrainedPopulation>::iterator pops;
-                vector<Neuron>::iterator neurons;
+                list<Neuron>::iterator neurons;
                 for (pops = n->populations.begin(); pops != n->populations.end(); ++pops) {
                     for (neurons = pops->second.neurons.begin(); neurons != pops->second.neurons.end(); ++neurons) {
                         neurons->init(steps, delay);

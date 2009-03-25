@@ -2,6 +2,8 @@
 #ifndef LIBDTNET_H
 #define LIBDTNET_H
 
+#define LIBDTNET_VERSION "1.9.3"
+
 #include <boost/fusion/include/io.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -44,6 +46,7 @@ namespace dtnet {
     bool constrain(Results &result, Results *old_results, const std::string ID, const double value);
     bool merge(Results &result, Results *r1, Results *r2);
     bool modsim(Simulation &sim, Simulation &old_sim, const std::string ID, Range const val);
+    std::string version();
 
     // Graphing functions
     // bool f_graphinputs(Trial &trial, string const &filename); // NO LONGER IMPLEMENTED
