@@ -2,12 +2,14 @@
 #define NEURONFACTORY_H
 
 #include "neuron.h"
-#include "map.h"
+#include <iostream>
+#include <dlfcn.h>
+#include <map>
 
 class NeuronFactory {
 
     public:
-        Neuron* create(std::string model_type);
+        bool create(std::string model_type, Neuron* &n);
 
     private:
         std::map<std::string, void*> models;

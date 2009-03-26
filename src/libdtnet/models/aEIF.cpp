@@ -1,6 +1,13 @@
 
 #include "aEIF.h"
 
+extern "C" Neuron* create() {
+    return new aEIF;
+}
+extern "C" void destroy(Neuron* n) {
+    delete n;
+}
+
 void aEIF::initalize() {
     this->V = this->params.vals["EL"];
     this->w = 0;

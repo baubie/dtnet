@@ -19,10 +19,10 @@
 class Neuron {
 
 	public:
-		// Recording Variables
+	// Recording Variables
         std::vector<double> voltage;
         std::vector<double> spikes;
-		NeuronParams params;        /**< Parameters to run simulation with after jitter(). **/
+	NeuronParams params;        /**< Parameters to run simulation with after jitter(). **/
 
 		// Methods
 		Neuron(NeuronParams params);
@@ -44,23 +44,26 @@ class Neuron {
         }
 
         // Differential Equation Solvers
-		void Euler(double& current, int& position, double& dt);
-		void Euler2(double& current, int& position, double& dt);
-		void RungeKutta(double& current, int& position, double& dt);
+	void Euler(double& current, int& position, double& dt);
+	void Euler2(double& current, int& position, double& dt);
+	void RungeKutta(double& current, int& position, double& dt);
 		
-		// Model Parameters
-		NeuronParams def_params;    /**< Parameters passed in before jittering. **/	
+	// Model Parameters
+	NeuronParams def_params;    /**< Parameters passed in before jittering. **/	
         double active;                /**< Used for Poisson to decide if it is currently active. **/
-		double V;                   /**< Voltage (mV) **/
+	double V;                   /**< Voltage (mV) **/
         double delay;               /**< Global delay parameter (specifies time zero). **/
 		
-		// Calculate next voltage change with different methods
-		void Spike(int position, double dt);
+	// Calculate next voltage change with different methods
+	void Spike(int position, double dt);
 
-	
-		// Calculuate poisson spikes
-		void Poisson(double current, int position, double dt);
-
+	// Calculuate poisson spikes
+	void Poisson(double current, int position, double dt);
         void initialize();
 };
+
+// the types of the class factories
+typedef Neuron* create_t();
+typedef void destroy_t(Neuron*);
+
 #endif

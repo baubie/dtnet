@@ -376,6 +376,12 @@ void dtlang::initialize_functions()
     f.params.clear();
     dtlang::functions["vars"] = f;
 
+    // version()
+    f.help = "Display the current version.";
+    f.return_type = dtlang::TYPE_VOID;
+    f.params.clear();
+    dtlang::functions["version"] = f;
+
     // funcs()
     f.help = "List the functions available for use.";
     f.return_type = dtlang::TYPE_VOID;
@@ -759,6 +765,10 @@ bool dtlang::runFunction(const string &name, const vector<variable_def> &params,
 	if (name == "set") {
         return dtnet::set(*(static_cast<string*>(params[0].obj)), *(static_cast<double*>(params[1].obj)));
 	}
+
+    if (name == "version") {
+        return dtlang::f_version();
+    }
 
 	if (name == "modsim") {
         r = new Simulation((static_cast<Simulation*>(params[0].obj))->net, (static_cast<Simulation*>(params[0].obj))->trial);
@@ -1229,6 +1239,10 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
 }
 */
 
+bool dtlang::f_version() {
+    cout << "libdtnet: " << dtnet::version() << endl;
+    cout << "dtnet CLI: " << DTNETCLI_VERSION << endl;
+}
 
 
 bool dtlang::f_print(void* ptr, int const type) {

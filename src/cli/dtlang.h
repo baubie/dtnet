@@ -2,6 +2,8 @@
 #ifndef DTLANG_H
 #define DTLANG_H
 
+#define DTNETCLI_VERSION "1.9.3"
+
 #include "../libdtnet/libdtnet.h"
 
 #include <boost/spirit/include/qi.hpp>
@@ -102,6 +104,7 @@ namespace dtlang
     bool simulation(const std::string net_filename, const std::string trial_filename, Net *net, Trial *trial);
     bool delete_variable(variable_def var);
 
+    bool f_version();
     bool f_print(void* ptr, int const type);
     bool f_external(const std::string filename, bool &end_input);
     bool f_help(std::string name);

@@ -15,8 +15,8 @@ class aEIF: public Neuron {
 
     private:
         static const double spike_height = 40;
-		double V_update(double V, double current, int position);
-		double w_update();
+	double V_update(double& V, double& current, int& position);
+	double w_update();
         double w;
 
 };
