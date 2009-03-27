@@ -14,7 +14,7 @@ class NeuronFactory {
 
 
     private:
-        std::map<std::string, void*> models_c;
+        std::map<std::string, void*> models;
 };
 
 #endif

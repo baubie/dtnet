@@ -50,16 +50,27 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-libdtnet_aeif_a_AR = $(AR) $(ARFLAGS)
-libdtnet_aeif_a_LIBADD =
-am_libdtnet_aeif_a_OBJECTS = aEIF.$(OBJEXT)
-libdtnet_aeif_a_OBJECTS = $(am_libdtnet_aeif_a_OBJECTS)
-libdtnet_poisson_a_AR = $(AR) $(ARFLAGS)
-libdtnet_poisson_a_LIBADD =
-am_libdtnet_poisson_a_OBJECTS = poisson.$(OBJEXT)
-libdtnet_poisson_a_OBJECTS = $(am_libdtnet_poisson_a_OBJECTS)
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(libdir)"
+libLTLIBRARIES_INSTALL = $(INSTALL)
+LTLIBRARIES = $(lib_LTLIBRARIES)
+libdtnet_aeif_la_LIBADD =
+am_libdtnet_aeif_la_OBJECTS = aEIF.lo
+libdtnet_aeif_la_OBJECTS = $(am_libdtnet_aeif_la_OBJECTS)
+libdtnet_aeif_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(libdtnet_aeif_la_LDFLAGS) $(LDFLAGS) -o $@
+libdtnet_poisson_la_LIBADD =
+am_libdtnet_poisson_la_OBJECTS = poisson.lo
+libdtnet_poisson_la_OBJECTS = $(am_libdtnet_poisson_la_OBJECTS)
+libdtnet_poisson_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(libdtnet_poisson_la_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -72,9 +83,9 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libdtnet_aeif_a_SOURCES) $(libdtnet_poisson_a_SOURCES)
-DIST_SOURCES = $(libdtnet_aeif_a_SOURCES) \
-	$(libdtnet_poisson_a_SOURCES)
+SOURCES = $(libdtnet_aeif_la_SOURCES) $(libdtnet_poisson_la_SOURCES)
+DIST_SOURCES = $(libdtnet_aeif_la_SOURCES) \
+	$(libdtnet_poisson_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -202,9 +213,11 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-noinst_LIBRARIES = libdtnet_aeif.a libdtnet_poisson.a
-libdtnet_aeif_a_SOURCES = aEIF.cpp
-libdtnet_poisson_a_SOURCES = poisson.cpp
+lib_LTLIBRARIES = libdtnet_aeif.la libdtnet_poisson.la
+libdtnet_aeif_la_SOURCES = aEIF.cpp
+libdtnet_poisson_la_SOURCES = poisson.cpp
+libdtnet_aeif_la_LDFLAGS = -version-info 1:0:0
+libdtnet_poisson_la_LDFLAGS = -version-info 1:0:0
 AM_CXXFLAGS = $(BOOST_CPPFLAGS)
 AM_LDFLAGS = $(BOOST_LDFLAGS)
 all: all-am
@@ -240,17 +253,37 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    f=$(am__strip_dir) \
+	    echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) '$$p' '$(DESTDIR)$(libdir)/$$f'"; \
+	    $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) "$$p" "$(DESTDIR)$(libdir)/$$f"; \
+	  else :; fi; \
+	done
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libdtnet_aeif.a: $(libdtnet_aeif_a_OBJECTS) $(libdtnet_aeif_a_DEPENDENCIES) 
-	-rm -f libdtnet_aeif.a
-	$(libdtnet_aeif_a_AR) libdtnet_aeif.a $(libdtnet_aeif_a_OBJECTS) $(libdtnet_aeif_a_LIBADD)
-	$(RANLIB) libdtnet_aeif.a
-libdtnet_poisson.a: $(libdtnet_poisson_a_OBJECTS) $(libdtnet_poisson_a_DEPENDENCIES) 
-	-rm -f libdtnet_poisson.a
-	$(libdtnet_poisson_a_AR) libdtnet_poisson.a $(libdtnet_poisson_a_OBJECTS) $(libdtnet_poisson_a_LIBADD)
-	$(RANLIB) libdtnet_poisson.a
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  p=$(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$p'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$p"; \
+	done
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
+libdtnet_aeif.la: $(libdtnet_aeif_la_OBJECTS) $(libdtnet_aeif_la_DEPENDENCIES) 
+	$(libdtnet_aeif_la_LINK) -rpath $(libdir) $(libdtnet_aeif_la_OBJECTS) $(libdtnet_aeif_la_LIBADD) $(LIBS)
+libdtnet_poisson.la: $(libdtnet_poisson_la_OBJECTS) $(libdtnet_poisson_la_DEPENDENCIES) 
+	$(libdtnet_poisson_la_LINK) -rpath $(libdir) $(libdtnet_poisson_la_OBJECTS) $(libdtnet_poisson_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -258,8 +291,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aEIF.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poisson.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aEIF.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poisson.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -363,8 +396,11 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES)
+all-am: Makefile $(LTLIBRARIES)
 installdirs:
+	for dir in "$(DESTDIR)$(libdir)"; do \
+	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	done
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -391,7 +427,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
+clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -414,7 +450,7 @@ install-data-am:
 
 install-dvi: install-dvi-am
 
-install-exec-am:
+install-exec-am: install-libLTLIBRARIES
 
 install-html: install-html-am
 
@@ -446,22 +482,23 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am:
+uninstall-am: uninstall-libLTLIBRARIES
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLIBRARIES ctags distclean \
+	clean-libLTLIBRARIES clean-libtool ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am
+	install-html-am install-info install-info-am \
+	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-libLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -16,31 +16,12 @@ void aEIF::initalize() {
 }
 
 void aEIF::update(double& current, unsigned int& position, double& dt) {
-
+    this->V += this->diffsolve(&V_update, current, position, dt, this);
+    this->w += this->diffsolve(&V_update, current, position, dt, this);
+    this->spike(position, dt);
 }
 
-double aEIF::V_update(double& V, double& current, int& position) {
-    static string s_gL = "gL";
-    static string s_EL = "EL";
-    static string s_deltaT = "deltaT";
-    static string s_VT = "VT";
-    static string s_C = "C";
-
-    double IL = params.vals[s_gL] * (V - params.vals[s_EL]);
-    double ILd = -params.vals[s_gL] * params.vals[s_deltaT] * exp((V-params.vals[s_VT])/params.vals[s_deltaT]);
-    double r =  (current - IL - ILd - w) / params.vals[s_C];
-    if (r > 10000) r = 10000; // Prevent overflows
-    return r;
-}
-
-double aEIF::w_update() {
-    static string s_a = "a";
-    static string s_EL = "EL";
-    static string s_tauw = "tauw";
-    return (params.vals[s_a]*(V-params.vals[s_EL])-w)/params.vals[s_tauw];
-}
-
-void aEIF::spike(int &position, double &dt) {
+void aEIF::spike(unsigned int &position, double &dt) {
     static string s_VR = "VR";
     static string s_b = "b";
 
@@ -51,3 +32,26 @@ void aEIF::spike(int &position, double &dt) {
         spikes.push_back(position*dt - this->delay); // Save the actual spike time
     }
 }
+
+double V_update(double& V, double& current, unsigned int& position, Neuron *n) {
+    static string s_gL = "gL";
+    static string s_EL = "EL";
+    static string s_deltaT = "deltaT";
+    static string s_VT = "VT";
+    static string s_C = "C";
+
+    double IL = n->params.vals[s_gL] * (n->V - n->params.vals[s_EL]);
+    double ILd = -n->params.vals[s_gL] * n->params.vals[s_deltaT] * exp((n->V-n->params.vals[s_VT])/n->params.vals[s_deltaT]);
+    double r =  (current - IL - ILd - static_cast<aEIF*>(n)->w) / n->params.vals[s_C];
+    if (r > 10000) r = 10000; // Prevent overflows
+    return r;
+}
+
+double w_update(Neuron *n) {
+    static string s_a = "a";
+    static string s_EL = "EL";
+    static string s_tauw = "tauw";
+
+    return (n->params.vals[s_a]*(n->V - n->params.vals[s_EL])-static_cast<aEIF*>(n)->w)/n->params.vals[s_tauw];
+}
+

@@ -9,7 +9,7 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
 
     std::string library_name = "libdtnet_" + model_type + ".so";
 
-    void* handle = dlopen(library_name.c_str(), RTDL_NOW);
+    void* handle = dlopen(library_name.c_str(), RTLD_NOW);
     if (!handle) {
         std::cerr << "Cannot load library: " << dlerror() << std::endl;
         return false;
@@ -28,7 +28,7 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
     }
 
     // create an instance of the class
-    n = create_model;
+    n = create_model();
 
     // copy in the parameters pass in if they are not null.
     if (np != NULL) n->params = *np;
@@ -38,7 +38,7 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
 
 bool NeuronFactory::close() {
 
-    std::map::iterator m_iter;
+    std::map<std::string, void*>::iterator m_iter;
 
     for (m_iter = this->models.begin(); m_iter != this->models.end(); ++m_iter)
     {

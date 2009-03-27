@@ -4,6 +4,7 @@
 using namespace std;
 
 Neuron::Neuron(NeuronParams params) : params(params) {}
+Neuron::Neuron() {}
 
 void Neuron::init(int steps, double delay) {
     this->def_params = this->params;
@@ -29,13 +30,18 @@ void Neuron::jitter() {
     }
 }
 
-double Neuron::RungeKutta(double (*func)(double,double,double), double &current, int &position, double &dt) {
+double Neuron::diffsolve(double (*func)(double&,double&,unsigned int&,Neuron*), double &current, unsigned int &position, double &dt, Neuron *n) {
+    return RungeKutta(func, current, position, dt, n);
+}
+
+
+double Neuron::RungeKutta(double (*func)(double&,double&,unsigned int&,Neuron*), double &current, unsigned int &position, double &dt, Neuron *n) {
     double r;
     double k1,k2,k3,k4;
-    k1 = func(V, current, position)*dt;
-    k2 = func(V+0.5*k1, current, position)*dt;
-    k3 = func(V+0.5*k2, current, position)*dt;
-    k4 = func(V+k3, current, position)*dt;
+    k1 = (*func)(this->V, current, position, n)*dt;
+    k2 = (*func)(this->V+0.5*k1, current, position, n)*dt;
+    k3 = (*func)(this->V+0.5*k2, current, position, n)*dt;
+    k4 = (*func)(this->V+k3, current, position, n)*dt;
     r = (k1+2*k2+2*k3+k4)/6;
     return r;
 }

@@ -62,7 +62,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libdtnet_la_LIBADD =
 am_libdtnet_la_OBJECTS = libdtnet.lo GLE.lo net.lo population.lo \
 	neuron.lo simulation.lo trial.lo input.lo results.lo range.lo \
-	settings.lo
+	settings.lo neuronfactory.lo
 libdtnet_la_OBJECTS = $(am_libdtnet_la_OBJECTS)
 libdtnet_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -219,7 +219,7 @@ top_build_prefix = ../../
 top_builddir = ../..
 top_srcdir = ../..
 lib_LTLIBRARIES = libdtnet.la
-libdtnet_la_SOURCES = libdtnet.cpp GLE.cpp net.cpp population.cpp neuron.cpp simulation.cpp trial.cpp input.cpp results.cpp range.cpp settings.cpp
+libdtnet_la_SOURCES = libdtnet.cpp GLE.cpp net.cpp population.cpp neuron.cpp simulation.cpp trial.cpp input.cpp results.cpp range.cpp settings.cpp neuronfactory.cpp
 libdtnet_la_LDFLAGS = -version-info 1:0:0
 SUBDIRS = lib/tinyxml models
 LDADD = lib/tinyxml/libtinyxml.a models/libaEIF.a models/libPoisson.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB)
@@ -299,6 +299,7 @@ include ./$(DEPDIR)/input.Plo
 include ./$(DEPDIR)/libdtnet.Plo
 include ./$(DEPDIR)/net.Plo
 include ./$(DEPDIR)/neuron.Plo
+include ./$(DEPDIR)/neuronfactory.Plo
 include ./$(DEPDIR)/population.Plo
 include ./$(DEPDIR)/range.Plo
 include ./$(DEPDIR)/results.Plo

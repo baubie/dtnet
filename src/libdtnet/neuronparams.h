@@ -11,7 +11,6 @@ class NeuronParams {
 
     public:
         enum Integrator { Euler, Euler2, RungeKutta } integrator;
-
         std::map<std::string, Range> vals;
         std::map<std::string, double> sigmas;
         std::map<std::string, bool> toggles;
