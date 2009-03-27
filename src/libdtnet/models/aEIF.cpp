@@ -15,7 +15,7 @@ void aEIF::initalize() {
     this->w = 0;
 }
 
-void aEIF::update(double& current, int& position, double& dt) {
+void aEIF::update(double& current, unsigned int& position, double& dt) {
 
 }
 
@@ -38,4 +38,16 @@ double aEIF::w_update() {
     static string s_EL = "EL";
     static string s_tauw = "tauw";
     return (params.vals[s_a]*(V-params.vals[s_EL])-w)/params.vals[s_tauw];
+}
+
+void aEIF::spike(int &position, double &dt) {
+    static string s_VR = "VR";
+    static string s_b = "b";
+
+    if (this->V >= 20) {
+        this->V = this->params.vals[s_VR];
+        this->w += this->params.vals[s_b];
+        voltage[position] = spike_height; // Artificial spike
+        spikes.push_back(position*dt - this->delay); // Save the actual spike time
+    }
 }

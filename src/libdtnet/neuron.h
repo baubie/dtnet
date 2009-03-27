@@ -31,7 +31,8 @@ class Neuron {
         void jitter();
 
         // Virtual Methods
-        virtual void update(double &current, int &position, double &dt) {}
+        virtual void update(double &current, unsigned int &position, double &dt) {}
+        virtual void spike(int &position, double &dt) {}
         virtual void initialize() {}
 
     protected:
@@ -42,13 +43,7 @@ class Neuron {
         double delay;               /**< Global delay parameter (specifies time zero). **/
 
         // Differential Equation Solvers
-        void Euler(double& current, int& position, double& dt);
-        void Euler2(double& current, int& position, double& dt);
-        void RungeKutta(double& current, int& position, double& dt);
-
-        // Calculate next voltage change with different methods
-        void Spike(int position, double dt);
-
+        double RungeKutta(double (*func)(double,double,double), double &current, int &position, double &dt);
 
     private:
         friend class boost::serialization::access;

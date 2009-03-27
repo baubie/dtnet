@@ -79,15 +79,15 @@ boost::tuple< vector<double>, vector<double>, vector<double> > Results::firstSpi
         times.clear();
         for (vector<Results::Result*>::iterator result = r.begin(); result != r.end(); ++result) 
         {
-            for (vector<Neuron>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
+            for (list<Neuron*>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
                                           neuron != (*result)->cNetwork.populations[popID].neurons.end();
                                           ++neuron) 
             {
-                spike = neuron->spikes.begin(); 
-                while (spike != neuron->spikes.end() && *spike < 0) { ++spike; }
+                spike = (*neuron)->spikes.begin();
+                while (spike != (*neuron)->spikes.end() && *spike < 0) { ++spike; }
                 
                 // We found a spike beyond time 0
-                if (spike != neuron->spikes.end()) { total += *spike; ++count; times.push_back(*spike); }
+                if (spike != (*neuron)->spikes.end()) { total += *spike; ++count; times.push_back(*spike); }
             }
         }
         if (count == 0) count = 1;
@@ -117,10 +117,10 @@ boost::tuple< vector<double>, vector<double> > Results::psth(const std::string p
         }
         // Loop over the spikes
         for (vector<Results::Result*>::iterator result = r.begin(); result != r.end(); ++result) {
-            for (vector<Neuron>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
+            for (list<Neuron*>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
                                           neuron != (*result)->cNetwork.populations[popID].neurons.end();
                                           ++neuron) {
-                for (vector<double>::iterator s = neuron->spikes.begin(); s != neuron->spikes.end(); ++s) {
+                for (vector<double>::iterator s = (*neuron)->spikes.begin(); s != (*neuron)->spikes.end(); ++s) {
                     if (*s == *i) {
                         ++count;
                     }
@@ -150,11 +150,11 @@ boost::tuple< vector<double>, vector<double>, vector<double> > Results::meanSpik
         vector<Results::Result*> r = this->get(ID, *sIter);
         counts.clear();
         for (vector<Results::Result*>::iterator result = r.begin(); result != r.end(); ++result) {
-            for (vector<Neuron>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
+            for (list<Neuron*>::iterator neuron = (*result)->cNetwork.populations[popID].neurons.begin();
                                           neuron != (*result)->cNetwork.populations[popID].neurons.end();
                                           ++neuron) {
-                total += neuron->spikes.size();
-                counts.push_back(neuron->spikes.size()); 
+                total += (*neuron)->spikes.size();
+                counts.push_back((*neuron)->spikes.size());
                 ++count; 
             }
         }

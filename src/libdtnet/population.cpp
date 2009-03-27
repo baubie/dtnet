@@ -74,7 +74,7 @@ void Population::genPopulations( map< string, Range>::iterator param_in )
             new_pop.name = this->name;
             new_pop.ID = this->ID;
             new_pop.position = this->position;
-            NeuronParams np(this->model_type, this->params.integrator, false);
+            NeuronParams np;
             np.vals[param->first] = Range(*i); 
             np.toggles = this->params.toggles;
             np.sigmas = this->params.sigmas;

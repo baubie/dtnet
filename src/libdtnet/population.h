@@ -12,53 +12,52 @@
 #include "debug.h"
 
 class Population {
+public:
+    // Parameters
+    std::string name;
+    std::string ID;
+    std::string model_type;
+    bool accept_input;
+    bool spontaneous;
+    int position;
+    std::list<Neuron> neurons;
+    NeuronParams params;
+    std::map< std::string, Range > unconstrained; /*<< Collection of unconstrained IDs. */
 
-    public:
-		// Parameters
-        std::string name;
+    // Methods
+    Population(std::string name, std::string ID, bool accept_input, bool spontaneous, int position, std::string model_type, NeuronParams params);
+    Population();
+    std::string toString();
+
+    struct ConstrainedPopulation {
         std::string ID;
+        std::string name;
+        NeuronParams params;
+        std::list<Neuron*> neurons;
         std::string model_type;
+        int position;
         bool accept_input;
         bool spontaneous;
-        int position;
-        std::list<Neuron> neurons;
-        NeuronParams params;
-        std::map< std::string, Range > unconstrained;       /*<< Collection of unconstrained IDs. */
-		
-		// Methods
-		Population(std::string name, std::string ID, bool accept_input, bool spontaneous, int position, std::string model_type, NeuronParams params);
-        Population();
-		std::string toString();
 
+        friend class boost::serialization::access;
 
-        struct ConstrainedPopulation {
-            std::string ID;
-            std::string name;
-            NeuronParams params;
-            std::list<Neuron*> neurons;
-            int position;
-            bool accept_input;
-            bool spontaneous;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) {
+            ar & ID;
+            ar & name;
+            ar & params;
+            ar & model_type;
+            ar & neurons;
+            ar & position;
+            ar & accept_input;
+        }
+    };
 
-            friend class boost::serialization::access;
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                ar & ID;
-                ar & name;
-                ar & params;
-                ar & model_type;
-                ar & neurons;
-                ar & position;
-                ar & accept_input;
-            }
-        };
+    void genPopulations(std::map< std::string, Range>::iterator param_in);
+    std::vector<ConstrainedPopulation>* populationFactory();
 
-        void genPopulations( std::map< std::string, Range>::iterator param_in );
-        std::vector<ConstrainedPopulation>* populationFactory();
-
-    private:
-        std::vector<ConstrainedPopulation> cPopulations; /**< Constrained popuations. **/
-        void genPopulations();
+private:
+    std::vector<ConstrainedPopulation> cPopulations; /**< Constrained popuations. **/
+    void genPopulations();
 };
 #endif

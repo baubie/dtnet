@@ -11,7 +11,8 @@ class aEIF: public Neuron {
 
         // dtnet required functions
         Neuron* create() { return new aEIF; }
-        void update(double& current, int& position, double& dt);
+        void update(double& current, unsigned int& position, double& dt);
+        void spike(int &position, double &dt);
 
         // dtnet optional functions
         void initalize();

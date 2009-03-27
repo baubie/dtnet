@@ -3,23 +3,14 @@
 
 using namespace std;
 
-Neuron::Neuron(NeuronParams params) : params(params) {
-    this->init();	
-}
-
-Neuron::Neuron() {
-    this->init();
-}
-
-void Neuron::initialize() {
-    this->def_params = this->params;
-}
+Neuron::Neuron(NeuronParams params) : params(params) {}
 
 void Neuron::init(int steps, double delay) {
+    this->def_params = this->params;
     this->voltage.resize(steps, 0.0);
     this->delay = delay;
     this->jitter();
-    this->initalize();
+    this->initialize();
 }
 
 double n(double mean, double sigma) {
@@ -38,62 +29,18 @@ void Neuron::jitter() {
     }
 }
 
-void Neuron::update(double current, int position, double dt) {
-    switch(params.type) {
-        
-        case NeuronParams::AEIF:
-            switch(params.integrator) {
-                case NeuronParams::Euler:
-                    Euler(current, position, dt);
-                    break;
-                case NeuronParams::Euler2:
-                    Euler2(current, position, dt);
-                    break;
-                case NeuronParams::RungeKutta:
-                    RungeKutta(current, position, dt);
-                    break;
-            }
-            break;
-        
-        case NeuronParams::POISSON:
-            Poisson(current, position, dt);
-            break;
-    }
-    
-}
-
-void Neuron::Euler(double current, int position, double dt) {
-    w += w_update() * dt;
-    V += V_update(V, current, position) * dt;
-    
-    voltage[position] = V;
-    Spike(position, dt);
-}
-
-void Neuron::Euler2(double current, int position, double dt) {
-    w += w_update() * dt; // Just stick with Euler
-    
-    double Vtmp = V + V_update(V, current, position) * dt; // Trial step
-    V += 0.5 * (V_update(V, current, position) + V_update(Vtmp, current, position)) * dt;
-    
-    voltage[position] = V;
-    Spike(position, dt);
-}
-
-void Neuron::RungeKutta(double current, int position, double dt) {
-    w += w_update() * dt; // Just stick with Euler
-    
+double Neuron::RungeKutta(double (*func)(double,double,double), double &current, int &position, double &dt) {
+    double r;
     double k1,k2,k3,k4;
-    k1 = V_update(V, current, position)*dt;
-    k2 = V_update(V+0.5*k1, current, position)*dt;
-    k3 = V_update(V+0.5*k2, current, position)*dt;
-    k4 = V_update(V+k3, current, position)*dt;
-    V += (k1+2*k2+2*k3+k4)/6;
-
-    voltage[position] = V;
-    Spike(position, dt);
+    k1 = func(V, current, position)*dt;
+    k2 = func(V+0.5*k1, current, position)*dt;
+    k3 = func(V+0.5*k2, current, position)*dt;
+    k4 = func(V+k3, current, position)*dt;
+    r = (k1+2*k2+2*k3+k4)/6;
+    return r;
 }
 
+/*
 void Neuron::Spike(int position, double dt) {
     static string s_VR = "VR";
     static string s_b = "b";
@@ -114,4 +61,5 @@ void Neuron::Spike(int position, double dt) {
             break;
     }
 }
+ */
 
