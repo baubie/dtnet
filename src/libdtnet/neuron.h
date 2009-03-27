@@ -18,22 +18,39 @@
 
 class Neuron {
 
-	public:
-	// Recording Variables
+    public:
+    // Recording Variables
         std::vector<double> voltage;
         std::vector<double> spikes;
-	NeuronParams params;        /**< Parameters to run simulation with after jitter(). **/
+        NeuronParams params;        /**< Parameters to run simulation with after jitter(). **/
 
-		// Methods
-		Neuron(NeuronParams params);
+        // Methods
+        Neuron(NeuronParams params);
         Neuron();
-		void init(int steps, double delay);
-		void jitter();
+        void init(int steps, double delay);
+        void jitter();
 
         // Virtual Methods
-		virtual void update(double &current, int &position, double &dt) = 0;
+        virtual void update(double &current, int &position, double &dt) {}
+        virtual void initialize() {}
 
-	private:
+    protected:
+        // Model Parameters
+        NeuronParams def_params;    /**< Parameters passed in before jittering. **/
+        double active;              /**< Used for Poisson to decide if it is currently active. **/
+        double V;                   /**< Voltage (mV) **/
+        double delay;               /**< Global delay parameter (specifies time zero). **/
+
+        // Differential Equation Solvers
+        void Euler(double& current, int& position, double& dt);
+        void Euler2(double& current, int& position, double& dt);
+        void RungeKutta(double& current, int& position, double& dt);
+
+        // Calculate next voltage change with different methods
+        void Spike(int position, double dt);
+
+
+    private:
         friend class boost::serialization::access;
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version)
@@ -43,23 +60,6 @@ class Neuron {
             ar & params;
         }
 
-        // Differential Equation Solvers
-	void Euler(double& current, int& position, double& dt);
-	void Euler2(double& current, int& position, double& dt);
-	void RungeKutta(double& current, int& position, double& dt);
-		
-	// Model Parameters
-	NeuronParams def_params;    /**< Parameters passed in before jittering. **/	
-        double active;                /**< Used for Poisson to decide if it is currently active. **/
-	double V;                   /**< Voltage (mV) **/
-        double delay;               /**< Global delay parameter (specifies time zero). **/
-		
-	// Calculate next voltage change with different methods
-	void Spike(int position, double dt);
-
-	// Calculuate poisson spikes
-	void Poisson(double current, int position, double dt);
-        void initialize();
 };
 
 // the types of the class factories

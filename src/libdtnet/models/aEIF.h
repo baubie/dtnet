@@ -13,6 +13,9 @@ class aEIF: public Neuron {
         Neuron* create() { return new aEIF; }
         void update(double& current, int& position, double& dt);
 
+        // dtnet optional functions
+        void initalize();
+
     private:
         static const double spike_height = 40;
 	double V_update(double& V, double& current, int& position);

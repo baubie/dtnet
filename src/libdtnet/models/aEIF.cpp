@@ -1,6 +1,8 @@
 
 #include "aEIF.h"
 
+using namespace std;
+
 extern "C" Neuron* create() {
     return new aEIF;
 }

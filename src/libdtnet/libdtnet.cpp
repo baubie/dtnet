@@ -287,7 +287,7 @@ bool dtnet::graphspiketrains(Results &results, string const &popID, int trials, 
         y = *pIter;
         for (vector<Results::Result*>::iterator rIter = r.begin(); rIter != r.end(); ++rIter) {
             Population::ConstrainedPopulation pop = (*rIter)->cNetwork.populations[popID];
-            for (vector<double>::iterator nIter = pop.neurons[0].spikes.begin(); nIter != pop.neurons[0].spikes.end(); ++nIter) {
+            for (vector<double>::iterator nIter = pop.neurons.front()->spikes.begin(); nIter != pop.neurons.front()->spikes.end(); ++nIter) {
                 points.push_back(make_pair(*nIter, y));
             }
             ++trial;
@@ -454,7 +454,7 @@ bool dtnet::graphtrial(int type, Results &results, int trial, string const &file
 
     GLE::PanelID panelID;
     vector<Population::ConstrainedPopulation*>::iterator pop_iter;
-    vector<Neuron>::iterator neuron_iter;
+    list<Neuron*>::iterator neuron_iter;
     vector<Population::ConstrainedPopulation*> pops = r->cNetwork.popvector();
 
     for (pop_iter = pops.begin(); pop_iter != pops.end(); ++pop_iter) {
@@ -462,12 +462,12 @@ bool dtnet::graphtrial(int type, Results &results, int trial, string const &file
         for (neuron_iter = (**pop_iter).neurons.begin(); neuron_iter != (**pop_iter).neurons.end(); ++neuron_iter) {
             switch(type) {
                 case dtnet::PLOT_VOLTAGE:
-                    signals.push_back(neuron_iter->voltage);
+                    signals.push_back((*neuron_iter)->voltage);
                     plotProperties.pointSize = 0;
                     plotProperties.no_y = false;
                     break;
                 case dtnet::PLOT_SPIKES:
-                    signals.push_back(neuron_iter->spikes);
+                    signals.push_back((*neuron_iter)->spikes);
                     plotProperties.no_y = true;
                     plotProperties.pointSize = 0.05;
                     plotProperties.marker = "fcircle";

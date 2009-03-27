@@ -7,6 +7,7 @@
 #include <vector>
 #include <list>
 #include "neuron.h"
+#include "neuronfactory.h"
 #include "serialization.h"
 #include "debug.h"
 
@@ -20,7 +21,7 @@ class Population {
         bool accept_input;
         bool spontaneous;
         int position;
-        std::list<Neuron*> neurons;
+        std::list<Neuron> neurons;
         NeuronParams params;
         std::map< std::string, Range > unconstrained;       /*<< Collection of unconstrained IDs. */
 		
@@ -34,7 +35,7 @@ class Population {
             std::string ID;
             std::string name;
             NeuronParams params;
-            std::list<Neuron> neurons;
+            std::list<Neuron*> neurons;
             int position;
             bool accept_input;
             bool spontaneous;

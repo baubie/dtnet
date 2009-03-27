@@ -3,7 +3,20 @@
 
 using namespace std;
 
-Population::Population(string name, string ID, bool accept_input, bool spontaneous, int position, std::string model_type, NeuronParams params) : name(name), ID(ID), accept_input(accept_input), spontaneous(spontaneous), position(position), model_type(model_type), params(params)  {}
+Population::Population(string name, 
+                       string ID,
+                       bool accept_input,
+                       bool spontaneous,
+                       int position,
+                       std::string model_type,
+                       NeuronParams params)
+        : name(name),
+        ID(ID),
+        accept_input(accept_input),
+        spontaneous(spontaneous),
+        position(position),
+        model_type(model_type),
+        params(params)   {}
 
 Population::Population() : name(""), ID(""), accept_input(false) {}
 
@@ -11,13 +24,29 @@ std::vector<Population::ConstrainedPopulation>* Population::populationFactory() 
 
     this->genPopulations( this->params.vals.begin() );
 
+    NeuronFactory nf;
+
     for (vector<ConstrainedPopulation>::iterator p = this->cPopulations.begin(); p != this->cPopulations.end(); ++p) {
         int size = 1;
         if (p->params.vals.find("size") != p->params.vals.end()) size = p->params.vals["size"];
 
         // Build a list of neurons
-        p->neurons = list<Neuron*>(size,Neuron(p->params));
+        p->neurons.clear();
+
+        // Populate that list with neurons
+        for (int i = 0; i < size; ++i)
+        {
+            Neuron *new_neuron = NULL;
+            if (nf.create(this->model_type, &this->params, new_neuron))
+            {
+                p->neurons.push_back(new_neuron);
+            } else {
+                cerr << "ERROR LOADING NEURONS." << endl;
+            }
+        }
     }
+
+    nf.close();
 
     return &(this->cPopulations);
 }
@@ -45,7 +74,7 @@ void Population::genPopulations( map< string, Range>::iterator param_in )
             new_pop.name = this->name;
             new_pop.ID = this->ID;
             new_pop.position = this->position;
-            NeuronParams np(this->params.type, this->params.integrator, false);
+            NeuronParams np(this->model_type, this->params.integrator, false);
             np.vals[param->first] = Range(*i); 
             np.toggles = this->params.toggles;
             np.sigmas = this->params.sigmas;

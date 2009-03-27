@@ -5,7 +5,7 @@
  * http://www.isotton.com/devel/docs/C++-dlopen-mini-HOWTO/C++-dlopen-mini-HOWTO.html#thesolution
  */
 
-bool NeuronFactory::create(std::string model_type, Neuron* &n) {
+bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n) {
 
     std::string library_name = "libdtnet_" + model_type + ".so";
 
@@ -27,7 +27,23 @@ bool NeuronFactory::create(std::string model_type, Neuron* &n) {
         return false;
     }
 
+    // create an instance of the class
+    n = create_model;
 
+    // copy in the parameters pass in if they are not null.
+    if (np != NULL) n->params = *np;
 
-    dlclose(handle);
+    return true;
+}
+
+bool NeuronFactory::close() {
+
+    std::map::iterator m_iter;
+
+    for (m_iter = this->models.begin(); m_iter != this->models.end(); ++m_iter)
+    {
+        dlclose(m_iter->second);
+    }
+
+    return true;
 }

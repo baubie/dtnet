@@ -16,6 +16,7 @@ class NeuronParams {
         std::map<std::string, double> sigmas;
         std::map<std::string, bool> toggles;
 
+private:
         friend class boost::serialization::access;
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version)

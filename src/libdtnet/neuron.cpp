@@ -4,25 +4,22 @@
 using namespace std;
 
 Neuron::Neuron(NeuronParams params) : params(params) {
-    this->initialize();	
+    this->init();	
 }
 
 Neuron::Neuron() {
-    this->initialize();
+    this->init();
 }
 
 void Neuron::initialize() {
     this->def_params = this->params;
-	this->V = -65; //mV
-	this->w = 0;
-
-    if (this->params.vals.find("EL") != this->params.vals.end()) this->V = this->params.vals["EL"];
 }
 
 void Neuron::init(int steps, double delay) {
     this->voltage.resize(steps, 0.0);
     this->delay = delay;
     this->jitter();
+    this->initalize();
 }
 
 double n(double mean, double sigma) {

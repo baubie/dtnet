@@ -9,11 +9,12 @@
 class NeuronFactory {
 
     public:
-        bool create(std::string model_type, Neuron* &n);
+        bool create(std::string model_type, NeuronParams *params, Neuron* &n);
+        bool close();
+
 
     private:
-        std::map<std::string, void*> models;
-
+        std::map<std::string, void*> models_c;
 };
 
 #endif
