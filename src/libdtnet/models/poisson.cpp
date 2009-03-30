@@ -1,0 +1,87 @@
+
+#include "poisson.h"
+
+using namespace std;
+
+extern "C" Neuron* create() { return new Poisson; }
+extern "C" void destroy(Neuron* n) { delete n; }
+Poisson* Poisson::clone() const { return new Poisson(*this); }
+
+NeuronParams Poisson::default_parameters() {
+    NeuronParams p;
+    p.vals["size"] = Range(1);
+    p.vals["VT"] = Range(-52);
+    p.vals["C"] = Range(281);
+    p.vals["hypTau"] = Range(5);
+    p.vals["alpha_q"] = Range(1);
+    p.vals["gL"] = Range(30);
+    p.vals["EL"] = Range(-63);
+    p.vals["tauw"] = Range(200);
+    p.vals["a"] = Range(1500);
+    p.vals["b"] = Range(80.5);
+    p.vals["deltaT"] = Range(2);
+    p.vals["VR"] = Range(-63);
+    return p;
+}
+
+void Poisson::update(double& current, unsigned int& position, double& dt) {
+
+    static string s_mu = "mu";
+
+    if (current == 0) {
+        voltage[position] = -65;
+        this->active = 0;
+        return;
+    }
+
+    this->active += dt;
+    double mu = this->params.vals[s_mu];
+
+    // Initial faster spiking rate
+    double maximum = 1000;
+    double initial_spike_length = 1.0;
+    double half_initial_length = 1.0;
+    double initial_spike_height = (double) maximum / (double) mu;
+    double half_initial_spike_height = 1.0 + (initial_spike_height - 1.0) / 2.0;
+    double currentMult = 1;
+
+    if (this->active < initial_spike_length) {
+        if (mu < 100) {
+            currentMult = 1;
+        } else if (mu > 500) {
+            currentMult = initial_spike_height;
+        } else {
+            currentMult = 1.0 + (initial_spike_height - 1.0) * sqrt((mu - 100.0) / 400.0);
+        }
+    } else if (this->active < initial_spike_length + half_initial_length) {
+        if (mu < 100) {
+            currentMult = 1;
+        } else if (mu > 500) {
+            currentMult = half_initial_spike_height;
+        } else {
+            currentMult = 1.0 + (half_initial_spike_height - 1.0) * sqrt((mu - 100.0) / 400.0);
+        }
+    }
+    current *= currentMult;
+
+    // Use rand() to determine if we have a spike
+    // We expect to spike at mu Hz.
+    double r = (double) (rand() % 10001); // Random number in [0,10000]
+    // Finds mu in ms^-1 (mu is given in Hz)
+    // Then multiplies by the time step to find mu in terms of per time step.
+    // This gives a probability of firing in this time step.
+    // When dt = 0.05, this means that mu <= 20,000Hz, so we're good.
+    double p = (mu * 10 * dt); /**< Probability of firing. */
+    p *= current; // Decrease or increase depending on current;
+
+    if (r < p) spike(position, dt);
+    else voltage[position] = -65;
+
+}
+
+void Poisson::spike(unsigned int &position, double &dt) {
+    // We assume this is only called when a spike actually occurred.
+    this->voltage[position] = spike_height;
+    spikes.push_back(position * dt - this->delay);
+}
+

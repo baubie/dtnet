@@ -1,4 +1,4 @@
-/*	Parallel Network Simulator
+/*  Parallel Network Simulator
  *  Written by Brandon Aubie
  *  aubiebn@mcmaster.ca
  */
@@ -69,6 +69,9 @@ int main(int argc, char* argv[]) {
 #else
     if (dtlang::verbose) cout << "Archive format is binary." << endl;
 #endif
+
+    dtnet::set_threads(threads);
+    if (dtlang::verbose) cout << "Initialized " << threads << " threads." << endl;
 
     /* Main Input Loop */
     if (dtlang::verbose) cout << "Initialization Complete" << endl;

@@ -9,7 +9,6 @@ std::vector<Net::ConstrainedNetwork>* Net::networkFactory() {
 
 }
 
-
 void Net::genNetworks() {
 
     this->populationCollections.clear();
@@ -25,20 +24,20 @@ void Net::genNetworks() {
         this->connections[popID][popID].delay = 0;
     }
 
-    this->genConnections( this->connections.begin(), 
-                          this->connections.begin()->second.begin() );
+    this->genConnections(this->connections.begin(),
+            this->connections.begin()->second.begin());
 
-    this->genPopulations( this->populationCollections.begin() );
+    this->genPopulations(this->populationCollections.begin());
 
     /** Find the unconstrained connection parameters. **/
     for (map<string, map<string, Connection<Range> > >::iterator iter = this->connections.begin(); iter != this->connections.end(); ++iter) {
         for (map<string, Connection<Range> >::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2) {
             // Contrary to code, we use FROM:TO syntax for the scripting language
             // as it is  more intuitive to users.
-            string connection_name = iter2->first + ":" + iter->first; 
-            if (iter2->second.weight.size() > 1) this->unconstrained["connection."+connection_name+".weight"] = iter2->second.weight;
-            if (iter2->second.delay.size() > 1) this->unconstrained["connection."+connection_name+".delay"] = iter2->second.delay;
-            if (iter2->second.density.size() > 1) this->unconstrained["connection."+connection_name+".density"] = iter2->second.density;
+            string connection_name = iter2->first + ":" + iter->first;
+            if (iter2->second.weight.size() > 1) this->unconstrained["connection." + connection_name + ".weight"] = iter2->second.weight;
+            if (iter2->second.delay.size() > 1) this->unconstrained["connection." + connection_name + ".delay"] = iter2->second.delay;
+            if (iter2->second.density.size() > 1) this->unconstrained["connection." + connection_name + ".density"] = iter2->second.density;
         }
     }
     /** Find the unconstrained population parameters. **/
@@ -61,8 +60,7 @@ void Net::genNetworks() {
 
 }
 
-void Net::genPopulations( vector< vector<Population::ConstrainedPopulation>* >::iterator pop_in )
-{
+void Net::genPopulations(vector< vector<Population::ConstrainedPopulation>* >::iterator pop_in) {
     vector< vector<Population::ConstrainedPopulation>* >::iterator pop = pop_in;
 
     ///////////////
@@ -74,15 +72,14 @@ void Net::genPopulations( vector< vector<Population::ConstrainedPopulation>* >::
             map<string, Population::ConstrainedPopulation> m;
             m[p->ID] = *p;
             this->cPopulations.push_back(m);
-        }  
+        }
     }
-
-    ////////////////////
-    // RECURSIVE CASE //
-    ////////////////////
+        ////////////////////
+        // RECURSIVE CASE //
+        ////////////////////
     else {
         ++pop_in;
-        this->genPopulations( pop_in );
+        this->genPopulations(pop_in);
         vector< map<string, Population::ConstrainedPopulation> > old = this->cPopulations;
         this->cPopulations.clear();
         for (vector< map<string, Population::ConstrainedPopulation> >::iterator o = old.begin(); o != old.end(); ++o) {
@@ -90,14 +87,13 @@ void Net::genPopulations( vector< vector<Population::ConstrainedPopulation>* >::
                 map<string, Population::ConstrainedPopulation> m = *o;
                 m[p->ID] = *p;
                 this->cPopulations.push_back(m);
-            }  
+            }
         }
     }
 }
 
-void Net::genConnections( map< string, map< string, Connection<Range> > >::iterator to_in,
-                          map< string, Connection<Range> >::iterator from_in ) 
-{
+void Net::genConnections(map< string, map< string, Connection<Range> > >::iterator to_in,
+        map< string, Connection<Range> >::iterator from_in) {
     /** Recursively generate all possible connections. **/
 
     map< string, map< string, Connection<Range> > >::iterator to = to_in;
@@ -106,7 +102,7 @@ void Net::genConnections( map< string, map< string, Connection<Range> > >::itera
     ///////////////
     // BASE CASE //
     ///////////////
-    if (to == --(this->connections.end()) && from == --(to->second.end()) ) {
+    if (to == --(this->connections.end()) && from == --(to->second.end())) {
         this->cConnections.clear();
         for (Range::iterator weight = from->second.weight.begin(); weight != from->second.weight.end(); ++weight) {
             for (Range::iterator delay = from->second.delay.begin(); delay != from->second.delay.end(); ++delay) {
@@ -117,28 +113,27 @@ void Net::genConnections( map< string, map< string, Connection<Range> > >::itera
                     connection.delay = *delay;
                     connection.density = *density;
                     network_connection[to->first][from->first] = connection;
-                    this->cConnections.push_back( network_connection );
-                } 
-            } 
-        } 
+                    this->cConnections.push_back(network_connection);
+                }
+            }
+        }
     }
-
-    ////////////////////
-    // RECURSIVE CASE //
-    ////////////////////
+        ////////////////////
+        // RECURSIVE CASE //
+        ////////////////////
     else {
         // First, finish up for connections below this one.
         map< string, map< string, Connection<Range> > >::iterator new_to = to;
         map< string, Connection<Range> >::iterator new_from = from;
-        if (from != --(to->second.end()) ) {
+        if (from != --(to->second.end())) {
             ++new_from;
-        }  else {
+        } else {
             // When we use to in the second parameter below, it has already been incremented.
             ++new_to;
             new_from = new_to->second.begin();
         }
-        genConnections( new_to, new_from); 
-         
+        genConnections(new_to, new_from);
+
         vector< map<string, map<string, Connection<double> > > > oldConns = this->cConnections;
         this->cConnections.clear();
 
@@ -152,15 +147,13 @@ void Net::genConnections( map< string, map< string, Connection<Range> > >::itera
                         connection.delay = *delay;
                         connection.density = *density;
                         (*old)[to->first][from->first] = connection;
-                        this->cConnections.push_back( *old );
-                    } 
-                } 
-            } 
+                        this->cConnections.push_back(*old);
+                    }
+                }
+            }
         }
     }
 }
-
-
 
 int Net::count_populations() {
     return this->populations.size();
@@ -168,58 +161,54 @@ int Net::count_populations() {
 
 string Net::toString() {
     stringstream r;
-    
+
     r << "Network Name: " << this->name << endl;
     r << "Number of Populations: " << this->populations.size() << endl;
     map<string, Population>::iterator iter;
-    for ( iter = this->populations.begin(); iter != this->populations.end(); ++iter) {
+    for (iter = this->populations.begin(); iter != this->populations.end(); ++iter) {
         r << "== Population ==\n" << (iter->second).toString() << endl;
     }
     return r.str();
 }
 
-bool Net::load(std::string filename, std::string &error)
-{
-    if (parseXML(filename, error))
-    {
+bool Net::load(std::string filename, std::string &error) {
+    if (parseXML(filename, error)) {
         this->filename = filename;
         return true;
     }
     return false;
 }
 
+bool Net::parseXML(string filename, string &error) {
+    TiXmlDocument doc(filename);
 
-bool Net::parseXML(string filename, string &error)
-{
-	TiXmlDocument doc(filename);
+    if (doc.LoadFile()) {
 
-	if (doc.LoadFile()) {
+        stringstream name;
 
-		stringstream name;
-
-		TiXmlHandle hDoc(&doc);
-		TiXmlElement* pElem;
-		TiXmlElement* pElemParam;
-		TiXmlHandle hRoot(0);
-		TiXmlHandle hConnection(0);
-		TiXmlHandle hPopulation(0);
-		TiXmlHandle hParam(0);
+        TiXmlHandle hDoc(&doc);
+        TiXmlElement* pElem;
+        TiXmlElement* pElemParam;
+        TiXmlHandle hRoot(0);
+        TiXmlHandle hConnection(0);
+        TiXmlHandle hPopulation(0);
+        TiXmlHandle hParam(0);
 
         // Find Root
-		pElem=hDoc.FirstChildElement().Element();
-		if (!pElem) {
-			error = "Invalid root.";
-			return false;
-		}
-		hRoot = pElem;
-	
+        pElem = hDoc.FirstChildElement().Element();
+        if (!pElem) {
+            error = "Invalid root.";
+            return false;
+        }
+        hRoot = pElem;
+
         // Load Network Attributes 
-    	pElem->QueryStringAttribute("title", &this->name);
+        pElem->QueryStringAttribute("title", &this->name);
 
         // Load Each Population
         int position = 0;
- 		pElem = hRoot.FirstChild( "population" ).Element();
-		for( /***/; pElem; pElem = pElem->NextSiblingElement("population")) {
+        pElem = hRoot.FirstChild("population").Element();
+        for (/***/; pElem; pElem = pElem->NextSiblingElement("population")) {
 
             string pop_name;
             string pop_id;
@@ -228,71 +217,62 @@ bool Net::parseXML(string filename, string &error)
             bool spontaneous = false;
             NeuronParams np;
             string model_type;
-            hPopulation = pElem;        
+            hPopulation = pElem;
 
             pElem->QueryStringAttribute("type", &model_type);
-            pElem->QueryStringAttribute("id", &pop_id);             
+            pElem->QueryStringAttribute("id", &pop_id);
             pElem->QueryStringAttribute("title", &pop_name);
-            
-			pElemParam = hPopulation.FirstChild( "param" ).Element();
 
-			for ( /***/; pElemParam; pElemParam = pElemParam->NextSiblingElement( "param" )) {
+            pElemParam = hPopulation.FirstChild("param").Element();
+
+            for (/***/; pElemParam; pElemParam = pElemParam->NextSiblingElement("param")) {
 
                 double sigma = 0;
                 double start, end, step;
+                string param_name = "";
 
-				hParam = pElemParam;
-               // Found a Parameter Element With Text
-				if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
+                hParam = pElemParam;
+                // Found a Parameter Element With Text
+                if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
 
-                    if (strcmp(pElemParam->Attribute("name"),"accept_input") == 0) {
+                    if (strcmp(pElemParam->Attribute("name"), "accept_input") == 0) {
                         accept_input = (strcmp(pElemParam->FirstChild()->Value(), "true") == 0);
                     }
-
-                    if (strcmp(pElemParam->Attribute("name"),"spontaneous") == 0) {
+                    else if (strcmp(pElemParam->Attribute("name"), "spontaneous") == 0) {
                         spontaneous = (strcmp(pElemParam->FirstChild()->Value(), "true") == 0);
                     }
-
-                    for (map<string,Range>::iterator iter = np.vals.begin(); iter != np.vals.end(); ++iter) {
-                        if (strcmp(pElemParam->Attribute("name"),(iter->first).c_str()) == 0) {
-                            double value = (double)atof(pElemParam->FirstChild()->Value());
-                            np.vals[iter->first] = Range(value);
-                            double sigma = 0;
-                            pElemParam->QueryDoubleAttribute("sigma", &sigma);                    
-                            np.sigmas[iter->first] = sigma;
-                        }
+                    else {
+                        pElemParam->QueryStringAttribute("name", &param_name);
+                        double value = (double) atof(pElemParam->FirstChild()->Value());
+                        np.vals[param_name] = Range(value);
+                        pElemParam->QueryDoubleAttribute("sigma", &sigma);
+                        np.sigmas[param_name] = sigma;
                     }
-                    
-               // Found a Parameter Element With A Range Element
-				} else if (pElemParam->FirstChild()->Type() == TiXmlNode::ELEMENT) {
 
-					if (strcmp(pElemParam->FirstChild()->Value(), "range") == 0) {
+                    // Found a Parameter Element With A Range Element
+                } else if (pElemParam->FirstChild()->Type() == TiXmlNode::ELEMENT) {
+
+                    if (strcmp(pElemParam->FirstChild()->Value(), "range") == 0) {
                         start = 0;
                         end = 0;
                         step = 1;
                         hParam.FirstChild().Element()->QueryDoubleAttribute("start", &start);
                         hParam.FirstChild().Element()->QueryDoubleAttribute("end", &end);
                         hParam.FirstChild().Element()->QueryDoubleAttribute("step", &step);
-
-                        for (map<string,Range>::iterator iter = np.vals.begin(); iter != np.vals.end(); ++iter) {
-                            if (strcmp(pElemParam->Attribute("name"),(iter->first).c_str()) == 0) {
-                                np.vals[iter->first] = Range(start, end, step);
-                                double sigma = 0;
-                                pElemParam->QueryDoubleAttribute("sigma", &sigma);                    
-                                np.sigmas[iter->first] = sigma;
-                            }
-                        }
-					}
-
-                }	
-			} // Parameter Loop            
+                        pElemParam->QueryStringAttribute("name", &param_name);
+                        np.vals[param_name] = Range(start, end, step);
+                        pElemParam->QueryDoubleAttribute("sigma", &sigma);
+                        np.sigmas[param_name] = sigma;
+                    }
+                }
+            } // Parameter Loop
             this->populations[pop_id] = Population(pop_name, pop_id, accept_input, spontaneous, position, model_type, np);
             ++position;
         }
 
         // Load Each Connection
- 		pElem = hRoot.FirstChild( "connection" ).Element();
-		for( /***/; pElem; pElem = pElem->NextSiblingElement("connection")) {
+        pElem = hRoot.FirstChild("connection").Element();
+        for (/***/; pElem; pElem = pElem->NextSiblingElement("connection")) {
             Range weight = 0;
             Range delay = 1;
             Range density = 1;
@@ -300,52 +280,52 @@ bool Net::parseXML(string filename, string &error)
             double start, end, step;
             string from, to;
             bool symmetric = false;
-			hConnection = pElem;
+            hConnection = pElem;
 
-            pElemParam = hConnection.FirstChild( "param" ).Element();
-            for ( /***/; pElemParam; pElemParam = pElemParam->NextSiblingElement( "param" )) {
+            pElemParam = hConnection.FirstChild("param").Element();
+            for (/***/; pElemParam; pElemParam = pElemParam->NextSiblingElement("param")) {
 
                 hParam = pElemParam;
-               // Found a Parameter Element With Text
+                // Found a Parameter Element With Text
                 if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
                     if (strcmp(pElemParam->Attribute("name"), "from") == 0) {
                         from = pElemParam->FirstChild()->Value();
-                    } 
+                    }
                     if (strcmp(pElemParam->Attribute("name"), "to") == 0) {
                         to = pElemParam->FirstChild()->Value();
-                    } 
+                    }
                     if (strcmp(pElemParam->Attribute("name"), "weight") == 0) {
-                        weight = Range((double)atof(pElemParam->FirstChild()->Value()));
+                        weight = Range((double) atof(pElemParam->FirstChild()->Value()));
                         pElem->QueryDoubleAttribute("sigma", &sigma);
-                    } 
+                    }
                     if (strcmp(pElemParam->Attribute("name"), "delay") == 0) {
-                        delay = Range((double)atof(pElemParam->FirstChild()->Value()));
-                    } 
+                        delay = Range((double) atof(pElemParam->FirstChild()->Value()));
+                    }
                     if (strcmp(pElemParam->Attribute("name"), "density") == 0) {
-                        density = Range((double)atof(pElemParam->FirstChild()->Value()));
-                    } 
+                        density = Range((double) atof(pElemParam->FirstChild()->Value()));
+                    }
                     if (strcmp(pElemParam->Attribute("name"), "symmetric") == 0) {
-                        symmetric = (strcmp(pElemParam->FirstChild()->Value(),"true") == 0);
-                    } 
-				} else if (pElemParam->FirstChild()->Type() == TiXmlNode::ELEMENT) {
+                        symmetric = (strcmp(pElemParam->FirstChild()->Value(), "true") == 0);
+                    }
+                } else if (pElemParam->FirstChild()->Type() == TiXmlNode::ELEMENT) {
 
-					if (strcmp(pElemParam->FirstChild()->Value(), "range") == 0) {
+                    if (strcmp(pElemParam->FirstChild()->Value(), "range") == 0) {
                         start = 0;
                         end = 0;
                         step = 1;
                         hParam.FirstChild().Element()->QueryDoubleAttribute("start", &start);
                         hParam.FirstChild().Element()->QueryDoubleAttribute("end", &end);
                         hParam.FirstChild().Element()->QueryDoubleAttribute("step", &step);
-                        if (strcmp(pElemParam->Attribute("name"),"weight") == 0) {
+                        if (strcmp(pElemParam->Attribute("name"), "weight") == 0) {
                             weight = Range(start, end, step);
                         }
-                        if (strcmp(pElemParam->Attribute("name"),"delay") == 0) {
+                        if (strcmp(pElemParam->Attribute("name"), "delay") == 0) {
                             delay = Range(start, end, step);
                         }
-                        if (strcmp(pElemParam->Attribute("name"),"density") == 0) {
+                        if (strcmp(pElemParam->Attribute("name"), "density") == 0) {
                             density = Range(start, end, step);
                         }
-					}
+                    }
                 }
             }
 
@@ -353,13 +333,13 @@ bool Net::parseXML(string filename, string &error)
                 this->connections[to][from].weight = Range(weight);
                 this->connections[to][from].delay = Range(delay);
             }
-		}
+        }
 
         return true;
-	} else {
-		error = "Unable to find file or XML syntax error.";
-		return false;
-	}   
+    } else {
+        error = "Unable to find file or XML syntax error.";
+        return false;
+    }
 
 }
 

@@ -28,18 +28,17 @@ public:
     Neuron(NeuronParams params);
     Neuron();
     void init(int steps, double delay);
-    void jitter();
 
     // Virtual Methods
+    // REQUIRED
+    virtual void update(double &current, unsigned int &position, double &dt) = 0;
+    virtual void spike(unsigned int &position, double &dt) = 0;
+    virtual Neuron* clone() const = 0;
 
-    virtual void update(double &current, unsigned int &position, double &dt) {
-    }
+    // OPTIONAL
+    virtual void initialize() {};
+    virtual NeuronParams default_parameters() { return NeuronParams(); }
 
-    virtual void spike(unsigned int &position, double &dt) {
-    }
-
-    virtual void initialize() {
-    }
 
 protected:
     // Model Parameters
@@ -47,14 +46,15 @@ protected:
     double active; /**< Used for Poisson to decide if it is currently active. **/
     double delay; /**< Global delay parameter (specifies time zero). **/
 
-
     // Differential Equation Solvers
-    double diffsolve(double (*func)(double&, double&, unsigned int&, Neuron*), double &current, unsigned int &position, double &dt, Neuron* n);
-    double RungeKutta(double (*func)(double&, double&, unsigned int&, Neuron*), double &current, unsigned int &position, double &dt, Neuron* n);
+    double diffsolve(double (*func)(double, double&, unsigned int&, Neuron*), double val, double &current, unsigned int &position, double &dt, Neuron* n);
+    double RungeKutta(double (*func)(double, double&, unsigned int&, Neuron*), double val, double &current, unsigned int &position, double &dt, Neuron* n);
 
 private:
-    friend class boost::serialization::access;
+    void jitter();
+    void completeParameters();
 
+    friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version) {
         ar & voltage;

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <dlfcn.h>
 #include <map>
+#include <algorithm>
+#include <cctype>
 
 class NeuronFactory {
 

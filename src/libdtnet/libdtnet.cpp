@@ -481,7 +481,7 @@ bool dtnet::graphtrial(int type, Results &results, int trial, string const &file
                 if (pop_iter == --(pops.end())) props.x_title = "Time (ms)";
                 else props.x_title = "";
                 props.y_title = "Voltage (mV)";
-                props.y_max = -20;
+                props.y_max = 30;
                 props.y_min = -100;
                 props.y_nticks = 4;
                 break;

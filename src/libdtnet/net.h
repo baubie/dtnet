@@ -68,7 +68,7 @@ public:
 
         std::map<double, std::vector<double> > alphaVals;
 
-        double alpha(double t, std::list<Neuron*> &neurons, double tau, double delay, double globalDelay, double dt) {
+        double alpha(double t, std::list<Neuron*> neurons, double tau, double delay, double globalDelay, double dt) {
 
             static int ALPHA_WIDTH = 20;
             static int alpha_steps = (int) (ALPHA_WIDTH / dt);

@@ -20,7 +20,6 @@ public:
     bool accept_input;
     bool spontaneous;
     int position;
-    std::list<Neuron> neurons;
     NeuronParams params;
     std::map< std::string, Range > unconstrained; /*<< Collection of unconstrained IDs. */
 

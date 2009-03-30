@@ -7,11 +7,31 @@ Neuron::Neuron(NeuronParams params) : params(params) {}
 Neuron::Neuron() {}
 
 void Neuron::init(int steps, double delay) {
+    this->completeParameters();
     this->def_params = this->params;
     this->voltage.resize(steps, 0.0);
     this->delay = delay;
     this->jitter();
     this->initialize();
+}
+
+void Neuron::completeParameters() {
+    // Fill in the parameters that are missing with defaults
+    NeuronParams p = this->default_parameters();
+    map<std::string, Range>::iterator v_iter;
+    map<std::string, bool>::iterator t_iter;
+
+    for (v_iter = p.vals.begin(); v_iter != p.vals.end(); ++v_iter) {
+        if (this->params.vals.find(v_iter->first) == this->params.vals.end()) {
+            this->params.vals[v_iter->first] = v_iter->second;
+            this->params.sigmas[v_iter->first] = 0;
+        }
+    }
+    for (t_iter = p.toggles.begin(); t_iter != p.toggles.end(); ++v_iter) {
+        if (this->params.toggles.find(t_iter->first) == this->params.toggles.end()) {
+            this->params.toggles[t_iter->first] = t_iter->second;
+        }
+    }
 }
 
 double n(double mean, double sigma) {
@@ -30,18 +50,18 @@ void Neuron::jitter() {
     }
 }
 
-double Neuron::diffsolve(double (*func)(double&,double&,unsigned int&,Neuron*), double &current, unsigned int &position, double &dt, Neuron *n) {
-    return RungeKutta(func, current, position, dt, n);
+double Neuron::diffsolve(double (*func)(double,double&,unsigned int&,Neuron*), double val, double &current, unsigned int &position, double &dt, Neuron *n) {
+    return RungeKutta(func, val, current, position, dt, n);
 }
 
 
-double Neuron::RungeKutta(double (*func)(double&,double&,unsigned int&,Neuron*), double &current, unsigned int &position, double &dt, Neuron *n) {
+double Neuron::RungeKutta(double (*func)(double,double&,unsigned int&,Neuron*), double val, double &current, unsigned int &position, double &dt, Neuron *n) {
     double r;
     double k1,k2,k3,k4;
-    k1 = (*func)(this->V, current, position, n)*dt;
-    k2 = (*func)(this->V+0.5*k1, current, position, n)*dt;
-    k3 = (*func)(this->V+0.5*k2, current, position, n)*dt;
-    k4 = (*func)(this->V+k3, current, position, n)*dt;
+    k1 = (*func)(val, current, position, n)*dt;
+    k2 = (*func)(val+0.5*k1, current, position, n)*dt;
+    k3 = (*func)(val+0.5*k2, current, position, n)*dt;
+    k4 = (*func)(val+k3, current, position, n)*dt;
     r = (k1+2*k2+2*k3+k4)/6;
     return r;
 }

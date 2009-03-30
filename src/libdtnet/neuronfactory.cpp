@@ -7,6 +7,8 @@
 
 bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n) {
 
+    std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
+
     std::string library_name = "libdtnet_" + model_type + ".so";
 
     void* handle = dlopen(library_name.c_str(), RTLD_NOW);
@@ -30,7 +32,7 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
     // create an instance of the class
     n = create_model();
 
-    // copy in the parameters pass in if they are not null.
+        // copy in the parameters pass in if they are not null.
     if (np != NULL) n->params = *np;
 
     return true;

@@ -133,10 +133,10 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
 
     int total = number_of_trials * inputs->size() * networks->size();
     int steps = (int)(T/dt);
-    int count = 0;
 
     results = Results(T,dt,delay);
     results.timeseries = timesteps;
+
     /**************************
      * INITIALIZE SIMULATIONS *
      **************************/
@@ -179,6 +179,16 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
 
                 // Create the Result container
                 Results::Result r; 
+
+                // Make copies of the neurons
+                for (pops = n->populations.begin(); pops != n->populations.end(); ++pops) {
+                    list<Neuron*> copiedNeurons;
+                    for (neurons = pops->second.neurons.begin(); neurons != pops->second.neurons.end(); ++neurons) {
+                        copiedNeurons.push_back((*neurons)->clone());
+                    }
+                    pops->second.neurons.assign(copiedNeurons.begin(), copiedNeurons.end());
+                }
+                  
                 r.cNetwork = *n;
                 r.cTrial = *t;
                 r.trial_num = i;
