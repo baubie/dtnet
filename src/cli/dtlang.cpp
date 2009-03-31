@@ -45,7 +45,7 @@ bool dtlang::params_to_variables(dtlang::parameters &params, vector<dtlang::vari
 
 bool dtlang::parse(const string &str, bool &end_input) {
 
-	if (str == "") return true;
+    if (str == "") return true;
 
     bool r;
     string::const_iterator iter, end;
@@ -1167,6 +1167,7 @@ bool f_delete(const std::string var) {
 }
 
 bool dtlang::f_external(const string filename, bool &end_input) {
+
     string line;
     ifstream script(filename.c_str());
     if (script.is_open())

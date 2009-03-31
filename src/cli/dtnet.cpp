@@ -75,7 +75,6 @@ int main(int argc, char* argv[]) {
 
     /* Main Input Loop */
     if (dtlang::verbose) cout << "Initialization Complete" << endl;
-    if (dtlang::verbose) cout << "Simulation is Empty" << endl << endl;
 
     SReadline   Reader(history, 32);
     dtlang::initialize();

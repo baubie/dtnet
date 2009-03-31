@@ -17,10 +17,17 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
     std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
     std::string library_name = "libdtnet_" + model_type + ".so";
 
-    void* handle = dlopen(library_name.c_str(), RTLD_NOW);
-    if (!handle) {
-        std::cerr << "Cannot load library: " << dlerror() << std::endl;
-        return false;
+    void* handle;
+
+    if (handles.find(library_name) != handles.end()) {
+       handle = handles.find(library_name)->second;
+    } else {
+       handle = dlopen(library_name.c_str(), RTLD_NOW);
+        if (!handle) {
+            std::cerr << "Cannot load library: " << dlerror() << std::endl;
+            return false;
+        }
+       handles[library_name] = handle;
     }
 
     // reset errors
@@ -70,6 +77,11 @@ bool NeuronFactory::close() {
         }
 
         destroy_model(n_iter->first);
+    }
+
+    std::map<std::string, void*>::iterator h_iter;
+    for (h_iter = this->handles.begin(); h_iter != this->handles.end(); ++h_iter) {
+        dlclose(h_iter->second);
     }
 
     return true;

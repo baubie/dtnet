@@ -24,6 +24,7 @@ class NeuronFactory {
 
     private:
         std::map<Neuron*, std::string> models;
+        std::map<std::string, void*> handles;
 };
 
 
