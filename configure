@@ -2693,7 +2693,7 @@ macro_revision='1.3012'
 
 
 
-LTOBSOLETE_VERSION
+
 
 ltmain="$ac_aux_dir/ltmain.sh"
 
@@ -18860,8 +18860,8 @@ esac
 
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 # Files that config.status was made for.
-config_files="$ac_config_files"
-config_commands="$ac_config_commands"
+config_files="`echo $ac_config_files`"
+config_commands="`echo $ac_config_commands`"
 
 _ACEOF
 

@@ -5,7 +5,7 @@ using namespace std;
 
 extern "C" Neuron* create() { return new Poisson; }
 extern "C" void destroy(Neuron* n) { delete n; }
-Poisson* Poisson::clone() const { return new Poisson(*this); }
+Poisson* Poisson::clone() const { Poisson* r = new Poisson(*this); NeuronFactory::instance()->registerModel("Poisson", r); return r;}
 
 NeuronParams Poisson::default_parameters() {
     NeuronParams p;
@@ -62,7 +62,6 @@ void Poisson::update(double& current, unsigned int& position, double& dt) {
             currentMult = 1.0 + (half_initial_spike_height - 1.0) * sqrt((mu - 100.0) / 400.0);
         }
     }
-    current *= currentMult;
 
     // Use rand() to determine if we have a spike
     // We expect to spike at mu Hz.
@@ -71,8 +70,7 @@ void Poisson::update(double& current, unsigned int& position, double& dt) {
     // Then multiplies by the time step to find mu in terms of per time step.
     // This gives a probability of firing in this time step.
     // When dt = 0.05, this means that mu <= 20,000Hz, so we're good.
-    double p = (mu * 10 * dt); /**< Probability of firing. */
-    p *= current; // Decrease or increase depending on current;
+    double p = (mu * 10 * dt) * current * currentMult; /**< Probability of firing. */
 
     if (r < p) spike(position, dt);
     else voltage[position] = -65;

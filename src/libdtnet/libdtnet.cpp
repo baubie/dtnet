@@ -1,6 +1,8 @@
 #include "libdtnet.h"
 
 Settings *Settings::s_instance = 0;
+NeuronFactory *NeuronFactory::s_instance = 0;
+
 boost::threadpool::pool tp(2); // Pool an additional thread for the progress meter
 
 
@@ -17,6 +19,11 @@ bool dtnet::set_threads(int threads) {
     }
 
     return false;
+}
+
+bool dtnet::quit() {
+    NeuronFactory::instance()->close();
+    return true;
 }
 
 bool dtnet::set(const string var, double const val) {

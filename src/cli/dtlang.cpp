@@ -1102,6 +1102,10 @@ bool dtlang::f_help(string name) {
 
 
 bool dtlang::f_quit() {
+
+    // Tell libdtnet that it's time to clean up and go home
+    dtnet::quit();
+
     map<string, variable_def>::iterator iter;
     for (iter = vars.begin(); iter != vars.end(); ++iter) {
         dtlang::delete_variable(iter->second);

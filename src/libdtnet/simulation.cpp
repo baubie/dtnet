@@ -188,13 +188,14 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
                     }
                     pops->second.neurons.assign(copiedNeurons.begin(), copiedNeurons.end());
                 }
-                  
+                
                 r.cNetwork = *n;
                 r.cTrial = *t;
                 r.trial_num = i;
                 r.result_set = 0;
                 results.add(r);
             }
+
             progress += number_of_trials;
             progress_done = string((int)(progress_width*((float)progress/(float)total)), '*');
             progress_left = string(progress_width*(1-((float)progress/(float)total)) , ' ');

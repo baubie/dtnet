@@ -24,8 +24,6 @@ std::vector<Population::ConstrainedPopulation>* Population::populationFactory() 
 
     this->genPopulations( this->params.vals.begin() );
 
-    NeuronFactory nf;
-
     for (vector<ConstrainedPopulation>::iterator p = this->cPopulations.begin(); p != this->cPopulations.end(); ++p) {
         int size = 1;
         if (p->params.vals.find("size") != p->params.vals.end()) size = p->params.vals["size"];
@@ -37,7 +35,7 @@ std::vector<Population::ConstrainedPopulation>* Population::populationFactory() 
         for (int i = 0; i < size; ++i)
         {
             Neuron *new_neuron = NULL;
-            if (nf.create(this->model_type, &this->params, new_neuron))
+            if (NeuronFactory::instance()->create(this->model_type, &this->params, new_neuron))
             {
                 p->neurons.push_back(new_neuron);
             } else {
@@ -45,8 +43,6 @@ std::vector<Population::ConstrainedPopulation>* Population::populationFactory() 
             }
         }
     }
-
-    nf.close();
 
     return &(this->cPopulations);
 }

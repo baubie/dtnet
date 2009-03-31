@@ -15,6 +15,7 @@
 #include "net.h"
 #include "trial.h"
 #include "simulation.h"
+#include "neuronfactory.h"
 #include "results.h"
 #include "settings.h"
 #include <string>
@@ -40,7 +41,7 @@ namespace dtnet {
     double get_dbl(const std::string var);
     std::string get_str(const std::string var);
 
-
+    bool quit();
     bool load(Results &result, const std::string filename);
     bool run(Results &result, Simulation &sim, std::string filename, int number_of_trials, double delay, bool voltage);
     bool constrain(Results &result, Results *old_results, const std::string ID, const double value);

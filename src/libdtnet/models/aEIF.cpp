@@ -5,7 +5,7 @@ using namespace std;
 
 extern "C" Neuron* create() { return new aEIF; }
 extern "C" void destroy(Neuron* n) { delete n;}
-aEIF* aEIF::clone() const { return new aEIF(*this); }
+aEIF* aEIF::clone() const { aEIF *r = new aEIF(*this); NeuronFactory::instance()->registerModel("aEIF", r); return r;}
 
 
 NeuronParams aEIF::default_parameters() {

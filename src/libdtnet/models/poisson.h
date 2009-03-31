@@ -3,6 +3,8 @@
 #define POISSON_H
 
 #include "../neuron.h"
+#include "../neuronfactory.h"
+#include <math.h>
 
 // Derive our class based on the Neuron class
 class Poisson: public Neuron {

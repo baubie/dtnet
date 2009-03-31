@@ -3,6 +3,8 @@
 #define AEIF_H
 
 #include "../neuron.h"
+#include "../neuronfactory.h"
+
 
 // Derive our class based on the Neuron class
 class aEIF: public Neuron {
