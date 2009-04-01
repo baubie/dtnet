@@ -1,4 +1,4 @@
-SUBDIRS = libdtnet
+SUBDIRS = libdtnet models
 
 if BUILD_CLI
 SUBDIRS += cli

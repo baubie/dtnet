@@ -36,7 +36,7 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
     } else {
         handle = dlopen(library_name.c_str(), RTLD_NOW);
         if (!handle) {
-            std::cerr << "Cannot load library: " << dlerror() << std::endl;
+            std::cerr << "Cannot load " << library_name << ": " << dlerror() << std::endl;
             return false;
         }
         handles[library_name] = handle;

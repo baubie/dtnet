@@ -32,7 +32,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = src/libdtnet/models
+subdir = src/models
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_boost_base.m4 \
@@ -218,6 +218,8 @@ libdtnet_aeif_la_SOURCES = aEIF.cpp
 libdtnet_poisson_la_SOURCES = poisson.cpp
 libdtnet_aeif_la_LDFLAGS = -version-info 1:0:0
 libdtnet_poisson_la_LDFLAGS = -version-info 1:0:0
+LDADD = ../libdtnet/.libs/libdtnet.a
+INCLUDES = -I ../libdtnet
 AM_CXXFLAGS = $(BOOST_CPPFLAGS)
 AM_LDFLAGS = $(BOOST_LDFLAGS)
 all: all-am
@@ -233,9 +235,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  src/libdtnet/models/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  src/models/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  src/libdtnet/models/Makefile
+	  $(AUTOMAKE) --gnu  src/models/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

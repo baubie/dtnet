@@ -2,7 +2,7 @@
 #ifndef POISSON_H
 #define POISSON_H
 
-#include "../neuron.h"
+#include <neuron.h>
 #include <math.h>
 
 // Derive our class based on the Neuron class
