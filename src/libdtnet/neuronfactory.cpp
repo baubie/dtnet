@@ -7,7 +7,14 @@
 
 void NeuronFactory::registerModel(std::string model_type, Neuron* n) {
     std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
-    std::string library_name = "libdtnet_" + model_type + ".so";
+    std::string library_name;
+
+#ifdef __APPLE__
+    library_name = "libdtnet_" + model_type + ".dylib";
+#else
+    library_name = "libdtnet_" + model_type + ".so";
+#endif
+
     this->models[n] = library_name;
 }
 

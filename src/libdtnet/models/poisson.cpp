@@ -1,5 +1,6 @@
 
 #include "poisson.h"
+#include "aEIF.h"
 
 using namespace std;
 
@@ -24,9 +25,12 @@ NeuronParams Poisson::default_parameters() {
     return p;
 }
 
+void Poisson::initialize() {
+    this->mu = this->params.vals["mu"];
+}
+
 void Poisson::update(double& current, unsigned int& position, double& dt) {
 
-    static string s_mu = "mu";
 
     if (current == 0) {
         voltage[position] = -65;
@@ -35,7 +39,6 @@ void Poisson::update(double& current, unsigned int& position, double& dt) {
     }
 
     this->active += dt;
-    double mu = this->params.vals[s_mu];
 
     // Initial faster spiking rate
     double maximum = 1000;
