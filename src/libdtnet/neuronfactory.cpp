@@ -34,7 +34,7 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
     if (handles.find(library_name) != handles.end()) {
         handle = handles.find(library_name)->second;
     } else {
-        handle = dlopen(library_name.c_str(), RTLD_LAZY);
+        handle = dlopen(library_name.c_str(), RTLD_NOW);
         if (!handle) {
             std::cerr << "Cannot load library: " << dlerror() << std::endl;
             return false;
@@ -70,7 +70,7 @@ bool NeuronFactory::close() {
     std::map<Neuron*, std::string>::iterator n_iter;
 
     for (n_iter = this->models.begin(); n_iter != this->models.end(); ++n_iter) {
-        void* handle = dlopen(n_iter->second.c_str(), RTLD_LAZY);
+        void* handle = dlopen(n_iter->second.c_str(), RTLD_NOW);
         if (!handle) {
             std::cerr << "Cannot load library: " << dlerror() << std::endl;
             return false;

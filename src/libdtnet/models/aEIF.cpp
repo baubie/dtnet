@@ -11,9 +11,9 @@ extern "C" void destroy(Neuron* n) {
     delete n;
 }
 
-aEIF* aEIF::clone() const {
+aEIF* aEIF::clone(std::string &name) {
     aEIF *r = new aEIF(*this);
-    NeuronFactory::instance()->registerModel("aEIF", r);
+    name = "aEIF";
     return r;
 }
 

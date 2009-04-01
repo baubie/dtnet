@@ -3,8 +3,6 @@
 #define AEIF_H
 
 #include "../neuron.h"
-#include "../neuronfactory.h"
-
 
 // Derive our class based on the Neuron class
 
@@ -14,7 +12,7 @@ public:
     void update(double& current, unsigned int& position, double& dt);
     void spike(unsigned int &position, double &dt);
     NeuronParams default_parameters();
-    aEIF* clone() const;
+    aEIF* clone(std::string &name);
 
     // dtnet optional functions
     void initialize();

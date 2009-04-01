@@ -3,7 +3,6 @@
 #define POISSON_H
 
 #include "../neuron.h"
-#include "../neuronfactory.h"
 #include <math.h>
 
 // Derive our class based on the Neuron class
@@ -14,7 +13,7 @@ public:
     void update(double& current, unsigned int& position, double& dt);
     void spike(unsigned int &position, double &dt);
     NeuronParams default_parameters();
-    Poisson* clone() const;
+    Poisson* clone(std::string &name);
 
     // dtnet optional functions
     void initialize();

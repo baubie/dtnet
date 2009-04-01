@@ -1,10 +1,18 @@
 
 #include "neuron.h"
+#include "neuronfactory.h"
 
 using namespace std;
 
 Neuron::Neuron(NeuronParams params) : params(params) {}
 Neuron::Neuron() {}
+
+Neuron* Neuron::clone() {
+    string name = "";
+    Neuron* r = this->clone(name);
+    NeuronFactory::instance()->registerModel(name, r);
+    return r;
+}
 
 void Neuron::init(int steps, double delay) {
     this->completeParameters();

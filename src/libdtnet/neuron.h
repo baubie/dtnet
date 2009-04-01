@@ -33,7 +33,8 @@ public:
     // REQUIRED
     virtual void update(double &current, unsigned int &position, double &dt) = 0;
     virtual void spike(unsigned int &position, double &dt) = 0;
-    virtual Neuron* clone() const = 0;
+    virtual Neuron* clone(std::string &name) = 0;
+    Neuron* clone();
 
     // OPTIONAL
     virtual void initialize() {};

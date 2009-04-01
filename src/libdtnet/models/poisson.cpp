@@ -6,7 +6,7 @@ using namespace std;
 
 extern "C" Neuron* create() { return new Poisson; }
 extern "C" void destroy(Neuron* n) { delete n; }
-Poisson* Poisson::clone() const { Poisson* r = new Poisson(*this); NeuronFactory::instance()->registerModel("Poisson", r); return r;}
+Poisson* Poisson::clone(std::string &name) { Poisson* r = new Poisson(*this); name = "Poisson"; return r;}
 
 NeuronParams Poisson::default_parameters() {
     NeuronParams p;
