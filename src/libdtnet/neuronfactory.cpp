@@ -6,7 +6,6 @@
  */
 
 void NeuronFactory::registerModel(std::string model_type, Neuron* n) {
-
     std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
     std::string library_name = "libdtnet_" + model_type + ".so";
     this->models[n] = library_name;
@@ -15,19 +14,25 @@ void NeuronFactory::registerModel(std::string model_type, Neuron* n) {
 bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n) {
 
     std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
-    std::string library_name = "libdtnet_" + model_type + ".so";
+    std::string library_name;
+
+#ifdef __APPLE__
+    library_name = "libdtnet_" + model_type + ".dylib";
+#else
+    library_name = "libdtnet_" + model_type + ".so";
+#endif
 
     void* handle;
 
     if (handles.find(library_name) != handles.end()) {
-       handle = handles.find(library_name)->second;
+        handle = handles.find(library_name)->second;
     } else {
-       handle = dlopen(library_name.c_str(), RTLD_NOW);
+        handle = dlopen(library_name.c_str(), RTLD_NOW);
         if (!handle) {
             std::cerr << "Cannot load library: " << dlerror() << std::endl;
             return false;
         }
-       handles[library_name] = handle;
+        handles[library_name] = handle;
     }
 
     // reset errors
