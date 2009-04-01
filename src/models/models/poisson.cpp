@@ -1,6 +1,5 @@
 
 #include "poisson.h"
-#include "aEIF.h"
 
 using namespace std;
 

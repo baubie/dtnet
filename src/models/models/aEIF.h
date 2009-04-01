@@ -3,6 +3,7 @@
 #define AEIF_H
 
 #include "../neuron.h"
+#include "../range.h"
 
 // Derive our class based on the Neuron class
 
