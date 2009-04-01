@@ -38,7 +38,7 @@ public:
 
     // OPTIONAL
     virtual void initialize() {};
-    virtual NeuronParams default_parameters() { return NeuronParams(); }
+    virtual std::map<std::string, double> default_parameters() { return std::map<std::string, double>(); }
 
 
 protected:

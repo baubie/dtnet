@@ -12,7 +12,7 @@ public:
     // dtnet required functions
     void update(double& current, unsigned int& position, double& dt);
     void spike(unsigned int &position, double &dt);
-    NeuronParams default_parameters();
+    std::map<std::string, double> default_parameters();
     Poisson* clone(std::string &name);
 
     // dtnet optional functions

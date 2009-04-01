@@ -25,19 +25,13 @@ void Neuron::init(int steps, double delay) {
 
 void Neuron::completeParameters() {
     // Fill in the parameters that are missing with defaults
-    NeuronParams p = this->default_parameters();
-    map<std::string, Range>::iterator v_iter;
-    map<std::string, bool>::iterator t_iter;
+    map<std::string, double> p = this->default_parameters();
+    map<std::string, double>::iterator v_iter;
 
-    for (v_iter = p.vals.begin(); v_iter != p.vals.end(); ++v_iter) {
+    for (v_iter = p.begin(); v_iter != p.end(); ++v_iter) {
         if (this->params.vals.find(v_iter->first) == this->params.vals.end()) {
-            this->params.vals[v_iter->first] = v_iter->second;
+            this->params.vals[v_iter->first] = Range(v_iter->second);
             this->params.sigmas[v_iter->first] = 0;
-        }
-    }
-    for (t_iter = p.toggles.begin(); t_iter != p.toggles.end(); ++v_iter) {
-        if (this->params.toggles.find(t_iter->first) == this->params.toggles.end()) {
-            this->params.toggles[t_iter->first] = t_iter->second;
         }
     }
 }
@@ -47,7 +41,7 @@ double n(double mean, double sigma) {
     extern boost::mt19937 random_engine;
     boost::normal_distribution<double> norm_dist(mean, sigma);
     boost::variate_generator<boost::mt19937&, boost::normal_distribution<double> > generator(random_engine, norm_dist);
-    return generator(); 
+    return generator();
 }
 
 void Neuron::jitter() {

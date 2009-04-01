@@ -7,20 +7,9 @@ extern "C" Neuron* create() { return new Poisson; }
 extern "C" void destroy(Neuron* n) { delete n; }
 Poisson* Poisson::clone(std::string &name) { Poisson* r = new Poisson(*this); name = "Poisson"; return r;}
 
-NeuronParams Poisson::default_parameters() {
-    NeuronParams p;
-    p.vals["size"] = Range(1);
-    p.vals["VT"] = Range(-52);
-    p.vals["C"] = Range(281);
-    p.vals["hypTau"] = Range(5);
-    p.vals["alpha_q"] = Range(1);
-    p.vals["gL"] = Range(30);
-    p.vals["EL"] = Range(-63);
-    p.vals["tauw"] = Range(200);
-    p.vals["a"] = Range(1500);
-    p.vals["b"] = Range(80.5);
-    p.vals["deltaT"] = Range(2);
-    p.vals["VR"] = Range(-63);
+map<string, double> Poisson::default_parameters() {
+    map<string, double> p;
+    p["mu"] = 100;
     return p;
 }
 

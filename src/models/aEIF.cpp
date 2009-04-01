@@ -17,23 +17,23 @@ aEIF* aEIF::clone(std::string &name) {
     return r;
 }
 
-NeuronParams aEIF::default_parameters() {
-    NeuronParams p;
+map<string,double> aEIF::default_parameters() {
+    map<string, double> p;
 
-    p.vals["size"] = Range(1);
+    p["size"] = 1;
 
     // aEIF parameters
-    p.vals["C"] = Range(281);
-    p.vals["gL"] = Range(30);
-    p.vals["EL"] = Range(-70.6);
-    p.vals["VT"] = Range(-50.4);
-    p.vals["deltaT"] = Range(2);
-    p.vals["tauw"] = Range(144);
-    p.vals["a"] = Range(4);
-    p.vals["b"] = Range(0.0805);
-    p.vals["VR"] = Range(-70.6);
-    p.vals["hypTau"] = Range(2);
-    p.vals["alpha_q"] = Range(1);
+    p["C"] = 281;
+    p["gL"] = 30;
+    p["EL"] = -70.6;
+    p["VT"] = -50.4;
+    p["deltaT"] = 2;
+    p["tauw"] = 144;
+    p["a"] = 4;
+    p["b"] = 0.0805;
+    p["VR"] = -70.6;
+    p["hypTau"] = 2;
+    p["alpha_q"] = 1;
     return p;
 }
 
