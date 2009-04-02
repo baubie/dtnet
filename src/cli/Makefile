@@ -58,11 +58,10 @@ am_dtnet_OBJECTS = dtnet.$(OBJEXT) dtlang.$(OBJEXT)
 dtnet_OBJECTS = $(am_dtnet_OBJECTS)
 dtnet_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
-dtnet_DEPENDENCIES = ../libdtnet/.libs/libdtnet.so \
-	../libdtnet/lib/tinyxml/libtinyxml.a $(am__DEPENDENCIES_1) \
+dtnet_DEPENDENCIES = ../libdtnet/lib/tinyxml/libtinyxml.a \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -80,12 +79,12 @@ DIST_SOURCES = $(dtnet_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/aubiebn/dev/dtnet/missing --run aclocal-1.10
-AMTAR = ${SHELL} /home/aubiebn/dev/dtnet/missing --run tar
+ACLOCAL = ${SHELL} /net/meitner/1/home/aubiebn/dev/dtnet/missing --run aclocal-1.10
+AMTAR = ${SHELL} /net/meitner/1/home/aubiebn/dev/dtnet/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/aubiebn/dev/dtnet/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/aubiebn/dev/dtnet/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/aubiebn/dev/dtnet/missing --run automake-1.10
+AUTOCONF = ${SHELL} /net/meitner/1/home/aubiebn/dev/dtnet/missing --run autoconf
+AUTOHEADER = ${SHELL} /net/meitner/1/home/aubiebn/dev/dtnet/missing --run autoheader
+AUTOMAKE = ${SHELL} /net/meitner/1/home/aubiebn/dev/dtnet/missing --run automake-1.10
 AWK = gawk
 BOOST_CPPFLAGS = -pthread -I/home/aubiebn/local64/include/boost-1_38
 BOOST_DATE_TIME_LIB = -lboost_date_time-gcc43-mt-1_38
@@ -130,7 +129,7 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/aubiebn/dev/dtnet/missing --run makeinfo
+MAKEINFO = ${SHELL} /net/meitner/1/home/aubiebn/dev/dtnet/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
 NMEDIT = 
@@ -151,10 +150,10 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = strip
 VERSION = 1.0.0
-abs_builddir = /home/aubiebn/dev/dtnet/src/cli
-abs_srcdir = /home/aubiebn/dev/dtnet/src/cli
-abs_top_builddir = /home/aubiebn/dev/dtnet
-abs_top_srcdir = /home/aubiebn/dev/dtnet
+abs_builddir = /net/meitner/1/home/aubiebn/dev/dtnet/src/cli
+abs_srcdir = /net/meitner/1/home/aubiebn/dev/dtnet/src/cli
+abs_top_builddir = /net/meitner/1/home/aubiebn/dev/dtnet
+abs_top_srcdir = /net/meitner/1/home/aubiebn/dev/dtnet
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 ac_ct_DUMPBIN = 
@@ -183,7 +182,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = $(SHELL) /home/aubiebn/dev/dtnet/install-sh
+install_sh = $(SHELL) /net/meitner/1/home/aubiebn/dev/dtnet/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -205,9 +204,9 @@ top_build_prefix = ../../
 top_builddir = ../..
 top_srcdir = ../..
 dtnet_SOURCES = dtnet.cpp dtlang.cpp 
-LDADD = ../libdtnet/.libs/libdtnet.so ../libdtnet/lib/tinyxml/libtinyxml.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB) 
+LDADD = ../libdtnet/lib/tinyxml/libtinyxml.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB) 
 AM_CXXFLAGS = $(BOOST_CPPFLAGS)
-AM_LDFLAGS = $(BOOST_LDFLAGS)
+AM_LDFLAGS = -L../libdtnet/.libs -ldtnet $(BOOST_LDFLAGS)
 all: all-am
 
 .SUFFIXES:

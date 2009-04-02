@@ -58,11 +58,10 @@ am_dtnet_OBJECTS = dtnet.$(OBJEXT) dtlang.$(OBJEXT)
 dtnet_OBJECTS = $(am_dtnet_OBJECTS)
 dtnet_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
-dtnet_DEPENDENCIES = ../libdtnet/.libs/libdtnet.so \
-	../libdtnet/lib/tinyxml/libtinyxml.a $(am__DEPENDENCIES_1) \
+dtnet_DEPENDENCIES = ../libdtnet/lib/tinyxml/libtinyxml.a \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -205,9 +204,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dtnet_SOURCES = dtnet.cpp dtlang.cpp 
-LDADD = ../libdtnet/.libs/libdtnet.so ../libdtnet/lib/tinyxml/libtinyxml.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB) 
+LDADD = ../libdtnet/lib/tinyxml/libtinyxml.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB) 
 AM_CXXFLAGS = $(BOOST_CPPFLAGS)
-AM_LDFLAGS = $(BOOST_LDFLAGS)
+AM_LDFLAGS = -L../libdtnet/.libs -ldtnet $(BOOST_LDFLAGS)
 all: all-am
 
 .SUFFIXES:
