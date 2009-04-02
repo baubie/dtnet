@@ -34,7 +34,7 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
     if (handles.find(library_name) != handles.end()) {
         handle = handles.find(library_name)->second;
     } else {
-        handle = dlopen(library_name.c_str(), RTLD_NOW);
+        handle = dlopen(library_name.c_str(), RTLD_LAZY);
         if (!handle) {
             std::cerr << "Cannot load " << library_name << ": " << dlerror() << std::endl;
             return false;
@@ -46,7 +46,7 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
     dlerror();
 
     // load the symbols
-    create_t* create_model = (create_t*) dlsym(handle, "create");
+    create_t* create_model = (create_t*) dlsym(handle, "create"); 
     const char* dlsym_error = dlerror();
     if (dlsym_error) {
         std::cerr << "Cannot load symbol create: " << dlsym_error << std::endl;
@@ -59,8 +59,10 @@ bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n)
 
     // copy in the parameters pass in if they are not null.
     if (np != NULL) n->params = *np;
+    n->model = model_type;
 
     this->models[n] = library_name;
+
 
     return true;
 }
@@ -70,7 +72,7 @@ bool NeuronFactory::close() {
     std::map<Neuron*, std::string>::iterator n_iter;
 
     for (n_iter = this->models.begin(); n_iter != this->models.end(); ++n_iter) {
-        void* handle = dlopen(n_iter->second.c_str(), RTLD_NOW);
+        void* handle = dlopen(n_iter->second.c_str(), RTLD_LAZY);
         if (!handle) {
             std::cerr << "Cannot load library: " << dlerror() << std::endl;
             return false;

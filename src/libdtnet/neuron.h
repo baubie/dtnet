@@ -23,6 +23,7 @@ public:
     std::vector<double> spikes;
     NeuronParams params; /**< Parameters to run simulation with after jitter(). **/
     double V; /**< Voltage (mV) **/
+    std::string model;
 
     // Methods
     Neuron(NeuronParams params);
@@ -33,12 +34,12 @@ public:
     // REQUIRED
     virtual void update(double &current, unsigned int &position, double &dt) = 0;
     virtual void spike(unsigned int &position, double &dt) = 0;
-    virtual Neuron* clone(std::string &name) = 0;
-    Neuron* clone();
+    virtual Neuron* clone() = 0;
 
     // OPTIONAL
     virtual void initialize() {};
     virtual std::map<std::string, double> default_parameters() { return std::map<std::string, double>(); }
+    virtual ~Neuron() {}
 
 
 protected:
@@ -46,6 +47,8 @@ protected:
     NeuronParams def_params; /**< Parameters passed in before jittering. **/
     double active; /**< Used for Poisson to decide if it is currently active. **/
     double delay; /**< Global delay parameter (specifies time zero). **/
+
+    void registerModel(Neuron* n);
 
     // Differential Equation Solvers
     double diffsolve(double (*func)(double, double&, unsigned int&, Neuron*), double val, double &current, unsigned int &position, double &dt, Neuron* n);

@@ -14,6 +14,7 @@ class NeuronParams {
         std::map<std::string, Range> vals;
         std::map<std::string, double> sigmas;
         std::map<std::string, bool> toggles;
+        double getval(std::string v) { return (double)this->vals[v]; }
 
 private:
         friend class boost::serialization::access;

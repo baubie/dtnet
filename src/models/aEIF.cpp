@@ -3,19 +3,9 @@
 
 using namespace std;
 
-extern "C" Neuron* create() {
-    return new aEIF;
-}
-
-extern "C" void destroy(Neuron* n) {
-    delete n;
-}
-
-aEIF* aEIF::clone(std::string &name) {
-    aEIF *r = new aEIF(*this);
-    name = "aEIF";
-    return r;
-}
+extern "C" Neuron* create() { return new aEIF; }
+extern "C" void destroy(Neuron* n) { delete n; }
+aEIF* aEIF::clone() { aEIF* r = new aEIF(*this); registerModel(r); return r;}
 
 map<string,double> aEIF::default_parameters() {
     map<string, double> p;
@@ -40,21 +30,22 @@ map<string,double> aEIF::default_parameters() {
 void aEIF::initialize() {
 
     // Avoid map lookups during simulation
-    this->C = this->params.vals["C"];
-    this->gL = this->params.vals["gL"];
-    this->EL = this->params.vals["EL"];
-    this->VT = this->params.vals["VT"];
-    this->deltaT = this->params.vals["deltaT"];
-    this->tauw = this->params.vals["tauw"];
-    this->a = this->params.vals["a"];
-    this->b = this->params.vals["b"];
-    this->VR = this->params.vals["VR"];
-    this->hypTau = this->params.vals["hypTai"];
-    this->alpha_q = this->params.vals["alpha_q"];
+    this->C = this->params.getval("C");
+    this->gL = this->params.getval("gL");
+    this->EL = this->params.getval("EL");
+    this->VT = this->params.getval("VT");
+    this->deltaT = this->params.getval("deltaT");
+    this->tauw = this->params.getval("tauw");
+    this->a = this->params.getval("a");
+    this->b = this->params.getval("b");
+    this->VR = this->params.getval("VR");
+    this->hypTau = this->params.getval("hypTai");
+    this->alpha_q = this->params.getval("alpha_q");
 
     this->V = this->EL;
     this->w = 0;
 }
+
 
 void aEIF::update(double& current, unsigned int& position, double& dt) {
 

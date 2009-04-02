@@ -2,20 +2,20 @@
 #ifndef AEIF_H
 #define AEIF_H
 
-#include <neuron.h>
+#include "../libdtnet/neuron.h"
 
 // Derive our class based on the Neuron class
 
 class aEIF : public Neuron {
 public:
     // dtnet required functions
-    void update(double& current, unsigned int& position, double& dt);
-    void spike(unsigned int &position, double &dt);
-    std::map<std::string, double> default_parameters();
-    aEIF* clone(std::string &name);
+    virtual  void update(double& current, unsigned int& position, double& dt);
+    virtual void spike(unsigned int &position, double &dt);
+    virtual aEIF* clone();
 
     // dtnet optional functions
-    void initialize();
+    virtual void initialize();
+    virtual std::map<std::string, double> default_parameters();
 
     // Custom variables to track
     double w;

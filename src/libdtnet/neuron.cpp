@@ -7,12 +7,11 @@ using namespace std;
 Neuron::Neuron(NeuronParams params) : params(params) {}
 Neuron::Neuron() {}
 
-Neuron* Neuron::clone() {
-    string name = "";
-    Neuron* r = this->clone(name);
-    NeuronFactory::instance()->registerModel(name, r);
-    return r;
+
+void Neuron::registerModel(Neuron* n) {
+    NeuronFactory::instance()->registerModel(this->model, n);
 }
+
 
 void Neuron::init(int steps, double delay) {
     this->completeParameters();

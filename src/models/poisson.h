@@ -2,7 +2,7 @@
 #ifndef POISSON_H
 #define POISSON_H
 
-#include <neuron.h>
+#include "../libdtnet/neuron.h"
 #include <math.h>
 
 // Derive our class based on the Neuron class
@@ -10,13 +10,13 @@
 class Poisson : public Neuron {
 public:
     // dtnet required functions
-    void update(double& current, unsigned int& position, double& dt);
-    void spike(unsigned int &position, double &dt);
-    std::map<std::string, double> default_parameters();
-    Poisson* clone(std::string &name);
+    virtual void update(double& current, unsigned int& position, double& dt);
+    virtual void spike(unsigned int &position, double &dt);
+    virtual std::map<std::string, double> default_parameters();
+    virtual Poisson* clone();
 
     // dtnet optional functions
-    void initialize();
+    virtual void initialize();
 
 
     // Custom variables to track

@@ -5,7 +5,7 @@ using namespace std;
 
 extern "C" Neuron* create() { return new Poisson; }
 extern "C" void destroy(Neuron* n) { delete n; }
-Poisson* Poisson::clone(std::string &name) { Poisson* r = new Poisson(*this); name = "Poisson"; return r;}
+Poisson* Poisson::clone() { Poisson* r = new Poisson(*this); registerModel(r); return r;}
 
 map<string, double> Poisson::default_parameters() {
     map<string, double> p;
@@ -14,7 +14,7 @@ map<string, double> Poisson::default_parameters() {
 }
 
 void Poisson::initialize() {
-    this->mu = this->params.vals["mu"];
+    this->mu = this->params.getval("mu");
 }
 
 void Poisson::update(double& current, unsigned int& position, double& dt) {
