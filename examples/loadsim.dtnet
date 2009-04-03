@@ -1,4 +1,0 @@
-trial = loadtrial("inputs/input.xml")
-net = loadnetwork("networks/network.xml")
-sim = initsimulation(net)
-sim = linktrial(trial, sim, "CN")
