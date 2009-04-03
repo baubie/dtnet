@@ -38,6 +38,8 @@ public:
         T density;
         T sigma;
 
+#ifdef BUILDING_LIBRARY
+
         friend class boost::serialization::access;
 
         template<class Archive>
@@ -47,6 +49,8 @@ public:
             ar & density;
             ar & sigma;
         }
+#endif
+        
     };
 
     static bool pop_order_sort(Population::ConstrainedPopulation* a, Population::ConstrainedPopulation* b) {
@@ -95,8 +99,7 @@ public:
                         step = (int) (spike / dt);
                         if (spike < ALPHA_WIDTH) {
                             current += alphaVals[tau][step];
-                        }
-                        else {
+                        } else {
                             break;
                         }
                     }
@@ -105,6 +108,7 @@ public:
             return current;
         }
 
+#ifdef BUILDING_LIBRARY
         friend class boost::serialization::access;
 
         template<class Archive>
@@ -112,6 +116,7 @@ public:
             ar & populations;
             ar & connections;
         }
+#endif
     };
 
     std::vector<ConstrainedNetwork>* networkFactory();

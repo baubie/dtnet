@@ -229,9 +229,6 @@ libdtnet_aeif_la_SOURCES = aEIF.cpp
 libdtnet_poisson_la_SOURCES = poisson.cpp
 libdtnet_aeif_la_LDFLAGS = -version-info 1:0:0
 libdtnet_poisson_la_LDFLAGS = -version-info 1:0:0
-LDADD = ../libdtnet/.libs/libdtnet.a
-AM_CXXFLAGS = $(BOOST_CPPFLAGS)
-AM_LDFLAGS = $(BOOST_LDFLAGS)
 all: all-am
 
 .SUFFIXES:
@@ -512,6 +509,9 @@ uninstall-am: uninstall-libLTLIBRARIES
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-libLTLIBRARIES
 
+
+#libdtnet_aeif_la_LDADD = ../libdtnet/.libs/libdtnet.a
+#libdtnet_poisson_la_LDADD = ../libdtnet/.libs/libdtnet.a
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

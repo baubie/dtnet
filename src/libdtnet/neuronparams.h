@@ -17,6 +17,8 @@ class NeuronParams {
         double getval(std::string v) { return (double)this->vals[v]; }
 
 private:
+
+#ifdef BUILDING_LIBRARY
         friend class boost::serialization::access;
         template<class Archive>
         void serialize(Archive &ar, const unsigned int version)
@@ -26,6 +28,8 @@ private:
             ar & sigmas;
             ar & toggles;
         }
+#endif
+        
 };
 
 

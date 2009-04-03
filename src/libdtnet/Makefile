@@ -60,13 +60,20 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
-libdtnet_la_LIBADD =
-am_libdtnet_la_OBJECTS = libdtnet.lo GLE.lo net.lo population.lo \
-	neuron.lo simulation.lo trial.lo input.lo results.lo range.lo \
-	settings.lo neuronfactory.lo
+am__DEPENDENCIES_1 =
+libdtnet_la_DEPENDENCIES = lib/tinyxml/libtinyxml.la \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+am_libdtnet_la_OBJECTS = libdtnet_la-libdtnet.lo libdtnet_la-GLE.lo \
+	libdtnet_la-net.lo libdtnet_la-population.lo \
+	libdtnet_la-neuron.lo libdtnet_la-simulation.lo \
+	libdtnet_la-trial.lo libdtnet_la-input.lo \
+	libdtnet_la-results.lo libdtnet_la-range.lo \
+	libdtnet_la-settings.lo libdtnet_la-neuronfactory.lo
 libdtnet_la_OBJECTS = $(am_libdtnet_la_OBJECTS)
 libdtnet_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(libdtnet_la_CXXFLAGS) \
 	$(CXXFLAGS) $(libdtnet_la_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -119,7 +126,7 @@ CPPFLAGS =
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2 -O3
+CXXFLAGS = -g -O2
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE=\"libdtnet\" -DVERSION=\"1.0.0\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\" -DHAVE_BOOST=/\*\*/ -DHAVE_BOOST_PROGRAM_OPTIONS=/\*\*/ -DHAVE_BOOST_FILESYSTEM=/\*\*/ -DHAVE_BOOST_SERIALIZATION=/\*\*/ -DHAVE_BOOST_IOSTREAMS=/\*\*/ -DHAVE_BOOST_SYSTEM=/\*\*/ -DHAVE_BOOST_THREAD=/\*\*/ -DHAVE_BOOST_DATE_TIME=/\*\*/ -DHAVE_LIBREADLINE=1 -DHAVE_LIBNCURSES=1
 DEPDIR = .deps
@@ -138,7 +145,7 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /usr/bin/ld -m elf_x86_64
-LDFLAGS =  
+LDFLAGS = 
 LIBOBJS = 
 LIBS = -lncurses -lreadline 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
@@ -166,16 +173,16 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = strip
 VERSION = 1.0.0
-WX_CFLAGS = 
-WX_CFLAGS_ONLY = 
-WX_CONFIG_PATH = 
-WX_CPPFLAGS = 
-WX_CXXFLAGS = 
+WX_CFLAGS = -I/usr/lib64/wx/include/ -I/usr/lib64/wx/include/gtk2-ansi-release-2.8 -I/usr/include/wx-2.8 -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXGTK__ -pthread
+WX_CFLAGS_ONLY = -pthread
+WX_CONFIG_PATH = /usr/bin/wx-config
+WX_CPPFLAGS = -I/usr/lib64/wx/include/ -I/usr/lib64/wx/include/gtk2-ansi-release-2.8 -I/usr/include/wx-2.8 -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXGTK__
+WX_CXXFLAGS = -I/usr/lib64/wx/include/ -I/usr/lib64/wx/include/gtk2-ansi-release-2.8 -I/usr/include/wx-2.8 -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D__WXGTK__ -pthread
 WX_CXXFLAGS_ONLY = 
-WX_LIBS = 
+WX_LIBS = -L/usr/lib64 -pthread  -Wl,--as-needed -Wl,--no-undefined  -L/usr/lib64   -lwx_gtk2_richtext-2.8 -lwx_gtk2_aui-2.8 -lwx_gtk2_xrc-2.8 -lwx_gtk2_qa-2.8 -lwx_gtk2_html-2.8 -lwx_gtk2_adv-2.8 -lwx_gtk2_core-2.8 -lwx_base_xml-2.8 -lwx_base_net-2.8 -lwx_base-2.8 
 WX_LIBS_STATIC = 
 WX_RESCOMP = 
-WX_VERSION = 
+WX_VERSION = 2.8.8
 abs_builddir = /net/meitner/1/home/aubiebn/dev/dtnet/src/libdtnet
 abs_srcdir = /net/meitner/1/home/aubiebn/dev/dtnet/src/libdtnet
 abs_top_builddir = /net/meitner/1/home/aubiebn/dev/dtnet
@@ -229,13 +236,12 @@ target_alias =
 top_build_prefix = ../../
 top_builddir = ../..
 top_srcdir = ../..
+SUBDIRS = lib/tinyxml
 lib_LTLIBRARIES = libdtnet.la
 libdtnet_la_SOURCES = libdtnet.cpp GLE.cpp net.cpp population.cpp neuron.cpp simulation.cpp trial.cpp input.cpp results.cpp range.cpp settings.cpp neuronfactory.cpp
-libdtnet_la_LDFLAGS = -version-info 1:0:0
-SUBDIRS = lib/tinyxml
-LDADD = lib/tinyxml/libtinyxml.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB)
-AM_CXXFLAGS = $(BOOST_CPPFLAGS)
-AM_LDFLAGS = $(BOOST_LDFLAGS)
+libdtnet_la_LDFLAGS = -no-undefined -version-info 1:0:0 $(BOOST_LDFLAGS)
+libdtnet_la_LIBADD = lib/tinyxml/libtinyxml.la $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB)
+libdtnet_la_CXXFLAGS = $(BOOST_CPPFLAGS) -DBUILDING_LIBRARY="1"
 all: all-recursive
 
 .SUFFIXES:
@@ -305,18 +311,18 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/GLE.Plo
-include ./$(DEPDIR)/input.Plo
-include ./$(DEPDIR)/libdtnet.Plo
-include ./$(DEPDIR)/net.Plo
-include ./$(DEPDIR)/neuron.Plo
-include ./$(DEPDIR)/neuronfactory.Plo
-include ./$(DEPDIR)/population.Plo
-include ./$(DEPDIR)/range.Plo
-include ./$(DEPDIR)/results.Plo
-include ./$(DEPDIR)/settings.Plo
-include ./$(DEPDIR)/simulation.Plo
-include ./$(DEPDIR)/trial.Plo
+include ./$(DEPDIR)/libdtnet_la-GLE.Plo
+include ./$(DEPDIR)/libdtnet_la-input.Plo
+include ./$(DEPDIR)/libdtnet_la-libdtnet.Plo
+include ./$(DEPDIR)/libdtnet_la-net.Plo
+include ./$(DEPDIR)/libdtnet_la-neuron.Plo
+include ./$(DEPDIR)/libdtnet_la-neuronfactory.Plo
+include ./$(DEPDIR)/libdtnet_la-population.Plo
+include ./$(DEPDIR)/libdtnet_la-range.Plo
+include ./$(DEPDIR)/libdtnet_la-results.Plo
+include ./$(DEPDIR)/libdtnet_la-settings.Plo
+include ./$(DEPDIR)/libdtnet_la-simulation.Plo
+include ./$(DEPDIR)/libdtnet_la-trial.Plo
 
 .cpp.o:
 	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -338,6 +344,90 @@ include ./$(DEPDIR)/trial.Plo
 #	source='$<' object='$@' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(LTCXXCOMPILE) -c -o $@ $<
+
+libdtnet_la-libdtnet.lo: libdtnet.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-libdtnet.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-libdtnet.Tpo -c -o libdtnet_la-libdtnet.lo `test -f 'libdtnet.cpp' || echo '$(srcdir)/'`libdtnet.cpp
+	mv -f $(DEPDIR)/libdtnet_la-libdtnet.Tpo $(DEPDIR)/libdtnet_la-libdtnet.Plo
+#	source='libdtnet.cpp' object='libdtnet_la-libdtnet.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-libdtnet.lo `test -f 'libdtnet.cpp' || echo '$(srcdir)/'`libdtnet.cpp
+
+libdtnet_la-GLE.lo: GLE.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-GLE.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-GLE.Tpo -c -o libdtnet_la-GLE.lo `test -f 'GLE.cpp' || echo '$(srcdir)/'`GLE.cpp
+	mv -f $(DEPDIR)/libdtnet_la-GLE.Tpo $(DEPDIR)/libdtnet_la-GLE.Plo
+#	source='GLE.cpp' object='libdtnet_la-GLE.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-GLE.lo `test -f 'GLE.cpp' || echo '$(srcdir)/'`GLE.cpp
+
+libdtnet_la-net.lo: net.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-net.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-net.Tpo -c -o libdtnet_la-net.lo `test -f 'net.cpp' || echo '$(srcdir)/'`net.cpp
+	mv -f $(DEPDIR)/libdtnet_la-net.Tpo $(DEPDIR)/libdtnet_la-net.Plo
+#	source='net.cpp' object='libdtnet_la-net.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-net.lo `test -f 'net.cpp' || echo '$(srcdir)/'`net.cpp
+
+libdtnet_la-population.lo: population.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-population.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-population.Tpo -c -o libdtnet_la-population.lo `test -f 'population.cpp' || echo '$(srcdir)/'`population.cpp
+	mv -f $(DEPDIR)/libdtnet_la-population.Tpo $(DEPDIR)/libdtnet_la-population.Plo
+#	source='population.cpp' object='libdtnet_la-population.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-population.lo `test -f 'population.cpp' || echo '$(srcdir)/'`population.cpp
+
+libdtnet_la-neuron.lo: neuron.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-neuron.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-neuron.Tpo -c -o libdtnet_la-neuron.lo `test -f 'neuron.cpp' || echo '$(srcdir)/'`neuron.cpp
+	mv -f $(DEPDIR)/libdtnet_la-neuron.Tpo $(DEPDIR)/libdtnet_la-neuron.Plo
+#	source='neuron.cpp' object='libdtnet_la-neuron.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-neuron.lo `test -f 'neuron.cpp' || echo '$(srcdir)/'`neuron.cpp
+
+libdtnet_la-simulation.lo: simulation.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-simulation.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-simulation.Tpo -c -o libdtnet_la-simulation.lo `test -f 'simulation.cpp' || echo '$(srcdir)/'`simulation.cpp
+	mv -f $(DEPDIR)/libdtnet_la-simulation.Tpo $(DEPDIR)/libdtnet_la-simulation.Plo
+#	source='simulation.cpp' object='libdtnet_la-simulation.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-simulation.lo `test -f 'simulation.cpp' || echo '$(srcdir)/'`simulation.cpp
+
+libdtnet_la-trial.lo: trial.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-trial.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-trial.Tpo -c -o libdtnet_la-trial.lo `test -f 'trial.cpp' || echo '$(srcdir)/'`trial.cpp
+	mv -f $(DEPDIR)/libdtnet_la-trial.Tpo $(DEPDIR)/libdtnet_la-trial.Plo
+#	source='trial.cpp' object='libdtnet_la-trial.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-trial.lo `test -f 'trial.cpp' || echo '$(srcdir)/'`trial.cpp
+
+libdtnet_la-input.lo: input.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-input.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-input.Tpo -c -o libdtnet_la-input.lo `test -f 'input.cpp' || echo '$(srcdir)/'`input.cpp
+	mv -f $(DEPDIR)/libdtnet_la-input.Tpo $(DEPDIR)/libdtnet_la-input.Plo
+#	source='input.cpp' object='libdtnet_la-input.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-input.lo `test -f 'input.cpp' || echo '$(srcdir)/'`input.cpp
+
+libdtnet_la-results.lo: results.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-results.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-results.Tpo -c -o libdtnet_la-results.lo `test -f 'results.cpp' || echo '$(srcdir)/'`results.cpp
+	mv -f $(DEPDIR)/libdtnet_la-results.Tpo $(DEPDIR)/libdtnet_la-results.Plo
+#	source='results.cpp' object='libdtnet_la-results.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-results.lo `test -f 'results.cpp' || echo '$(srcdir)/'`results.cpp
+
+libdtnet_la-range.lo: range.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-range.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-range.Tpo -c -o libdtnet_la-range.lo `test -f 'range.cpp' || echo '$(srcdir)/'`range.cpp
+	mv -f $(DEPDIR)/libdtnet_la-range.Tpo $(DEPDIR)/libdtnet_la-range.Plo
+#	source='range.cpp' object='libdtnet_la-range.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-range.lo `test -f 'range.cpp' || echo '$(srcdir)/'`range.cpp
+
+libdtnet_la-settings.lo: settings.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-settings.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-settings.Tpo -c -o libdtnet_la-settings.lo `test -f 'settings.cpp' || echo '$(srcdir)/'`settings.cpp
+	mv -f $(DEPDIR)/libdtnet_la-settings.Tpo $(DEPDIR)/libdtnet_la-settings.Plo
+#	source='settings.cpp' object='libdtnet_la-settings.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-settings.lo `test -f 'settings.cpp' || echo '$(srcdir)/'`settings.cpp
+
+libdtnet_la-neuronfactory.lo: neuronfactory.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_la-neuronfactory.lo -MD -MP -MF $(DEPDIR)/libdtnet_la-neuronfactory.Tpo -c -o libdtnet_la-neuronfactory.lo `test -f 'neuronfactory.cpp' || echo '$(srcdir)/'`neuronfactory.cpp
+	mv -f $(DEPDIR)/libdtnet_la-neuronfactory.Tpo $(DEPDIR)/libdtnet_la-neuronfactory.Plo
+#	source='neuronfactory.cpp' object='libdtnet_la-neuronfactory.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_la-neuronfactory.lo `test -f 'neuronfactory.cpp' || echo '$(srcdir)/'`neuronfactory.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

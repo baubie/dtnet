@@ -9,12 +9,16 @@
 #include <stdlib.h>
 #include <time.h>
 #include <map>
-#include <boost/random/normal_distribution.hpp>
-#include <boost/random.hpp>
 #include "serialization.h"
 #include "neuronparams.h"
 #include "range.h"
 #include "debug.h"
+
+#ifdef BUILDING_LIBRARY
+#include <boost/random/normal_distribution.hpp>
+#include <boost/random.hpp>
+#endif
+
 
 class Neuron {
 public:
@@ -58,6 +62,7 @@ private:
     void jitter();
     void completeParameters();
 
+#ifdef BUILDING_LIBRARY
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version) {
@@ -65,6 +70,7 @@ private:
         ar & spikes;
         ar & params;
     }
+#endif
 
 };
 

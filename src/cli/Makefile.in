@@ -55,14 +55,13 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_dtnet_OBJECTS = dtnet.$(OBJEXT) dtlang.$(OBJEXT)
+am_dtnet_OBJECTS = dtnet-dtnet.$(OBJEXT) dtnet-dtlang.$(OBJEXT)
 dtnet_OBJECTS = $(am_dtnet_OBJECTS)
-dtnet_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
-dtnet_DEPENDENCIES = ../libdtnet/lib/tinyxml/libtinyxml.a \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+dtnet_DEPENDENCIES = $(am__DEPENDENCIES_1)
+dtnet_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) $(dtnet_CXXFLAGS) $(CXXFLAGS) \
+	$(dtnet_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -215,9 +214,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dtnet_SOURCES = dtnet.cpp dtlang.cpp 
-LDADD = ../libdtnet/lib/tinyxml/libtinyxml.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB) 
-AM_CXXFLAGS = $(BOOST_CPPFLAGS)
-AM_LDFLAGS = -L../libdtnet/.libs -ldtnet $(BOOST_LDFLAGS)
+dtnet_LDADD = $(BOOST_PROGRAM_OPTIONS_LIB)
+dtnet_CXXFLAGS = $(BOOST_CPPFLAGS)
+dtnet_LDFLAGS = -L../libdtnet/.libs -ldtnet $(BOOST_LDFLAGS) $(CLI_LDFLAGS)
 all: all-am
 
 .SUFFIXES:
@@ -281,7 +280,7 @@ clean-binPROGRAMS:
 	done
 dtnet$(EXEEXT): $(dtnet_OBJECTS) $(dtnet_DEPENDENCIES) 
 	@rm -f dtnet$(EXEEXT)
-	$(CXXLINK) $(dtnet_OBJECTS) $(dtnet_LDADD) $(LIBS)
+	$(dtnet_LINK) $(dtnet_OBJECTS) $(dtnet_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -289,8 +288,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dtlang.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dtnet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dtnet-dtlang.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dtnet-dtnet.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -312,6 +311,34 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+dtnet-dtnet.o: dtnet.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dtnet_CXXFLAGS) $(CXXFLAGS) -MT dtnet-dtnet.o -MD -MP -MF $(DEPDIR)/dtnet-dtnet.Tpo -c -o dtnet-dtnet.o `test -f 'dtnet.cpp' || echo '$(srcdir)/'`dtnet.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/dtnet-dtnet.Tpo $(DEPDIR)/dtnet-dtnet.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='dtnet.cpp' object='dtnet-dtnet.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dtnet_CXXFLAGS) $(CXXFLAGS) -c -o dtnet-dtnet.o `test -f 'dtnet.cpp' || echo '$(srcdir)/'`dtnet.cpp
+
+dtnet-dtnet.obj: dtnet.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dtnet_CXXFLAGS) $(CXXFLAGS) -MT dtnet-dtnet.obj -MD -MP -MF $(DEPDIR)/dtnet-dtnet.Tpo -c -o dtnet-dtnet.obj `if test -f 'dtnet.cpp'; then $(CYGPATH_W) 'dtnet.cpp'; else $(CYGPATH_W) '$(srcdir)/dtnet.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/dtnet-dtnet.Tpo $(DEPDIR)/dtnet-dtnet.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='dtnet.cpp' object='dtnet-dtnet.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dtnet_CXXFLAGS) $(CXXFLAGS) -c -o dtnet-dtnet.obj `if test -f 'dtnet.cpp'; then $(CYGPATH_W) 'dtnet.cpp'; else $(CYGPATH_W) '$(srcdir)/dtnet.cpp'; fi`
+
+dtnet-dtlang.o: dtlang.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dtnet_CXXFLAGS) $(CXXFLAGS) -MT dtnet-dtlang.o -MD -MP -MF $(DEPDIR)/dtnet-dtlang.Tpo -c -o dtnet-dtlang.o `test -f 'dtlang.cpp' || echo '$(srcdir)/'`dtlang.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/dtnet-dtlang.Tpo $(DEPDIR)/dtnet-dtlang.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='dtlang.cpp' object='dtnet-dtlang.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dtnet_CXXFLAGS) $(CXXFLAGS) -c -o dtnet-dtlang.o `test -f 'dtlang.cpp' || echo '$(srcdir)/'`dtlang.cpp
+
+dtnet-dtlang.obj: dtlang.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dtnet_CXXFLAGS) $(CXXFLAGS) -MT dtnet-dtlang.obj -MD -MP -MF $(DEPDIR)/dtnet-dtlang.Tpo -c -o dtnet-dtlang.obj `if test -f 'dtlang.cpp'; then $(CYGPATH_W) 'dtlang.cpp'; else $(CYGPATH_W) '$(srcdir)/dtlang.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/dtnet-dtlang.Tpo $(DEPDIR)/dtnet-dtlang.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='dtlang.cpp' object='dtnet-dtlang.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dtnet_CXXFLAGS) $(CXXFLAGS) -c -o dtnet-dtlang.obj `if test -f 'dtlang.cpp'; then $(CYGPATH_W) 'dtlang.cpp'; else $(CYGPATH_W) '$(srcdir)/dtlang.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

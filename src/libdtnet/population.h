@@ -38,8 +38,8 @@ public:
         bool accept_input;
         bool spontaneous;
 
+#ifdef BUILDING_LIBRARY
         friend class boost::serialization::access;
-
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version) {
             ar & ID;
@@ -50,6 +50,8 @@ public:
             ar & position;
             ar & accept_input;
         }
+#endif
+        
     };
 
     void genPopulations(std::map< std::string, Range>::iterator param_in);

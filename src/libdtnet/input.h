@@ -31,6 +31,7 @@ class Input {
             std::string ID;
             std::vector<double> values;
 
+#ifdef BUILDING_LIBRARY
             friend class boost::serialization::access;
             template<class Archive>
             void serialize(Archive & ar, const unsigned int version)
@@ -41,6 +42,8 @@ class Input {
                 ar & values;
                 ar & ID;
             }
+#endif
+            
         };
 
         Range duration;

@@ -1,7 +1,8 @@
 bin_PROGRAMS = gdtnet
 gdtnet_SOURCES = gdtnet.cpp
 
-LDADD = ../libdtnet/lib/tinyxml/libtinyxml.a $(BOOST_THREAD_LIB) $(BOOST_IOSTREAMS_LIB) $(BOOST_SERIALIZATION_LIB) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_PROGRAM_OPTIONS_LIB) 
-
-AM_CXXFLAGS = $(BOOST_CPPFLAGS)
-AM_LDFLAGS = -L../libdtnet/.libs -ldtnet $(BOOST_LDFLAGS)
+gdtnet_CPPFLAGS = $(WX_CPPFLAGS)
+gdtnet_CXXFLAGS = $(WX_CXXFLAGS_ONLY)
+gdtnet_CFLAGS = $(WX_CFLAGS_ONLY)
+gdtnet_LDADD = $(WX_LIBS)
+gdtnet_LDFLAGS = -L../libdtnet/.libs -ldtnet

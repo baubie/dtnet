@@ -18,28 +18,27 @@
 #include "results.h"
 
 /** Container class for holding multiple simulation runs. */
-class Simulation
-{
-    public:
+class Simulation {
+public:
 
-        /** Simulation Parameters **/
-		Net net;            /**< The network used in this simulation. */
-        Trial trial;        /**< The trial used in this simulation. */
+    /** Simulation Parameters **/
+    Net net; /**< The network used in this simulation. */
+    Trial trial; /**< The trial used in this simulation. */
 
-		Simulation(Net &net, Trial &trial);
-        Simulation();
+    Simulation(Net &net, Trial &trial);
+    Simulation();
 
-        bool run(Results &r, std::string filename, double T, double dt, double delay, int number_of_trials, bool voltage, boost::threadpool::pool &tp);
+    bool run(Results &r, std::string filename, double T, double dt, double delay, int number_of_trials, bool voltage, boost::threadpool::pool &tp);
 
-        bool modify(std::string ID, Range const val);
-		std::string toString();
+    bool modify(std::string ID, Range const val);
+    std::string toString();
 
-        static bool simulationProgress(boost::threadpool::pool &tp, int total, boost::posix_time::ptime start);
-        static void runSimulation(Results::Result *r, double T, double dt, double delay, bool voltage);
+    static bool simulationProgress(boost::threadpool::pool &tp, int total, boost::posix_time::ptime start);
+    static void runSimulation(Results::Result *r, double T, double dt, double delay, bool voltage);
 
-    private:
+private:
 
-        std::vector<double> genTimeSeries(double T, double dt, double delay);
+    std::vector<double> genTimeSeries(double T, double dt, double delay);
 };
 
 

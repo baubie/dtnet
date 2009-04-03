@@ -1,2 +1,3 @@
-noinst_LIBRARIES = libtinyxml.a
-libtinyxml_a_SOURCES = tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp
+noinst_LTLIBRARIES = libtinyxml.la
+
+libtinyxml_la_SOURCES = tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp

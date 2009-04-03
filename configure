@@ -15223,11 +15223,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-CXXFLAGS="$CXXFLAGS -O3"
 
 CLI=no
 GUI=no
-add_ldflags=""
 
 # Check whether --enable-cli was given.
 if test "${enable_cli+set}" = set; then
@@ -18108,7 +18106,6 @@ $as_echo "$as_me: error: Could not link against $ax_lib !" >&2;}
 	fi
 
 
-
 if test "$CLI" == "yes"; then
     READLINE_lib_check=""
 
@@ -18118,7 +18115,7 @@ if test "${with_readline+set}" = set; then
 fi
 
     if test "$READLINE_lib_check" != ""; then
-        add_ldflags="-L$READLINE_lib_check -lncurses"
+        CLI_LDFLAGS="-L$READLINE_lib_check -lncurses"
     fi
 
 { $as_echo "$as_me:$LINENO: checking for readline in -lreadline" >&5
@@ -18552,13 +18549,7 @@ wxWidgets version is $reqwx or above.
                   " >&2;}
    { (exit 1); exit 1; }; }
     fi
-    CPPFLAGS="$CPPFLAGS $WX_CPPFLAGS"
-    CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
-    CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
-    LIBS="$LIBS $WX_LIBS"
 fi
-
-LDFLAGS="$LDFLAGS $add_ldflags"
 
 ac_config_files="$ac_config_files Makefile src/Makefile src/libdtnet/Makefile src/libdtnet/lib/tinyxml/Makefile src/models/Makefile src/cli/Makefile src/gui/Makefile"
 

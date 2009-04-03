@@ -38,12 +38,15 @@ class Range {
 
         void initialize(double start, double end, double step);
 
+#ifdef BUILDING_LIBRARY
         friend class boost::serialization::access;
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version)
         {
             ar & values;
         }
+#endif
+
 };
 
 #endif
