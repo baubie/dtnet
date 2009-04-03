@@ -15,6 +15,7 @@
 #include "lib/threadpool/threadpool.hpp"
 #include <boost/random.hpp>
 #include <boost/bind.hpp>
+
 #include "results.h"
 
 /** Container class for holding multiple simulation runs. */

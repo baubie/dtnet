@@ -18,9 +18,11 @@
 #include <algorithm>
 #include <sys/stat.h>
 #include <sys/types.h>
+
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
+
 #include <math.h>
 #include "debug.h"
 

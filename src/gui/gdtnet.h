@@ -1,27 +1,27 @@
 #ifndef GDTNET_H
 #define GDTNET_H
 
-#include "wx/wx.h"
+#include <wx/wx.h>
+#include "lib/mathplot/mathplot.h"
+#include "../libdtnet/libdtnet.h"
 
-class gdtnet: public wxApp
-{
+class gdtnet : public wxApp {
     virtual bool OnInit();
 };
 
-class MyFrame: public wxFrame
-{
-    public:
+class MyFrame : public wxFrame {
+public:
 
-        MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    mpWindow *m_plot;
 
-        void OnQuit(wxCommandEvent& event);
-        void OnAbout(wxCommandEvent& event);
+    void OnQuit(wxCommandEvent& event);
+    void OnAbout(wxCommandEvent& event);
 
-        DECLARE_EVENT_TABLE()
+    DECLARE_EVENT_TABLE()
 };
 
-enum
-{
+enum {
     ID_Quit = 1,
     ID_About,
 };

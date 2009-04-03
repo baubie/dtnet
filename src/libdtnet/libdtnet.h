@@ -2,8 +2,9 @@
 #ifndef LIBDTNET_H
 #define LIBDTNET_H
 
-#define LIBDTNET_VERSION "1.9.3"
+#define LIBDTNET_VERSION "libdtnet 1.9.3"
 
+#ifdef BUILDING_LIBRARY
 #include <boost/fusion/include/io.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -11,6 +12,8 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/tuple/tuple.hpp>
 #include "lib/threadpool/threadpool.hpp"
+#endif
+
 #include "GLE.h"
 #include "net.h"
 #include "trial.h"
