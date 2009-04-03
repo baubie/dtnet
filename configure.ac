@@ -2,13 +2,14 @@ AC_INIT(src/libdtnet/libdtnet.cpp)
 
 AM_INIT_AUTOMAKE(libdtnet,1.0.0)
 
-AC_PROG_RANLIB
 AC_PROG_CXX
 AC_PROG_LIBTOOL
+AC_CONFIG_MACRO_DIR([m4])
 CXXFLAGS="$CXXFLAGS -O3"
 
 CLI=no
 GUI=no
+add_ldflags=""
 
 AC_ARG_ENABLE([cli],
     [ --disable-cli    Disable the command line interface to dtnet ],
@@ -36,20 +37,40 @@ AC_ARG_ENABLE(text-archive,
 AM_CONDITIONAL([BUILD_CLI], [test x$CLI != xno])
 AM_CONDITIONAL([BUILD_GUI], [test x$GUI != xno])
 
-add_ldflags=""
-READLINE_lib_check=""
-AC_ARG_WITH(readline, 
-    [ --with-readline=<path>    Where the readline library is located ], 
-    [ READLINE_lib_check="$withval/lib"])
-if test "$READLINE_lib_check" != ""
-then
-    add_ldflags="-L$READLINE_lib_check -lncurses"
+if test "$CLI" == "yes"; then
+    READLINE_lib_check=""
+    AC_ARG_WITH(readline, 
+        [ --with-readline=<path>    Where the readline library is located ], 
+        [ READLINE_lib_check="$withval/lib"])
+    if test "$READLINE_lib_check" != ""; then
+        add_ldflags="-L$READLINE_lib_check -lncurses"
+    fi
+    AC_CHECK_LIB([readline], [readline])
+    AC_CHECK_LIB([ncurses], [main])
+fi
+
+if test "$GUI" == "yes"; then
+    AM_OPTIONS_WXCONFIG
+    reqwx=2.8.0
+    AM_PATH_WXCONFIG($reqwx, wxWin=1)
+    if test "$wxWin" != 1; then
+        AC_MSG_ERROR([
+wxWidgets must be installed on your system.
+
+Please check that wx-config is in path, the directory
+where wxWidgets libraries are installed (returned by
+'wx-config --libs' or 'wx-config --static --libs' command)
+is in LD_LIBRARY_PATH or equivalent variable and
+wxWidgets version is $reqwx or above.
+                  ])
+    fi
+    CPPFLAGS="$CPPFLAGS $WX_CPPFLAGS"
+    CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
+    CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
+    LIBS="$LIBS $WX_LIBS"
 fi
 
 LDFLAGS="$LDFLAGS $add_ldflags"
-
-AC_CHECK_LIB([readline], [readline])
-AC_CHECK_LIB([ncurses], [main])
 
 AX_BOOST_BASE(1.38)
 AX_BOOST_PROGRAM_OPTIONS
@@ -66,5 +87,6 @@ AC_OUTPUT(Makefile \
           src/libdtnet/lib/tinyxml/Makefile \
           src/models/Makefile \
           src/cli/Makefile \
+          src/gui/Makefile \
           )
 
