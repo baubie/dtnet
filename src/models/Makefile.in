@@ -61,17 +61,19 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libdtnet_aeif_la_LIBADD =
-am_libdtnet_aeif_la_OBJECTS = aEIF.lo
+am_libdtnet_aeif_la_OBJECTS = libdtnet_aeif_la-aEIF.lo
 libdtnet_aeif_la_OBJECTS = $(am_libdtnet_aeif_la_OBJECTS)
 libdtnet_aeif_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(libdtnet_aeif_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(libdtnet_aeif_la_CXXFLAGS) $(CXXFLAGS) \
+	$(libdtnet_aeif_la_LDFLAGS) $(LDFLAGS) -o $@
 libdtnet_poisson_la_LIBADD =
-am_libdtnet_poisson_la_OBJECTS = poisson.lo
+am_libdtnet_poisson_la_OBJECTS = libdtnet_poisson_la-poisson.lo
 libdtnet_poisson_la_OBJECTS = $(am_libdtnet_poisson_la_OBJECTS)
 libdtnet_poisson_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(libdtnet_poisson_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(libdtnet_poisson_la_CXXFLAGS) $(CXXFLAGS) \
+	$(libdtnet_poisson_la_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -227,8 +229,10 @@ top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libdtnet_aeif.la libdtnet_poisson.la
 libdtnet_aeif_la_SOURCES = aEIF.cpp
 libdtnet_poisson_la_SOURCES = poisson.cpp
-libdtnet_aeif_la_LDFLAGS = -version-info 1:0:0
-libdtnet_poisson_la_LDFLAGS = -version-info 1:0:0
+libdtnet_aeif_la_LDFLAGS = -version-info 1:0:0 $(BOOST_LDFLAGS)
+libdtnet_poisson_la_LDFLAGS = -version-info 1:0:0 $(BOOST_LDFLAGS)
+libdtnet_aeif_la_CXXFLAGS = $(BOOST_CPPFLAGS)
+libdtnet_poisson_la_CXXFLAGS = $(BOOST_CPPFLAGS)
 all: all-am
 
 .SUFFIXES:
@@ -300,8 +304,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aEIF.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poisson.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdtnet_aeif_la-aEIF.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdtnet_poisson_la-poisson.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -323,6 +327,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+libdtnet_aeif_la-aEIF.lo: aEIF.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_aeif_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_aeif_la-aEIF.lo -MD -MP -MF $(DEPDIR)/libdtnet_aeif_la-aEIF.Tpo -c -o libdtnet_aeif_la-aEIF.lo `test -f 'aEIF.cpp' || echo '$(srcdir)/'`aEIF.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/libdtnet_aeif_la-aEIF.Tpo $(DEPDIR)/libdtnet_aeif_la-aEIF.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='aEIF.cpp' object='libdtnet_aeif_la-aEIF.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_aeif_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_aeif_la-aEIF.lo `test -f 'aEIF.cpp' || echo '$(srcdir)/'`aEIF.cpp
+
+libdtnet_poisson_la-poisson.lo: poisson.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_poisson_la_CXXFLAGS) $(CXXFLAGS) -MT libdtnet_poisson_la-poisson.lo -MD -MP -MF $(DEPDIR)/libdtnet_poisson_la-poisson.Tpo -c -o libdtnet_poisson_la-poisson.lo `test -f 'poisson.cpp' || echo '$(srcdir)/'`poisson.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/libdtnet_poisson_la-poisson.Tpo $(DEPDIR)/libdtnet_poisson_la-poisson.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='poisson.cpp' object='libdtnet_poisson_la-poisson.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libdtnet_poisson_la_CXXFLAGS) $(CXXFLAGS) -c -o libdtnet_poisson_la-poisson.lo `test -f 'poisson.cpp' || echo '$(srcdir)/'`poisson.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -510,8 +528,8 @@ uninstall-am: uninstall-libLTLIBRARIES
 	tags uninstall uninstall-am uninstall-libLTLIBRARIES
 
 
-#libdtnet_aeif_la_LDADD = ../libdtnet/.libs/libdtnet.a
-#libdtnet_poisson_la_LDADD = ../libdtnet/.libs/libdtnet.a
+#libdtnet_aeif_la_LDADD = ../libdtnet/.libs/libdtnet.a $(BOOST_SERIALIZATION_LIB)
+#libdtnet_poisson_la_LDADD = ../libdtnet/.libs/libdtnet.a $(BOOST_SERIALIZATION_LIB)
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

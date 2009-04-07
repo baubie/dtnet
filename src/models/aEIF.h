@@ -3,9 +3,8 @@
 #define AEIF_H
 
 #include "../libdtnet/neuron.h"
-
+      
 // Derive our class based on the Neuron class
-
 class aEIF : public Neuron {
 public:
     // dtnet required functions
@@ -23,10 +22,15 @@ public:
 
     // Parameters
     double C,gL,EL,VT,deltaT,tauw,a,b,VR,hypTau,alpha_q;
+
+private:
+   // DTNET_NEURON_SERIALIZE
 };
+BOOST_CLASS_EXPORT(aEIF)
 
 double V_update(double V, double& current, unsigned int& position, Neuron *n);
 double w_update(double w, double& current, unsigned int& position, Neuron *n);
+
 
 
 #endif

@@ -5,8 +5,8 @@
 #include "../libdtnet/neuron.h"
 #include <math.h>
 
-// Derive our class based on the Neuron class
 
+// Derive our class based on the Neuron class
 class Poisson : public Neuron {
 public:
     // dtnet required functions
@@ -25,9 +25,9 @@ public:
 
 private:
     double active;
-
+ //   DTNET_NEURON_SERIALIZE
 };
 
-
+BOOST_CLASS_EXPORT(Poisson)
 
 #endif

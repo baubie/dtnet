@@ -38,7 +38,7 @@ public:
         T density;
         T sigma;
 
-#ifdef BUILDING_LIBRARY
+
 
         friend class boost::serialization::access;
 
@@ -49,7 +49,7 @@ public:
             ar & density;
             ar & sigma;
         }
-#endif
+
         
     };
 
@@ -108,7 +108,7 @@ public:
             return current;
         }
 
-#ifdef BUILDING_LIBRARY
+
         friend class boost::serialization::access;
 
         template<class Archive>
@@ -116,7 +116,7 @@ public:
             ar & populations;
             ar & connections;
         }
-#endif
+
     };
 
     std::vector<ConstrainedNetwork>* networkFactory();

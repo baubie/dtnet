@@ -26,7 +26,6 @@ public:
         std::vector< Input::Signal > signals;
         std::vector<double> values; /**< Combined values. **/
 
-#ifdef BUILDING_LIBRARY
         friend class boost::serialization::access;
 
         template<class Archive>
@@ -34,7 +33,6 @@ public:
             ar & signals;
             ar & values;
         }
-#endif
     };
 
     std::map< std::string, Range > unconstrained; /*<< Collection of unconstrained IDs. */

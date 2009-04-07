@@ -38,7 +38,6 @@ public:
         bool accept_input;
         bool spontaneous;
 
-#ifdef BUILDING_LIBRARY
         friend class boost::serialization::access;
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version) {
@@ -50,7 +49,6 @@ public:
             ar & position;
             ar & accept_input;
         }
-#endif
         
     };
 

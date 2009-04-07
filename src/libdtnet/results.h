@@ -26,7 +26,6 @@ public:
         Net::ConstrainedNetwork cNetwork;
         Trial::ConstrainedTrial cTrial;
 
-#ifdef BUILDING_LIBRARY
         friend class boost::serialization::access;
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version) {
@@ -35,7 +34,6 @@ public:
             ar & cNetwork;
             ar & cTrial;
         }
-#endif
 
     };
 
@@ -69,7 +67,6 @@ public:
     std::deque<Result> results; /*<< Collection of all results. */
 private:
 
-#ifdef BUILDING_LIBRARY
     friend class boost::serialization::access;
 
     template<class Archive>
@@ -82,7 +79,6 @@ private:
         ar & delay;
         ar & delay;
     }
-#endif
 };
 
 #endif

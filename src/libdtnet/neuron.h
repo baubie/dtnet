@@ -14,11 +14,14 @@
 #include "range.h"
 #include "debug.h"
 
-#ifdef BUILDING_LIBRARY
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random.hpp>
-#endif
 
+#define DTNET_NEURON_SERIALIZE friend class boost::serialization::access; \
+    template<class Archive> \
+    void serialize(Archive &ar, const unsigned int version) { \
+        ar & boost::serialization::base_object<Neuron>(*this);\
+    }
 
 class Neuron {
 public:
@@ -36,14 +39,21 @@ public:
 
     // Virtual Methods
     // REQUIRED
-    virtual void update(double &current, unsigned int &position, double &dt) = 0;
-    virtual void spike(unsigned int &position, double &dt) = 0;
-    virtual Neuron* clone() = 0;
+    virtual void update(double &current, unsigned int &position, double &dt) {};
+    virtual void spike(unsigned int &position, double &dt) {};
+    virtual Neuron* clone() {};
 
     // OPTIONAL
-    virtual void initialize() {};
-    virtual std::map<std::string, double> default_parameters() { return std::map<std::string, double>(); }
-    virtual ~Neuron() {}
+
+    virtual void initialize() {
+    };
+
+    virtual std::map<std::string, double> default_parameters() {
+        return std::map<std::string, double>();
+    }
+
+    virtual ~Neuron() {
+    }
 
 
 protected:
@@ -62,7 +72,6 @@ private:
     void jitter();
     void completeParameters();
 
-#ifdef BUILDING_LIBRARY
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version) {
@@ -70,12 +79,10 @@ private:
         ar & spikes;
         ar & params;
     }
-#endif
-
 };
 
 // the types of the class factories
 typedef Neuron* create_t();
 typedef void destroy_t(Neuron*);
-
+       
 #endif
