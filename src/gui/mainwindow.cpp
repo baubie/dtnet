@@ -10,9 +10,9 @@ MainWindow::MainWindow(const wxString& title, const wxPoint& pos, const wxSize& 
 
     wxPanel *status = new wxPanel(toolsNB);
     
-    toolsNB->AddPage(status, "Network", true);
-    toolsNB->AddPage(status, "Input", false);
-    toolsNB->AddPage(status, "Results", false);
+    toolsNB->AddPage(status, _T("Network"), true);
+    toolsNB->AddPage(status, _T("Input"), false);
+    toolsNB->AddPage(status, _T("Results"), false);
 
     wxBoxSizer *sizer = new wxBoxSizer( wxVERTICAL );
 

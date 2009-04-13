@@ -66,9 +66,9 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
     double tau;
     unsigned int steps = (unsigned int) (T / dt);
 
-    map<string, Population::ConstrainedPopulation>::iterator cpIter;
-    list<Neuron*>::iterator nIter;
-    map<string, Net::Connection<double> >::iterator fromIter;
+    map<string, Population::ConstrainedPopulation>::const_iterator cpIter;
+    list<Neuron*>::const_iterator nIter;
+    map<string, Net::Connection<double> >::const_iterator fromIter;
 
     for (unsigned int ts = 0; ts < steps; ++ts) { // Loop over time steps
         for (cpIter = r->cNetwork.populations.begin(); cpIter != r->cNetwork.populations.end(); ++cpIter) {
