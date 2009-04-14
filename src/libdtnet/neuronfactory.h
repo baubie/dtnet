@@ -14,6 +14,8 @@ class NeuronFactory {
         bool create(std::string model_type, NeuronParams *params, Neuron* &n);
         bool close();
         void registerModel(std::string model_type, Neuron* n);
+        bool loadModel(std::string model_type);
+        std::list<std::string> model_types();
 
         static NeuronFactory *s_instance;
         static NeuronFactory* instance()
@@ -23,8 +25,10 @@ class NeuronFactory {
         }
 
     private:
+        std::string getLibraryName(std::string model_type);
         std::map<Neuron*, std::string> models;
         std::map<std::string, void*> handles;
+        std::list<std::string> _model_types;
 };
 
 

@@ -4,7 +4,6 @@
 
 #define LIBDTNET_VERSION "libdtnet 1.9.3"
 
-#ifdef BUILDING_LIBRARY
 #include <boost/fusion/include/io.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -12,7 +11,7 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/tuple/tuple.hpp>
 #include "lib/threadpool/threadpool.hpp"
-#endif
+#include <boost/algorithm/string.hpp>
 
 #include "GLE.h"
 #include "net.h"
@@ -26,7 +25,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-
+#include <boost/program_options.hpp>
 
 namespace dtnet {
 
@@ -37,10 +36,12 @@ namespace dtnet {
     static const int PLOT_3D = 2;
     static const int PLOT_MAP = 3;
 
-    bool set_threads(int threads);
 
+    bool initialize();
+    std::list<std::string> models();
+    bool set_threads(int threads);
     bool set(const std::string var, double const val);
-    bool set(const std::string var, std::string const val);
+    bool set(const std::string var, std::string const val);  
     double get_dbl(const std::string var);
     std::string get_str(const std::string var);
 

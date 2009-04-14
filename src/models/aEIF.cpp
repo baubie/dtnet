@@ -1,6 +1,8 @@
 
 #include "aEIF.h"
 
+BOOST_CLASS_EXPORT(aEIF)
+
 using namespace std;
 
 extern "C" Neuron* create() { return new aEIF; }

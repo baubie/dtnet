@@ -8,6 +8,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <string>
+#include <list>
 #include <boost/program_options.hpp>
 #include "vt100.h"
 #include "dtlang.h"

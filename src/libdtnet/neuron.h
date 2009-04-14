@@ -17,12 +17,6 @@
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random.hpp>
 
-#define DTNET_NEURON_SERIALIZE friend class boost::serialization::access; \
-    template<class Archive> \
-    void serialize(Archive &ar, const unsigned int version) { \
-        ar & boost::serialization::base_object<Neuron>(*this);\
-    }
-
 class Neuron {
 public:
     // Recording Variables
@@ -80,6 +74,8 @@ private:
         ar & params;
     }
 };
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Neuron)
 
 // the types of the class factories
 typedef Neuron* create_t();

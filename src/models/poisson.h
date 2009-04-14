@@ -25,9 +25,13 @@ public:
 
 private:
     double active;
- //   DTNET_NEURON_SERIALIZE
-};
 
-BOOST_CLASS_EXPORT(Poisson)
+    friend class boost::serialization::access;
+    template<class Archive> 
+    void serialize(Archive &ar, const unsigned int version) {
+        ar & boost::serialization::base_object<Neuron>(*this);
+    }
+
+};
 
 #endif

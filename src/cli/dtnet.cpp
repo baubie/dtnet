@@ -70,7 +70,18 @@ int main(int argc, char* argv[]) {
     if (dtlang::verbose) cout << "Archive format is binary." << endl;
 #endif
 
+    dtnet::initialize();
     dtnet::set_threads(threads);
+
+    if (dtlang::verbose) {
+        cout << "Available Models: ";
+        list<string> models = dtnet::models();
+        for(list<string>::iterator i = models.begin(); i != models.end(); ++i) {
+            cout << *i << " ";
+        }
+        cout << endl;
+    }
+
     if (dtlang::verbose) cout << "Initialized " << threads << " threads." << endl;
 
     /* Main Input Loop */
@@ -96,8 +107,3 @@ int main(int argc, char* argv[]) {
     }
     return 0;
 }
-
-
-
-
-

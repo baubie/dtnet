@@ -1,6 +1,8 @@
 
 #include "poisson.h"
 
+BOOST_CLASS_EXPORT(Poisson)
+
 using namespace std;
 
 extern "C" Neuron* create() { return new Poisson; }

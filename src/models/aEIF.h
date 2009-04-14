@@ -3,7 +3,8 @@
 #define AEIF_H
 
 #include "../libdtnet/neuron.h"
-      
+
+
 // Derive our class based on the Neuron class
 class aEIF : public Neuron {
 public:
@@ -24,9 +25,12 @@ public:
     double C,gL,EL,VT,deltaT,tauw,a,b,VR,hypTau,alpha_q;
 
 private:
-   // DTNET_NEURON_SERIALIZE
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version) { 
+        ar & boost::serialization::base_object<Neuron>(*this);
+    }
 };
-BOOST_CLASS_EXPORT(aEIF)
 
 double V_update(double V, double& current, unsigned int& position, Neuron *n);
 double w_update(double w, double& current, unsigned int& position, Neuron *n);

@@ -5,15 +5,28 @@
  * http://www.isotton.com/devel/docs/C++-dlopen-mini-HOWTO/C++-dlopen-mini-HOWTO.html#thesolution
  */
 
+std::list<std::string> NeuronFactory::model_types() {
+    return this->_model_types;
+}
+
+
+bool NeuronFactory::loadModel(std::string model_type) {
+
+    std::string library_name = getLibraryName(model_type);
+
+    void* handle = dlopen(library_name.c_str(), RTLD_LAZY);
+    if (!handle) {
+        std::cerr << "Cannot load " << library_name << ": " << dlerror() << std::endl;
+        return false;
+    }
+    _model_types.push_back(model_type);
+    handles[library_name] = handle;
+
+}
+
 void NeuronFactory::registerModel(std::string model_type, Neuron* n) {
     std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
-    std::string library_name;
-
-#ifdef __APPLE__
-    library_name = "libdtnet_" + model_type + ".dylib";
-#else
-    library_name = "libdtnet_" + model_type + ".so";
-#endif
+    std::string library_name = getLibraryName(model_type);
 
     this->models[n] = library_name;
 }
@@ -21,32 +34,23 @@ void NeuronFactory::registerModel(std::string model_type, Neuron* n) {
 bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n) {
 
     std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
-    std::string library_name;
+    std::string library_name = getLibraryName(model_type);
 
-#ifdef __APPLE__
-    library_name = "libdtnet_" + model_type + ".dylib";
-#else
-    library_name = "libdtnet_" + model_type + ".so";
-#endif
 
     void* handle;
 
     if (handles.find(library_name) != handles.end()) {
         handle = handles.find(library_name)->second;
     } else {
-        handle = dlopen(library_name.c_str(), RTLD_LAZY);
-        if (!handle) {
-            std::cerr << "Cannot load " << library_name << ": " << dlerror() << std::endl;
-            return false;
-        }
-        handles[library_name] = handle;
+        std::cerr << "Unknown Model Type: \"" << model_type << "\"" << std::endl;
+        return false;
     }
 
     // reset errors
     dlerror();
 
     // load the symbols
-    create_t* create_model = (create_t*) dlsym(handle, "create"); 
+    create_t* create_model = (create_t*) dlsym(handle, "create");
     const char* dlsym_error = dlerror();
     if (dlsym_error) {
         std::cerr << "Cannot load symbol create: " << dlsym_error << std::endl;
@@ -99,4 +103,16 @@ bool NeuronFactory::close() {
     }
 
     return true;
+}
+
+std::string NeuronFactory::getLibraryName(std::string model_type) {
+    std::string library_name;
+
+#ifdef __APPLE__
+    library_name = "libdtnet_" + model_type + ".dylib";
+#else
+    library_name = "libdtnet_" + model_type + ".so";
+#endif
+
+    return library_name;
 }
