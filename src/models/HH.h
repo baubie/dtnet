@@ -19,13 +19,13 @@ public:
 
     // Parameters
     double m,n,h,mT,hT,alpha_q;
-    double F,R,T,P_Ca,Ca_i,Ca_o;
+    double F,R,T,P_Ca,Ca_i,Ca_o,cm;
     double E_Na,E_K,E_L;
     double g_Na,g_K,g_L;
     double V_rest;
 
 private:
-    double active;
+    double lastSpikeTime;
 
     friend class boost::serialization::access;
 

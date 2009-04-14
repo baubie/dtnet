@@ -26,6 +26,7 @@ map<string, double> HH::default_parameters() {
 
     p["T"] = 6.3;
 
+    p["cm"] = 1;
     p["alpha_q"] = 1;
 
     return p;
@@ -69,7 +70,17 @@ void HH::initialize() {
     this->g_Na = this->params.getval("g_Na");
     this->g_K = this->params.getval("g_K");
     this->g_L = this->params.getval("g_L");
+    this->cm = this->params.getval("cm");
 
+}
+
+void HH::update(double& current, unsigned int& position, double& dt) {
+
+    this->V += this->diffsolve(&V_update, this->V, current, position, dt, this);
+    this->w += this->diffsolve(&w_update, this->w, current, position, dt, this);
+
+    voltage[position] = this->V;
+    this->spike(position, dt);
 }
 
 void HH::spike(unsigned int &position, double &dt) {
