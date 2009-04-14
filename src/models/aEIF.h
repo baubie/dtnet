@@ -9,7 +9,7 @@
 class aEIF : public Neuron {
 public:
     // dtnet required functions
-    virtual  void update(double& current, unsigned int& position, double& dt);
+    virtual void update(double& current, unsigned int& position, double& dt);
     virtual void spike(unsigned int &position, double &dt);
     virtual aEIF* clone();
 

@@ -64,7 +64,7 @@ void aEIF::spike(unsigned int &position, double &dt) {
         this->V = this->VR;
         this->w += this->b;
         voltage[position] = spike_height; // Artificial spike
-        spikes.push_back(position * dt - this->delay); // Save the actual spike time
+        spikes.push_back(position * dt - this->delay); // Save the spike time
     }
 }
 
