@@ -24,19 +24,14 @@ bool NeuronFactory::loadModel(std::string model_type) {
 
 }
 
-void NeuronFactory::registerModel(std::string model_type, Neuron* n) {
-    std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
+void NeuronFactory::registerModel(std::string model_type, Neuron* n) {    
     std::string library_name = getLibraryName(model_type);
-
     this->models[n] = library_name;
 }
 
 bool NeuronFactory::create(std::string model_type, NeuronParams* np, Neuron* &n) {
-
-    std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
     std::string library_name = getLibraryName(model_type);
-
-
+	
     void* handle;
 
     if (handles.find(library_name) != handles.end()) {
@@ -107,6 +102,7 @@ bool NeuronFactory::close() {
 
 std::string NeuronFactory::getLibraryName(std::string model_type) {
     std::string library_name;
+    std::transform(model_type.begin(), model_type.end(), model_type.begin(), (int(*)(int))tolower);
 
 #ifdef __APPLE__
     library_name = "libdtnet_" + model_type + ".dylib";

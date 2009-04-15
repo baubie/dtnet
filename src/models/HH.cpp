@@ -14,15 +14,17 @@ map<string, double> HH::default_parameters() {
 
     p["size"] = 1;
 
-    p["E_Na"] = 45; // mV
-    p["E_K"] = -80;
+    p["E_Na"] = 50; // mV
+    p["E_K"] = -77;
     p["E_T"] = 22;
-    p["E_L"] = -70;
+    p["E_L"] = -54.4;
 
-    p["g_Na"] = 43; // uS/cm^2
-    p["g_K"] = 20;
+    p["g_Na"] = 120; // uS/cm^2
+    p["g_K"] = 36;
     p["g_T"] = 0.55;
-    p["g_L"] = 0.7;
+    p["g_L"] = 0.3;
+
+	p["V_rest"] = -65;
 
     p["T"] = 6.3;
 
@@ -34,12 +36,6 @@ map<string, double> HH::default_parameters() {
 
 void HH::initialize() {
 
-    n = 0;
-    m = 0;
-    h = 0;
-    mT = 0;
-    hT = 0;
-
     F = 96480; // Faraday's constant
     R = 8.314; // Gas constant
     T = this->params.getval("T"); // Temperature
@@ -47,21 +43,12 @@ void HH::initialize() {
     Ca_i = 3 * (10^(-8));
     Ca_o = 2 * (10^(-8));
 
-    V_rest = -65;
-    V = V_rest + 0.1;
+    V_rest = this->params.getval("V_rest");
+	V = V_rest;
 
-    double a_m = 0.1 * (25 / (exp(2.5) - 1));
-    double b_m = 4;
-    double a_n = 0.01 * (10 / (exp(1) - 1));
-    double b_n = 0.125;
-    double a_h = 0.07;
-    double b_h = 1 / (exp(3) + 1);
-
-    m = a_m / (a_m + b_m);
-    n = a_n / (a_n + b_n);
-    h = a_h / (a_h + b_h);
-    mT = 1 / (1 + exp(-(V_rest + 60) / 3));
-    hT = 1 / (1 + exp(-(V_rest + 78) / 3.75));
+    m = 0.05;
+    n = 0.317;
+    h = 0.6;
 
     // Avoid map lookups during simulation
     this->E_Na = this->params.getval("E_Na");
@@ -71,20 +58,61 @@ void HH::initialize() {
     this->g_K = this->params.getval("g_K");
     this->g_L = this->params.getval("g_L");
     this->cm = this->params.getval("cm");
-
 }
 
 void HH::update(double& current, unsigned int& position, double& dt) {
 
+	// Update channel probabilities
+    this->n += this->diffsolve(&n_update, this->V, current, position, dt, this);	
+    this->m += this->diffsolve(&m_update, this->V, current, position, dt, this);	
+    this->h += this->diffsolve(&h_update, this->V, current, position, dt, this);	
+
+	// Calculate currents
+	this->I_K = this->g_K * pow(this->n,4) * (this->E_K - this->V);
+	this->I_Na = this->g_Na * pow(this->m,3) * this->h * (this->E_Na - this->V);
+	this->I_L = this->g_L * (this->E_L - this->V);
+	
+	// Update voltage
     this->V += this->diffsolve(&V_update, this->V, current, position, dt, this);
-    this->w += this->diffsolve(&w_update, this->w, current, position, dt, this);
 
     voltage[position] = this->V;
     this->spike(position, dt);
 }
 
+double V_update(double V, double& current, unsigned int& position, Neuron *n) {
+	HH* hh = static_cast<HH*>(n);
+	return (current + hh->I_Na + hh->I_K + hh->I_L) / hh->cm;
+}
+
+double n_update(double V, double& current, unsigned int& position, Neuron *n) {
+	HH* hh = static_cast<HH*>(n);
+	static double tf = pow(3.0,(hh->T-6.3)/10); // Temperature Fix
+	double a = tf * 0.01 * (V+55) / (1-exp(-(V+55)/10));
+	double b = tf * 0.125 * exp(-(V+65)/80);
+	return a * (1 - hh->n) - b * (hh->n);
+}
+
+double m_update(double V, double& current, unsigned int& position, Neuron *n) {
+	HH* hh = static_cast<HH*>(n);
+	static double tf = pow(3.0,(hh->T-6.3)/10); // Temperature Fix
+	double a = tf * 0.1 * (V+40) / (1-exp(-(V+40)/10));
+	double b = tf * 4 * exp(-(V+65)/18);
+	return a * (1 - hh->m) - b * (hh->m);
+}
+
+double h_update(double V, double& current, unsigned int& position, Neuron *n) {
+	HH* hh = static_cast<HH*>(n);
+	static double tf = pow(3.0,(hh->T-6.3)/10); // Temperature Fix
+	double a = tf * 0.07 * exp(-(V+65)/20);
+	double b = tf * 1 / (1 + exp(-(V+35)/10));
+	return a * (1 - hh->h) - b * (hh->h);
+}
+
+
 void HH::spike(unsigned int &position, double &dt) {
-    if (this->V >= 20) {
-        spikes.push_back(position * dt - this->delay); // Save the spike time
+	double t = position * dt;
+    if (this->V >= 0 && t - this->lastSpikeTime > 3) {
+		this->lastSpikeTime = t;
+        spikes.push_back(t - this->delay); // Save the spike time
     }
 }

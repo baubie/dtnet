@@ -24,17 +24,30 @@ public:
     double g_Na,g_K,g_L;
     double V_rest;
 
+	double I_Na, I_K, I_T, I_L;
+
 private:
     double lastSpikeTime;
 
     friend class boost::serialization::access;
-
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version) {
         ar & boost::serialization::base_object<Neuron> (*this);
     }
 
 };
+
+double V_update(double V, double& current, unsigned int& position, Neuron *n);
+
+
+// Standard HH Equations
+double n_update(double V, double& current, unsigned int& position, Neuron *n);
+double m_update(double V, double& current, unsigned int& position, Neuron *n);
+double h_update(double V, double& current, unsigned int& position, Neuron *n);
+
+// Ca2+ T-Type Current Equations
+double mT_update(double V, double& current, unsigned int& position, Neuron *n);
+double hT_update(double V, double& current, unsigned int& position, Neuron *n);
 
 #endif	/* HH_H */
 
