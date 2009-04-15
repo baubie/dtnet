@@ -17,14 +17,14 @@ public:
     std::string name;
     std::string ID;
     std::string model_type;
-    bool accept_input;
+    double accept_input;
     bool spontaneous;
     int position;
     NeuronParams params;
     std::map< std::string, Range > unconstrained; /*<< Collection of unconstrained IDs. */
 
     // Methods
-    Population(std::string name, std::string ID, bool accept_input, bool spontaneous, int position, std::string model_type, NeuronParams params);
+    Population(std::string name, std::string ID, double accept_input, bool spontaneous, int position, std::string model_type, NeuronParams params);
     Population();
     std::string toString();
 
@@ -35,7 +35,7 @@ public:
         std::list<Neuron*> neurons;
         std::string model_type;
         int position;
-        bool accept_input;
+        double accept_input;
         bool spontaneous;
 
         friend class boost::serialization::access;

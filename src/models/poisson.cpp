@@ -17,10 +17,10 @@ map<string, double> Poisson::default_parameters() {
 
 void Poisson::initialize() {
     this->mu = this->params.getval("mu");
+	srand( time(NULL) );
 }
 
 void Poisson::update(double& current, unsigned int& position, double& dt) {
-
 
     if (current == 0) {
         voltage[position] = -65;

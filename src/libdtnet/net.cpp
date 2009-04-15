@@ -213,7 +213,7 @@ bool Net::parseXML(string filename, string &error) {
             string pop_name;
             string pop_id;
             char pop_name_tmp[50];
-            bool accept_input = false;
+            double accept_input = 0;
             bool spontaneous = false;
             NeuronParams np;
             string model_type;
@@ -236,7 +236,11 @@ bool Net::parseXML(string filename, string &error) {
                 if (pElemParam->FirstChild()->Type() == TiXmlNode::TEXT) {
 
                     if (strcmp(pElemParam->Attribute("name"), "accept_input") == 0) {
-                        accept_input = (strcmp(pElemParam->FirstChild()->Value(), "true") == 0);
+						if (strcmp(pElemParam->FirstChild()->Value(), "true") == 0 || strcmp(pElemParam->FirstChild()->Value(), "false") == 0) {
+							if (strcmp(pElemParam->FirstChild()->Value(), "true") == 0) accept_input = 1;
+						} else {
+							accept_input = (double) atof(pElemParam->FirstChild()->Value());
+						}
                     }
                     else if (strcmp(pElemParam->Attribute("name"), "spontaneous") == 0) {
                         spontaneous = (strcmp(pElemParam->FirstChild()->Value(), "true") == 0);

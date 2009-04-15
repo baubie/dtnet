@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<network title="Single Cell Test">
+
+    <population id="poisson" title="Driving" type="poisson">
+        <param name="size">5</param>
+        <param name="mu">350</param>
+        <param name="accept_input">1</param>
+    </population>
+    <population id="aeif" title="aEIF" type="aeif">
+        <param name="size">1</param>
+        <param name="accept_input">1000</param>
+    </population>
+    <population id="hh" title="Hodgkin and Huxley" type="hh">
+        <param name="size">1</param>
+        <param name="accept_input">10</param>
+    </population>
+</network>
+
+

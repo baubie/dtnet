@@ -5,7 +5,7 @@ using namespace std;
 
 Population::Population(string name, 
                        string ID,
-                       bool accept_input,
+                       double accept_input,
                        bool spontaneous,
                        int position,
                        std::string model_type,
@@ -18,7 +18,7 @@ Population::Population(string name,
         model_type(model_type),
         params(params)   {}
 
-Population::Population() : name(""), ID(""), accept_input(false) {}
+Population::Population() : name(""), ID(""), accept_input(0) {}
 
 std::vector<Population::ConstrainedPopulation>* Population::populationFactory() {
 

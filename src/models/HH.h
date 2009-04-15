@@ -27,7 +27,8 @@ public:
 	double I_Na, I_K, I_T, I_L;
 
 private:
-    double lastSpikeTime;
+	double V_last;
+	bool in_spike;
 
     friend class boost::serialization::access;
     template<class Archive>

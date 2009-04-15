@@ -85,8 +85,8 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
                 input += new_input / (double) (r->cNetwork.populations[fromIter->first].neurons.size());
             }
             // Add our input signal in
-            if (cpIter->second.accept_input) {
-                input += r->cTrial.values[ts];
+            if (cpIter->second.accept_input != 0) {
+                input += r->cTrial.values[ts] * cpIter->second.accept_input;
             }
             if (cpIter->second.spontaneous) {
                 input = 1; // Default input of 1

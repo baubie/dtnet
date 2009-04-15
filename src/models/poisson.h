@@ -4,7 +4,8 @@
 
 #include "../libdtnet/neuron.h"
 #include <math.h>
-
+#include <time.h>
+#include <stdlib.h>
 
 // Derive our class based on the Neuron class
 class Poisson : public Neuron {

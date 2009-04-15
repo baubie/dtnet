@@ -77,6 +77,7 @@ void HH::update(double& current, unsigned int& position, double& dt) {
 
     voltage[position] = this->V;
     this->spike(position, dt);
+	this->V_last = this->V;
 }
 
 double V_update(double V, double& current, unsigned int& position, Neuron *n) {
@@ -111,8 +112,9 @@ double h_update(double V, double& current, unsigned int& position, Neuron *n) {
 
 void HH::spike(unsigned int &position, double &dt) {
 	double t = position * dt;
-    if (this->V >= 0 && t - this->lastSpikeTime > 3) {
-		this->lastSpikeTime = t;
+	if (this->V < 0) in_spike = false;
+    if (this->V >= 0 && this->V <= this->V_last && !in_spike) {
+		in_spike = true;
         spikes.push_back(t - this->delay); // Save the spike time
     }
 }
