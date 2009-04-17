@@ -38,19 +38,14 @@ public:
         T density;
         T sigma;
 
-
-
         friend class boost::serialization::access;
-
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version) {
             ar & delay;
             ar & weight;
             ar & density;
             ar & sigma;
-        }
-
-        
+        }        
     };
 
     static bool pop_order_sort(Population::ConstrainedPopulation* a, Population::ConstrainedPopulation* b) {
@@ -142,7 +137,6 @@ private:
     std::vector< std::map< std::string, std::map< std::string, Connection<double> > > > cConnections; /**< Constrained connections. **/
     std::vector< std::map< std::string, Population::ConstrainedPopulation > > cPopulations; /**< Constrained collections of populations. **/
     std::vector<ConstrainedNetwork> cNetworks; /**< Completed, constrained networks taking all combinations of cPopulations and cConnections. **/
-
 
     void genNetworks();
     std::string filename;

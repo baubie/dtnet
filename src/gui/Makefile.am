@@ -1,5 +1,5 @@
 bin_PROGRAMS = gdtnet
-gdtnet_SOURCES = gdtnet.cpp mainwindow.cpp project.cpp
+gdtnet_SOURCES = gdtnet.cpp mainwindow.cpp project.cpp network.cpp
 
 gdtnet_CPPFLAGS = $(WX_CPPFLAGS)
 gdtnet_CXXFLAGS = $(WX_CXXFLAGS_ONLY) $(BOOST_CPPFLAGS)

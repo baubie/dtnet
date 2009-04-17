@@ -6,24 +6,30 @@ MainWindow::MainWindow(const wxString& title, const wxPoint& pos, const wxSize& 
 
     this->InitMenu();
 
-    wxNotebook *toolsNB = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP);
+     // notify wxAUI which frame to use
+     m_mgr.SetManagedWindow(this);
 
-    wxPanel *status = new wxPanel(toolsNB);
-    
-    toolsNB->AddPage(status, _T("Network"), true);
-    toolsNB->AddPage(status, _T("Input"), false);
-    toolsNB->AddPage(status, _T("Results"), false);
+	NetworkPanel *networkPanel = new NetworkPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    wxPanel *inputPanel = new wxPanel(this);
+    wxPanel *resultsPanel = new wxPanel(this);
+    wxPanel *propertiesPanel = new wxPanel(this);
+  
+    m_mgr.AddPane(propertiesPanel, wxRIGHT, wxT("Properties"));
+    m_mgr.AddPane(resultsPanel, wxBOTTOM, wxT("Simulation Results"));
+	m_mgr.AddPane(inputPanel, wxBOTTOM, wxT("Network Inputs"));
+	m_mgr.AddPane(networkPanel, wxCENTER);
 
-    wxBoxSizer *sizer = new wxBoxSizer( wxVERTICAL );
-
-    sizer->Add( toolsNB, 1, wxGROW | wxALL, 0 );
-
-    SetSizer (sizer);
-   // sizer->SetSizeHints ( this );
+	m_mgr.Update();
 
     CreateStatusBar();
     wxString version((dtnet::version()).c_str(), wxConvUTF8);
     SetStatusText(version);
+
+}
+
+MainWindow::~MainWindow() {
+	// deinitialize the frame manager
+	m_mgr.UnInit();
 }
 
 void MainWindow::InitMenu() {

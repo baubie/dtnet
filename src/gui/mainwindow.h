@@ -7,21 +7,24 @@
     #include "wx/log.h"
 #endif
 
-#include "wx/notebook.h"
+#include "wx/aui/aui.h"
 
 #include "../libdtnet/libdtnet.h"
 #include <string>
+#include "network.h"
 
 class MainWindow : public wxFrame {
 public:
 
     MainWindow(const wxString& title, const wxPoint& pos, const wxSize& size);
+	~MainWindow();
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnResize(wxCommandEvent& event);
     DECLARE_EVENT_TABLE()
 
 private:
+	wxAuiManager m_mgr;
     void InitMenu();
 };
 

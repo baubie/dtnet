@@ -22,6 +22,9 @@ public:
     int position;
     NeuronParams params;
     std::map< std::string, Range > unconstrained; /*<< Collection of unconstrained IDs. */
+	
+	// Used for GUI to layout populations
+	int x, y;
 
     // Methods
     Population(std::string name, std::string ID, double accept_input, bool spontaneous, int position, std::string model_type, NeuronParams params);
