@@ -56,7 +56,7 @@ class Input {
         std::map< std::string, Range > unconstrained;       /*<< Collection of unconstrained IDs. */
 
 	private:
-        std::vector< Signal > signals;
+        std::vector<Signal> signals;
         void generateSignals(double T, double dt, double delay);
 };
 #endif

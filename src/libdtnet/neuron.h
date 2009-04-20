@@ -33,9 +33,9 @@ public:
 
     // Virtual Methods
     // REQUIRED
-    virtual void update(double &current, unsigned int &position, double &dt) {};
-    virtual void spike(unsigned int &position, double &dt) {};
-    virtual Neuron* clone() {};
+    virtual void update(double & /*current*/, unsigned int & /*position*/, double & /*dt*/)=0;
+    virtual void spike(unsigned int & /*position*/, double & /*dt*/)=0;
+    virtual Neuron* clone()=0;
 
     // OPTIONAL
 

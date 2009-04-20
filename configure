@@ -18551,7 +18551,7 @@ wxWidgets version is $reqwx or above.
     fi
 fi
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/libdtnet/Makefile src/libdtnet/lib/tinyxml/Makefile src/models/Makefile src/cli/Makefile src/gui/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/libdtnet/Makefile src/libdtnet/lib/tinyxml/Makefile src/models/Makefile src/cli/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -19574,7 +19574,6 @@ do
     "src/libdtnet/lib/tinyxml/Makefile") CONFIG_FILES="$CONFIG_FILES src/libdtnet/lib/tinyxml/Makefile" ;;
     "src/models/Makefile") CONFIG_FILES="$CONFIG_FILES src/models/Makefile" ;;
     "src/cli/Makefile") CONFIG_FILES="$CONFIG_FILES src/cli/Makefile" ;;
-    "src/gui/Makefile") CONFIG_FILES="$CONFIG_FILES src/gui/Makefile" ;;
 
   *) { { $as_echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 $as_echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
