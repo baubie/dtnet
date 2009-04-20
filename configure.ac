@@ -31,18 +31,16 @@ AC_ARG_ENABLE(text-archive,
     [ --enable-text-archive     Use text archiving mode to save simulations.  Uses more disk space but is required on Mac OSX ],
     [ AC_DEFINE([SERIALIZE_TEXT]) 
     ]) 
-
+	
+	
 AM_CONDITIONAL([BUILD_CLI], [test x$CLI != xno])
 AM_CONDITIONAL([BUILD_GUI], [test x$GUI != xno])
 
-AX_BOOST_BASE(1.38)
-AX_BOOST_IOSTREAMS
-AX_BOOST_PROGRAM_OPTIONS
-AX_BOOST_FILESYSTEM
-AX_BOOST_SYSTEM
-AX_BOOST_THREAD
-AX_BOOST_DATE_TIME
-AX_BOOST_SERIALIZATION
+if test "$GUI" == "yes"; then
+BNV_HAVE_QT
+fi
+
+CPPFLAGS="-Wall $CPPFLAGS"
 
 if test "$CLI" == "yes"; then
     READLINE_lib_check=""
@@ -56,22 +54,15 @@ if test "$CLI" == "yes"; then
     AC_CHECK_LIB([ncurses], [main])
 fi
 
-if test "$GUI" == "yes"; then
-    AM_OPTIONS_WXCONFIG
-    reqwx=2.8.0
-    AM_PATH_WXCONFIG($reqwx, wxWin=1)
-    if test "$wxWin" != 1; then
-        AC_MSG_ERROR([
-wxWidgets must be installed on your system.
 
-Please check that wx-config is in path, the directory
-where wxWidgets libraries are installed (returned by
-'wx-config --libs' or 'wx-config --static --libs' command)
-is in LD_LIBRARY_PATH or equivalent variable and
-wxWidgets version is $reqwx or above.
-                  ])
-    fi
-fi
+AX_BOOST_BASE(1.38)
+AX_BOOST_IOSTREAMS
+AX_BOOST_PROGRAM_OPTIONS
+AX_BOOST_FILESYSTEM
+AX_BOOST_SYSTEM
+AX_BOOST_THREAD
+AX_BOOST_DATE_TIME
+AX_BOOST_SERIALIZATION
 
 AC_OUTPUT(Makefile \
           src/Makefile \
@@ -79,7 +70,6 @@ AC_OUTPUT(Makefile \
           src/libdtnet/lib/tinyxml/Makefile \
           src/models/Makefile \
           src/cli/Makefile \
-          src/qdtnet/MakefileAC
-          src/qdtnet/qdtnet.pro
+          src/qdtnet/Makefile
           )
 
