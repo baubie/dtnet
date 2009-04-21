@@ -36,10 +36,6 @@ AC_ARG_ENABLE(text-archive,
 AM_CONDITIONAL([BUILD_CLI], [test x$CLI != xno])
 AM_CONDITIONAL([BUILD_GUI], [test x$GUI != xno])
 
-if test "$GUI" == "yes"; then
-BNV_HAVE_QT
-fi
-
 CPPFLAGS="-Wall $CPPFLAGS"
 
 if test "$CLI" == "yes"; then
@@ -69,7 +65,6 @@ AC_OUTPUT(Makefile \
           src/libdtnet/Makefile \
           src/libdtnet/lib/tinyxml/Makefile \
           src/models/Makefile \
-          src/cli/Makefile \
-          src/qdtnet/Makefile
+          src/cli/Makefile
           )
 
