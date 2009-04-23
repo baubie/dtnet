@@ -171,10 +171,6 @@
 #define VT_insert_char( count ) "\33[" << count << "@"
 #define VT_delete_char( count ) "\33[" << count << "P"
 
-static bool is_b = FALSE;
-static bool is_i = FALSE;
-static bool is_u = FALSE;
-static bool is_r = FALSE;
 static int  fg_c = VT_DEFAULT;
 static int  bg_c = VT_DEFAULT;
 

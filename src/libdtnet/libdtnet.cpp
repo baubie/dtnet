@@ -39,6 +39,7 @@ bool dtnet::initialize() {
         cerr << "Unable to find available models.  Does ~/.libdtnetrc exist?" << endl;
         return false;
     }
+	return true;
 }
 
 std::list<std::string> dtnet::models() {
@@ -361,7 +362,7 @@ bool dtnet::graphspiketrains(Results &results, string const &popID, int trials, 
     props.x_labels_dist = 0.15;
     props.y_dticks = 1;
     props.x_dsubticks = 1;
-    bool r = gle.setPanelProperties(props, panelID);
+    gle.setPanelProperties(props, panelID);
 
     gle.canvasProperties.width = Settings::instance()->get_dbl("graph.width");
     gle.canvasProperties.height = Settings::instance()->get_dbl("graph.height");
@@ -461,7 +462,6 @@ bool dtnet::graphtrial(int type, Results &results, int trial, string const &file
         cout << "[X] No results are found in this simulation." << endl;
         return false;
     }
-    bool found = false;
     Results::Result* r = NULL;
     vector<Results::Result*>::iterator i;
     for (i = trials.begin(); i != trials.end(); ++i) {
@@ -533,7 +533,7 @@ bool dtnet::graphtrial(int type, Results &results, int trial, string const &file
                 break;
         }
         props.title = (*pop_iter)->name;
-        bool r = gle.setPanelProperties(props, panelID);
+        gle.setPanelProperties(props, panelID);
     }
 
     gle.canvasProperties.width = Settings::instance()->get_dbl("graph.width");

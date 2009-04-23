@@ -19,7 +19,7 @@ class Range {
         void merge(Range &r);
 
         Range operator=(const double& val);
-        operator const double() { return this->values.at(0); }
+        operator double() { if (this->values.size() > 0) return this->values.at(0); else return 0; }
         std::string toString();
 
         // Pretend to be a collection

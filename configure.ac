@@ -65,6 +65,8 @@ AC_OUTPUT(Makefile \
           src/libdtnet/Makefile \
           src/libdtnet/lib/tinyxml/Makefile \
           src/models/Makefile \
-          src/cli/Makefile
+          src/cli/Makefile \
+          src/qdtnet/qdtnet.pro \
+		  src/qdtnet/MakefileAC
           )
 
