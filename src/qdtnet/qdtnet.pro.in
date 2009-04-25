@@ -9,4 +9,4 @@ HEADERS += mainwindow.h
 FORMS += mainwindow.ui
 
 QMAKE_CXXFLAGS = @BOOST_CPPFLAGS@
-QMAKE_LIBS = @BOOST_LDFLAGS@ @BOOST_SYSTEM_LIB@
+QMAKE_LIBS = -L../libdtnet/.libs -ldtnet @BOOST_LDFLAGS@ @BOOST_SYSTEM_LIB@

@@ -1,6 +1,6 @@
 #include "../libdtnet/libdtnet.h"
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "mainwindow.h"
 
 

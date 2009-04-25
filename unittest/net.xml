@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <network title="Single Cell Test">
-
     <population id="poisson" title="Driving" type="poisson">
         <param name="size">5</param>
         <param name="mu">350</param>

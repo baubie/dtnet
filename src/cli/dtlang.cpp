@@ -563,21 +563,21 @@ void dtlang::initialize_functions()
     p.name = "filename";
     f.params.push_back( p );
 
-    p.type == dtlang::TYPE_INT;
+    p.type = dtlang::TYPE_INT;
     p.help = "Number of trials to print.";
     p.optional = true;
     p.def = "Every Trial";
     p.name = "trials";
     f.params.push_back( p );
 
-    p.type == dtlang::TYPE_INT;
+    p.type = dtlang::TYPE_INT;
     p.help = "Time value to start at.";
     p.optional = true;
     p.def = "Results timeseries start.";
     p.name = "start";
     f.params.push_back( p );
 
-    p.type == dtlang::TYPE_INT;
+    p.type = dtlang::TYPE_INT;
     p.help = "Time value to end at.";
     p.optional = true;
     p.def = "Results timeseries end.";
@@ -616,19 +616,19 @@ void dtlang::initialize_functions()
     p.name = "results";
     f.params.push_back(p);
 
-    p.type == dtlang::TYPE_STRING;
+    p.type = dtlang::TYPE_STRING;
     p.help = "Population ID to graph.";
     p.optional = false;
     p.name = "popID";
     f.params.push_back(p);
 
-    p.type == dtlang::TYPE_STRING;
+    p.type = dtlang::TYPE_STRING;
     p.help = "ID of the dimension to graph on the x-axis.";
     p.optional = false;
     p.name = "x_axis";
     f.params.push_back(p);
 
-    p.type == dtlang::TYPE_STRING;
+    p.type = dtlang::TYPE_STRING;
     p.help = "Filename to save the graph to.";
     p.optional = false;
     p.name = "filename";
@@ -657,13 +657,13 @@ void dtlang::initialize_functions()
     p.name = "results";
     f.params.push_back(p);
 
-    p.type == dtlang::TYPE_STRING;
+    p.type = dtlang::TYPE_STRING;
     p.help = "Population ID to graph.";
     p.optional = false;
     p.name = "popID";
     f.params.push_back(p);
 
-    p.type == dtlang::TYPE_STRING;
+    p.type = dtlang::TYPE_STRING;
     p.help = "Filename to save the graph to.";
     p.optional = false;
     p.name = "filename";
@@ -687,7 +687,7 @@ void dtlang::initialize_functions()
     p.name = "trial_number";
     f.params.push_back(p);
 
-    p.type == dtlang::TYPE_STRING;
+    p.type = dtlang::TYPE_STRING;
     p.help = "Filename to save the graph to.";
     p.optional = false;
     p.name = "filename";
@@ -1247,6 +1247,7 @@ bool dtlang::f_graphinputs(Trial &trial, string const &filename) {
 bool dtlang::f_version() {
     cout << "libdtnet: " << dtnet::version() << endl;
     cout << "dtnet CLI: " << DTNETCLI_VERSION << endl;
+    return true;
 }
 
 

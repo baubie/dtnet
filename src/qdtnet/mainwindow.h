@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtGui/QMainWindow>
+#include "../libdtnet/libdtnet.h"
+#include <QMainWindow>
+#include <QStatusBar>
 
 namespace Ui
 {
