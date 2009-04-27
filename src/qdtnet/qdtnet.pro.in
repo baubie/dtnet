@@ -2,9 +2,13 @@ GET = qdtnet
 TEMPLATE = app
 
 SOURCES += main.cpp\
-mainwindow.cpp
+mainwindow.cpp\
+propitem.cpp\
+propmodel.cpp
 
-HEADERS += mainwindow.h
+HEADERS += mainwindow.h\
+propitem.h\
+propmodel.h
 
 FORMS += mainwindow.ui
 

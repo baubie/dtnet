@@ -52,6 +52,7 @@ namespace dtnet {
     bool merge(Results &result, Results *r1, Results *r2);
     bool modsim(Simulation &sim, Simulation &old_sim, const std::string ID, Range const val);
     std::string version();
+    std::map<std::string, double> defaultModelParams(std::string model_type);
 
     // Graphing functions
     // bool f_graphinputs(Trial &trial, string const &filename); // NO LONGER IMPLEMENTED

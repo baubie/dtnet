@@ -46,6 +46,13 @@ std::list<std::string> dtnet::models() {
     return NeuronFactory::instance()->model_types();
 }
 
+std::map<std::string,double> dtnet::defaultModelParams(std::string model_type) {
+    Neuron *n;
+    NeuronFactory::instance()->create(model_type, NULL, n);
+    std::map<std::string,double> r = n->default_parameters();
+    return r;
+}
+
 
 bool dtnet::set_threads(int threads) {
     if (threads > 0) {
