@@ -6,6 +6,11 @@
 #include <QTreeView>
 #include <QFileDialog>
 #include <QMessageBox>
+
+#include <QGraphicsScene>
+
+#include <QGraphicsItem>
+
 #include "propmodel.h"
 
 namespace Ui
@@ -29,15 +34,18 @@ private slots:
     void on_actionOpen_Network_triggered();    
     void on_actionProperties_Window_triggered(bool checked);
     void on_dockProperties_visibilityChanged(bool visible);
-
     void loadNetwork();
 
 private:
-    Ui::MainWindowClass *ui;
+    // Functions
+    void drawNetwork();
     
+    // Widgets
+    Ui::MainWindowClass *ui;
     QTreeView *propertiesTree;    
     PropModel *propertiesModel;
     
+    // State variables
     QString networkFilename;
     Net net;
 };

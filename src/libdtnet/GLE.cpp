@@ -5,7 +5,7 @@ using namespace std;
 namespace bfs = boost::filesystem;
 
 bool GLE::setPanelProperties(PanelProperties props, PanelID ID) {
-    if (ID >= panels.size()) return false;
+    if (ID >= (PanelID)panels.size()) return false;
     panels[ID].properties = props;
     return true;
 }
@@ -17,7 +17,7 @@ bool GLE::setPanelProperties(PanelProperties props) {
     return true;
 }
 GLE::PanelProperties GLE::getPanelProperties(PanelID ID) {
-    if (ID >= panels.size()) { PanelProperties r; return r; }
+    if (ID >= (PanelID)panels.size()) { PanelProperties r; return r; }
     return panels[ID].properties;
 }
 
@@ -137,7 +137,6 @@ GLE::PanelID GLE::plot(vector<double> &x, vector<vector<double> > &y, vector<vec
         vector<double>::iterator valIter;
         vector<double>::iterator tsIter;
         double curY = plot.properties.y_start;
-        int tsIndex;
 
         /** std::find wasn't finding some values for some reason.  Doing manually therefore. **/
         double front = x.front();
@@ -255,9 +254,17 @@ bool GLE::draw(string const &filename)
 
     string graphics_dir = type+"_graphics";
     string image_name = graphics_dir + "/" + filename;
-    bfs::create_directory(bfs::path(graphics_dir));
+    string command;
 
-    string command = string("gle -d ") + type + string(" -output ") + image_name + " " + gle_script_file;
+    if (filename != "_preview_")
+    {
+	bfs::create_directory(bfs::path(graphics_dir));
+        command = string("gle -d ") + type + string(" -output ") + image_name + " " + gle_script_file;
+    }
+    else
+    {
+        command = string("gle") + string(" -p ")  + gle_script_file;
+    }
 
     int r = system(command.c_str());
 	if (r != 0) {
@@ -269,15 +276,16 @@ bool GLE::draw(string const &filename)
     }
 
     // Move the temporary files to folder
-    string script_dir = "GLE_scripts";
-    bfs::create_directory(bfs::path(script_dir));
-
-    bfs::remove_all(bfs::path(script_dir + "/" + basename));
-    bfs::create_directory(bfs::path(script_dir + "/" + basename));
     vector<Panel>::iterator panel_iter;
     vector<Plot>::iterator plot_iter;
     vector<Points>::iterator points_iter;
     vector<Plot3d>::iterator plot3d_iter;
+    if (filename != "_preview_")
+    {
+    string script_dir = "GLE_scripts";
+    bfs::create_directory(bfs::path(script_dir));
+    bfs::remove_all(bfs::path(script_dir + "/" + basename));
+    bfs::create_directory(bfs::path(script_dir + "/" + basename));
     basename = script_dir + "/" + basename;
     string scriptName = basename + "/script.gle";
     string dataName;
@@ -303,6 +311,25 @@ bool GLE::draw(string const &filename)
             bfs::copy_file(bfs::path(plot3d_iter->data_file), bfs::path(dataName));
             bfs::remove(bfs::path(plot3d_iter->data_file));
         }
+    }
+    } else {
+	// Just previewing so remove temporary files
+	    bfs::remove(bfs::path(gle_script_file));
+	    for( panel_iter = this->panels.begin(); panel_iter != this->panels.end(); ++panel_iter)
+	    {
+		for ( plot_iter = panel_iter->plots.begin(); plot_iter != panel_iter->plots.end(); ++plot_iter)
+		{
+		    bfs::remove(bfs::path(plot_iter->data_file));
+		}
+		for ( points_iter = panel_iter->points.begin(); points_iter != panel_iter->points.end(); ++points_iter )
+		{
+		    bfs::remove(bfs::path(points_iter->data_file));
+		}
+		for ( plot3d_iter = panel_iter->plots3d.begin(); plot3d_iter != panel_iter->plots3d.end(); ++plot3d_iter )
+		{
+		    bfs::remove(bfs::path(plot3d_iter->data_file));
+		}
+	    }
     }
 
     return (r == 0);

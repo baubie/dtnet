@@ -1,19 +1,58 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <network title="Single Cell Test">
+
     <population id="poisson" title="Driving" type="poisson">
-        <param name="size">5</param>
+        <param name="size">25</param>
         <param name="mu">350</param>
         <param name="accept_input">1</param>
+    </population> 
+    <population id="SI" title="Sustained Inhibition" type="hh">
+        <param name="size">10</param>
+        <param name="T">22</param>
     </population>
-    <population id="aeif" title="aEIF" type="aeif">
-        <param name="size">1</param>
-        <param name="accept_input">1000</param>
+    <population id="ON" title="Onset Evoked" type="hh">
+        <param name="size">10</param>
+        <param name="T">22</param>
+        <param name="E_Na">70</param>
+        <param name="g_Na">120</param>
+        <param name="E_K">-75</param>
     </population>
-    <population id="hh" title="Hodgkin and Huxley" type="hh">
-        <param name="size">1</param>
-        <param name="accept_input">10</param>
+    <population id="ONDelay" title="Onset Evoked" type="hh">
+        <param name="size">10</param>
+        <param name="T">22</param>
+        <param name="E_Na">70</param>
+        <param name="g_Na">120</param>
+        <param name="E_K">-75</param>
     </population>
+    <population id="OFF" title="Offset Evoked" type="hh">
+        <param name="size">10</param>
+        <param name="T">22</param>
+        <param name="E_Na">70</param>
+        <param name="g_Na">120</param>
+        <param name="E_K">-75</param>
+    </population>
+
+    <connection>
+        <param name="from">poisson</param>
+        <param name="to">SI</param>
+        <param name="weight">0.05</param>
+    </connection>
+    <connection>
+        <param name="from">poisson</param>
+        <param name="to">ON</param>
+        <param name="weight">0.05</param>
+    </connection>    
+    <connection>
+        <param name="from">ON</param>
+        <param name="to">ONDelay</param>
+        <param name="weight">-0.03</param>
+    </connection>    
+    <connection>
+        <param name="from">SI</param>
+        <param name="to">OFF</param>
+        <param name="weight">-0.025</param>
+    </connection>    
 </network>
 
 

@@ -41,6 +41,11 @@ void MainWindow::loadNetwork()
     propertiesTree->setModel(propertiesModel);
 }
 
+void MainWindow::drawNetwork()
+{
+    
+}
+
 void MainWindow::on_actionOpen_Network_triggered()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Open Network"), "", tr("Network XML Files (*.xml)"));

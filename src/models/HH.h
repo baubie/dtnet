@@ -24,6 +24,8 @@ public:
     double g_Na,g_K,g_L;
     double V_rest;
 
+    double tf;
+
 	double I_Na, I_K, I_T, I_L;
 
 private:

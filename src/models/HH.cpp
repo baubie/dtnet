@@ -38,7 +38,6 @@ void HH::initialize() {
 
     F = 96480; // Faraday's constant
     R = 8.314; // Gas constant
-    T = this->params.getval("T"); // Temperature
     P_Ca = 0.0003;
     Ca_i = 3 * (10^(-8));
     Ca_o = 2 * (10^(-8));
@@ -58,6 +57,9 @@ void HH::initialize() {
     this->g_K = this->params.getval("g_K");
     this->g_L = this->params.getval("g_L");
     this->cm = this->params.getval("cm");
+    this->T = this->params.getval("T"); // Temperature
+	this->tf = pow(3.0,(this->T-6.3)/10); // Temperature Fix
+    
 }
 
 void HH::update(double& current, unsigned int& position, double& dt) {
@@ -87,33 +89,30 @@ double V_update(double V, double& current, unsigned int& position, Neuron *n) {
 
 double n_update(double V, double& current, unsigned int& position, Neuron *n) {
 	HH* hh = static_cast<HH*>(n);
-	static double tf = pow(3.0,(hh->T-6.3)/10); // Temperature Fix
-	double a = tf * 0.01 * (V+55) / (1-exp(-(V+55)/10));
-	double b = tf * 0.125 * exp(-(V+65)/80);
+	double a = hh->tf * 0.01 * (V+55) / (1-exp(-(V+55)/10));
+	double b = hh->tf * 0.125 * exp(-(V+65)/80);
 	return a * (1 - hh->n) - b * (hh->n);
 }
 
 double m_update(double V, double& current, unsigned int& position, Neuron *n) {
 	HH* hh = static_cast<HH*>(n);
-	static double tf = pow(3.0,(hh->T-6.3)/10); // Temperature Fix
-	double a = tf * 0.1 * (V+40) / (1-exp(-(V+40)/10));
-	double b = tf * 4 * exp(-(V+65)/18);
+	double a = hh->tf * 0.1 * (V+40) / (1-exp(-(V+40)/10));
+	double b = hh->tf * 4 * exp(-(V+65)/18);
 	return a * (1 - hh->m) - b * (hh->m);
 }
 
 double h_update(double V, double& current, unsigned int& position, Neuron *n) {
 	HH* hh = static_cast<HH*>(n);
-	static double tf = pow(3.0,(hh->T-6.3)/10); // Temperature Fix
-	double a = tf * 0.07 * exp(-(V+65)/20);
-	double b = tf * 1 / (1 + exp(-(V+35)/10));
+	double a = hh->tf * 0.07 * exp(-(V+65)/20);
+	double b = hh->tf * 1 / (1 + exp(-(V+35)/10));
 	return a * (1 - hh->h) - b * (hh->h);
 }
 
 
 void HH::spike(unsigned int &position, double &dt) {
 	double t = position * dt;
-	if (this->V < 0) in_spike = false;
-    if (this->V >= 0 && this->V <= this->V_last && !in_spike) {
+	if (this->V < 20) in_spike = false;
+    if (this->V >= 20 && this->V >= this->V_last && !in_spike) {
 		in_spike = true;
         spikes.push_back(t - this->delay); // Save the spike time
     }

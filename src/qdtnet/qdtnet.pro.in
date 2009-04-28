@@ -4,11 +4,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
 mainwindow.cpp\
 propitem.cpp\
-propmodel.cpp
+propmodel.cpp\
+networkview.cpp
+
 
 HEADERS += mainwindow.h\
 propitem.h\
-propmodel.h
+propmodel.h\
+networkview.h
 
 FORMS += mainwindow.ui
 
