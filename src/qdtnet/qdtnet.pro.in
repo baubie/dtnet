@@ -5,13 +5,17 @@ SOURCES += main.cpp\
 mainwindow.cpp\
 propitem.cpp\
 propmodel.cpp\
-networkview.cpp
+networkview.cpp\
+networkitem.cpp\
+connectionitem.cpp
 
 
 HEADERS += mainwindow.h\
 propitem.h\
 propmodel.h\
-networkview.h
+networkview.h\
+networkitem.h\
+connectionitem.h
 
 FORMS += mainwindow.ui
 

@@ -17,6 +17,13 @@ MainWindow::MainWindow(QWidget *parent)
     propertiesTree->setAnimated( false );
     ui->dockProperties->setWidget(propertiesTree);
     
+	
+	tabWidget = new QTabWidget();
+	networkView = new NetworkView( NULL );
+	networkTab = tabWidget->addTab(networkView, QString("Network View"));
+	
+	setCentralWidget(tabWidget);
+	
     propertiesModel = new PropModel( NULL );
     propertiesTree->setModel(propertiesModel);
     
@@ -39,11 +46,9 @@ void MainWindow::loadNetwork()
     setWindowTitle("Qt-dtnet - " + this->networkFilename);
     propertiesModel = new PropModel( &net );    
     propertiesTree->setModel(propertiesModel);
-}
-
-void MainWindow::drawNetwork()
-{
-    
+	
+	networkView->replaceNetwork( &net );
+	networkView->show();
 }
 
 void MainWindow::on_actionOpen_Network_triggered()

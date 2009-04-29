@@ -6,12 +6,12 @@
 #include <QTreeView>
 #include <QFileDialog>
 #include <QMessageBox>
-
 #include <QGraphicsScene>
-
 #include <QGraphicsItem>
+#include <QTabWidget>
 
 #include "propmodel.h"
+#include "networkview.h"
 
 namespace Ui
 {
@@ -37,13 +37,14 @@ private slots:
     void loadNetwork();
 
 private:
-    // Functions
-    void drawNetwork();
     
     // Widgets
     Ui::MainWindowClass *ui;
     QTreeView *propertiesTree;    
     PropModel *propertiesModel;
+	QTabWidget *tabWidget;
+	NetworkView *networkView;
+	int networkTab;
     
     // State variables
     QString networkFilename;
