@@ -132,6 +132,7 @@ MAKEINFO = ${SHELL} /home/brandon/dtnet/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
 NMEDIT = 
+OBJDUMP = objdump
 OBJEXT = o
 OTOOL = 
 OTOOL64 = 

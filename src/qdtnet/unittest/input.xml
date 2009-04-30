@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+
+<trial>
+    <input type="pure" ID="main">
+        <param name="delay">0</param>
+        <param name="amplitude">1</param>
+        <param name="duration">15</param>
+    </input>
+</trial>

@@ -9,7 +9,7 @@
 class NetworkItem : public QGraphicsItem
 {
 public:
-     NetworkItem(const QString &ID, const QString &name);
+     NetworkItem(const QString &ID, const QString &name, const QString &model_type);
      QRectF boundingRect() const;
      QPainterPath shape() const;
      void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -17,6 +17,7 @@ public:
 private:
     QString itemID;
     QString itemName;
+    QString itemModel;
 };
 
 #endif

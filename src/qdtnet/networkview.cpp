@@ -17,7 +17,14 @@ void NetworkView::replaceNetwork(Net *net)
 	
 	// Start fresh
 	clear();	
-	NetworkItem *ni = new NetworkItem(tr("ON"), tr("Onset Evoked"));		
+    
+    for (i = n->populations.begin(); i != n->populations.end(); ++i )
+    {
+        PropItem *pop = new PropItem(QString(i->second.name.c_str()), QString(i->second.model_type.c_str()), rootItem);
+        NetworkItem *ni = new NetworkItem(QString(i->second.ID.c_str()), QString(i->second.name.c_str()), QString(i->second.name.c_str()));		
+        rootItem->appendChild(pop);
+    }   
+    
 	scene->addItem(ni);
 	ni->setPos(0, 0);
 	scale(qreal(1), qreal(1));	
@@ -26,35 +33,37 @@ void NetworkView::replaceNetwork(Net *net)
 	update();
 }
 
-
-
 void NetworkView::drawBackground(QPainter *painter, const QRectF &rect)
 {
 	
 }
 
+/*
+ * clear() function taken from:
+ * http://lists.trolltech.com/qt-interest/2007-11/thread00667-0.html
+ */
 void NetworkView::clear()
 {
-        QList<QGraphicsItem*> scene_items = scene->items();
-        QList<QGraphicsItem*> remove_items;
+    QList<QGraphicsItem*> scene_items = scene->items();
+    QList<QGraphicsItem*> remove_items;
 
-        for (int i = 0; i < scene_items.size(); ++i)
-        {
-                /*
-                        only [re]move top level items.. all others are 
-                        being taken care of by their respective parent
-                */
-                if (scene_items[i]->parentItem() == 0)
-                {
-                        scene->removeItem(scene_items[i]);
-                        remove_items << scene_items[i];
-                }
-        }
-        /*
-                finally delete them
-        */
-        for (int i = 0; i < remove_items.size();++i)
-        {
-                        delete remove_items[i];
-        }
+    for (int i = 0; i < scene_items.size(); ++i)
+    {
+            /*
+                    only [re]move top level items.. all others are 
+                    being taken care of by their respective parent
+            */
+            if (scene_items[i]->parentItem() == 0)
+            {
+                    scene->removeItem(scene_items[i]);
+                    remove_items << scene_items[i];
+            }
+    }
+    /*
+            finally delete them
+    */
+    for (int i = 0; i < remove_items.size();++i)
+    {
+                    delete remove_items[i];
+    }
 }

@@ -1,0 +1,11 @@
+set("T", 100)
+set("graph.height", 20)
+set("dt", 0.1)
+sim = simulation("net.xml", "input.xml")
+results = run(sim,"out.sim",1,10)
+#results = load("out.sim")
+
+graphtrial_voltage(results, 0, "_preview_")
+#graphtrial_spikes(results, 0, "spikes.eps")
+
+quit()
