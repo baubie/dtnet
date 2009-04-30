@@ -16,17 +16,17 @@ void NetworkView::replaceNetwork(Net *net)
 	this->net = net;
 	
 	// Start fresh
+	qreal y = 0;
 	clear();	
-    
-    for (i = n->populations.begin(); i != n->populations.end(); ++i )
+    std::map<std::string,Population>::iterator i;
+    for (i = net->populations.begin(); i != net->populations.end(); ++i )
     {
-        PropItem *pop = new PropItem(QString(i->second.name.c_str()), QString(i->second.model_type.c_str()), rootItem);
-        NetworkItem *ni = new NetworkItem(QString(i->second.ID.c_str()), QString(i->second.name.c_str()), QString(i->second.name.c_str()));		
-        rootItem->appendChild(pop);
+        NetworkItem *ni = new NetworkItem(QString(i->second.ID.c_str()), QString(i->second.name.c_str()), QString(i->second.model_type.c_str()));		
+		scene->addItem(ni);
+		ni->setPos(0, y);
+		y += 80;
     }   
     
-	scene->addItem(ni);
-	ni->setPos(0, 0);
 	scale(qreal(1), qreal(1));	
 
 	// Update the view

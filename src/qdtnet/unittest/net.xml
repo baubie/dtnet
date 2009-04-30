@@ -18,7 +18,7 @@
         <param name="g_Na">120</param>
         <param name="E_K">-75</param>
     </population>
-    <population id="ONDelay" title="Onset Evoked" type="hh">
+    <population id="ONDelay" title="Delayed Onset Evoked" type="hh">
         <param name="size">10</param>
         <param name="T">22</param>
         <param name="E_Na">70</param>
