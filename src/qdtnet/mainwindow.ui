@@ -41,6 +41,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionOpen_Network"/>
+    <addaction name="actionOpen_Trial"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -61,6 +62,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen_Network"/>
+   <addaction name="actionOpen_Trial"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockProperties">
@@ -80,7 +82,12 @@
   </widget>
   <action name="actionOpen_Network">
    <property name="text">
-    <string>Open Network</string>
+    <string>Load Network</string>
+   </property>
+  </action>
+  <action name="actionOpen_Trial">
+   <property name="text">
+    <string>Load Trial</string>
    </property>
   </action>
   <action name="actionQuit">

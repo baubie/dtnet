@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
 	tabWidget = new QTabWidget();
 	networkView = new NetworkView( NULL );
 	networkTab = tabWidget->addTab(networkView, QString("Network View"));
+	networkTab = tabWidget->addTab(networkView, QString("Real-Time Voltage"));
 	
 	setCentralWidget(tabWidget);
 	
@@ -67,6 +68,25 @@ void MainWindow::on_actionOpen_Network_triggered()
         emit networkChanged();
     }
 }
+
+void MainWindow::on_actionOpen_Trial_triggered()
+{
+    QString filename = QFileDialog::getOpenFileName(this, tr("Open Trial"), "", tr("Trial XML Files (*.xml)"));
+
+    std::string error;
+
+    if (!trial.load(filename.toStdString(), error))
+    {
+        QMessageBox msgBox;    
+        msgBox.setText(QString::fromStdString(error));
+        msgBox.exec();
+    } else {
+        this->trialFilename = filename;
+        emit networkChanged();
+    }
+    
+}
+
 
 void MainWindow::on_actionQuit_triggered()
 {

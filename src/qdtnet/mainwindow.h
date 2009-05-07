@@ -32,6 +32,7 @@ signals:
 private slots:
     void on_actionQuit_triggered();    
     void on_actionOpen_Network_triggered();    
+    void on_actionOpen_Trial_triggered();
     void on_actionProperties_Window_triggered(bool checked);
     void on_dockProperties_visibilityChanged(bool visible);
     void loadNetwork();
@@ -48,7 +49,9 @@ private:
     
     // State variables
     QString networkFilename;
+    QString trialFilename;
     Net net;
+	Trial trial;
 };
 
 #endif // MAINWINDOW_H
