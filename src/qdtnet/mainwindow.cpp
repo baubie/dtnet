@@ -20,8 +20,11 @@ MainWindow::MainWindow(QWidget *parent)
 	
 	tabWidget = new QTabWidget();
 	networkView = new NetworkView( NULL );
+    
 	networkTab = tabWidget->addTab(networkView, QString("Network View"));
-	networkTab = tabWidget->addTab(networkView, QString("Real-Time Voltage"));
+    
+    voltageLabel = new QLabel;   
+    rtvoltageTab = tabWidget->addTab(voltageLabel, QString("Real-Time Voltage"));
 	
 	setCentralWidget(tabWidget);
 	
@@ -87,6 +90,26 @@ void MainWindow::on_actionOpen_Trial_triggered()
     
 }
 
+void MainWindow::on_actionRun_Simulation_triggered()
+{
+     Simulation sim(net, trial);  
+         
+     std::string filename = "";   
+     dtnet::set("T", 100);
+     dtnet::set("dt", 0.05);     
+     dtnet::run(result, sim, filename, 1, 0, true);
+
+     dtnet::set("graph.height", 20);
+     dtnet::set("graph.width", 15);
+     dtnet::graphtrial(dtnet::PLOT_VOLTAGE, result, 0, "temp.png");
+     
+     QImage image("png_graphics/temp.png");
+     if (image.isNull()) {
+        QMessageBox::information(this, tr("Voltage Traces"), tr("Error loading voltage traces"));
+        return;
+     }
+     voltageLabel->setPixmap(QPixmap::fromImage(image));
+}
 
 void MainWindow::on_actionQuit_triggered()
 {

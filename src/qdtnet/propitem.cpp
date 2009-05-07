@@ -14,9 +14,7 @@ PropItem::~PropItem()
 }
 
 bool PropItem::setData(int column, const QVariant &value)
-{
-    qDebug() << column << ": " << value;
-    
+{   
     // We can only edit the right hand column
     if (column != 1) return false;
     itemValue = value;

@@ -63,6 +63,7 @@
    </attribute>
    <addaction name="actionOpen_Network"/>
    <addaction name="actionOpen_Trial"/>
+   <addaction name="actionRun_Simulation"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockProperties">
@@ -81,13 +82,33 @@
    <widget class="QWidget" name="dockWidgetContents_2"/>
   </widget>
   <action name="actionOpen_Network">
+   <property name="icon">
+    <iconset resource="qdtnet.qrc">
+     <normaloff>:/newPrefix/resources/gt_dendrites.jpg</normaloff>:/newPrefix/resources/gt_dendrites.jpg</iconset>
+   </property>
    <property name="text">
     <string>Load Network</string>
    </property>
   </action>
   <action name="actionOpen_Trial">
+   <property name="icon">
+    <iconset resource="qdtnet.qrc">
+     <normaloff>:/newPrefix/resources/signal-Vista-icon.jpg</normaloff>:/newPrefix/resources/signal-Vista-icon.jpg</iconset>
+   </property>
    <property name="text">
     <string>Load Trial</string>
+   </property>
+  </action>
+  <action name="actionRun_Simulation">
+   <property name="icon">
+    <iconset resource="qdtnet.qrc">
+     <normaloff>:/newPrefix/resources/run-copy-icon.jpg</normaloff>:/newPrefix/resources/run-copy-icon.jpg</iconset>
+   </property>
+   <property name="text">
+    <string>Run Simulation</string>
+   </property>
+   <property name="toolTip">
+    <string>Run Simulation</string>
    </property>
   </action>
   <action name="actionQuit">
@@ -108,6 +129,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="qdtnet.qrc"/>
+ </resources>
  <connections/>
 </ui>
