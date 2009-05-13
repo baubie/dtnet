@@ -113,6 +113,7 @@ bool dtnet::merge(Results &result, Results *r1, Results *r2) {
     return result.merge(*r1, *r2);
 }
 
+
 bool dtnet::graphfirstspikelatency(Results &results, string const &popID, string const &x_axis, string const &filename, int const type) {
 
     if (results.unconstrained.size() > 2 || results.unconstrained.size() == 0) {

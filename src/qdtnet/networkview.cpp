@@ -7,8 +7,6 @@ NetworkView::NetworkView(Net *net)
 	this->net = net;	
 	scene = new QGraphicsScene(this);	
 	setScene(scene);
-	setRenderHint(QPainter::Antialiasing);
-
 }
 
 void NetworkView::replaceNetwork(Net *net)

@@ -47,17 +47,7 @@ void NetworkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
                                BOX_HEIGHT,
                                BOX_CORNER, 
                                BOX_CORNER);
-     QRadialGradient gradient(-3, -3, 10);
-     if (option->state & QStyle::State_Sunken) {
-         gradient.setCenter(3, 3);
-         gradient.setFocalPoint(3, 3);
-         gradient.setColorAt(1, QColor(Qt::blue).light(120));
-         gradient.setColorAt(0, QColor(Qt::darkBlue).light(120));
-     } else {
-         gradient.setColorAt(1, QColor(Qt::blue));
-         gradient.setColorAt(0, QColor(Qt::darkBlue));
-     }
-     painter->setBrush(gradient);
+     painter->setBrush(QColor(0,0,0,200));
      painter->setPen(QPen(Qt::black, 0));
      painter->drawRoundedRect(-BOX_WIDTH/2+SHADOW_OFFSET,
                               -BOX_HEIGHT/2+SHADOW_OFFSET,

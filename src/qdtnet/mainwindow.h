@@ -15,6 +15,7 @@
 
 #include "propmodel.h"
 #include "networkview.h"
+#include "workspace.h"
 
 namespace Ui
 {
@@ -28,9 +29,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    
-signals:
-    void networkChanged();
     
 private slots:
     void on_actionQuit_triggered();    
@@ -55,11 +53,7 @@ private:
 	int rtvoltageTab;
     
     // State variables
-    QString networkFilename;
-    QString trialFilename;
-    Net net;
-	Trial trial;
-    Results result;
+    Workspace ws;
 };
 
 #endif // MAINWINDOW_H

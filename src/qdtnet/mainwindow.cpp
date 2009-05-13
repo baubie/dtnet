@@ -32,9 +32,12 @@ MainWindow::MainWindow(QWidget *parent)
     propertiesTree->setModel(propertiesModel);
     
     // Setup Signals and Slots
-    QObject::connect(this, SIGNAL(networkChanged()), 
+    QObject::connect(&ws, SIGNAL(networkChanged()), 
                      this, SLOT(loadNetwork())
                     );
+                    
+    // We can't run simulations by default
+    ui->actionRun_Simulation->setEnabled( false );
 }
 
 MainWindow::~MainWindow()
@@ -47,28 +50,28 @@ MainWindow::~MainWindow()
 void MainWindow::loadNetwork() 
 {
     delete propertiesModel;
-    setWindowTitle("Qt-dtnet - " + this->networkFilename);
-    propertiesModel = new PropModel( &net );    
+    setWindowTitle("Qt-dtnet - " + ws.networkFilename);
+    propertiesModel = new PropModel( ws.net );    
     propertiesTree->setModel(propertiesModel);
 	
-	networkView->replaceNetwork( &net );
+	networkView->replaceNetwork( ws.net );
 	networkView->show();
+    
 }
 
 void MainWindow::on_actionOpen_Network_triggered()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Open Network"), "", tr("Network XML Files (*.xml)"));
 
-    std::string error;
-
-    if (!net.load(filename.toStdString(), error))
+    QString error;
+    if (!ws.loadNetwork(filename, error))
     {
         QMessageBox msgBox;    
-        msgBox.setText(QString::fromStdString(error));
+        msgBox.setText(error);
         msgBox.exec();
-    } else {
-        this->networkFilename = filename;
-        emit networkChanged();
+    } 
+    else {
+        if ( ws.trial->isReady() && ws.net->isReady() ) ui->actionRun_Simulation->setEnabled( true );   
     }
 }
 
@@ -76,39 +79,42 @@ void MainWindow::on_actionOpen_Trial_triggered()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Open Trial"), "", tr("Trial XML Files (*.xml)"));
 
-    std::string error;
-
-    if (!trial.load(filename.toStdString(), error))
+    QString error;
+    if (!ws.loadTrial(filename, error))
     {
         QMessageBox msgBox;    
-        msgBox.setText(QString::fromStdString(error));
+        msgBox.setText(error);
         msgBox.exec();
-    } else {
-        this->trialFilename = filename;
-        emit networkChanged();
+    } 
+    else {
+        if ( ws.trial->isReady() && ws.net->isReady() ) ui->actionRun_Simulation->setEnabled( true );   
     }
-    
 }
 
 void MainWindow::on_actionRun_Simulation_triggered()
 {
-     Simulation sim(net, trial);  
-         
-     std::string filename = "";   
-     dtnet::set("T", 100);
-     dtnet::set("dt", 0.05);     
-     dtnet::run(result, sim, filename, 1, 0, true);
+    
+    voltageLabel->setPixmap(QPixmap::fromImage(QImage(QString::fromUtf8(":/newPrefix/resources/homer_running.jpg"))));
+    
+    ui->statusBar->showMessage(tr("Running Simulation..."));    
+    Simulation sim(*ws.net, *ws.trial);  
+    std::string filename = "";   
+    dtnet::set("T", 100);
+    dtnet::set("dt", 0.05);     
+    dtnet::run(*ws.result, sim, filename, 1, 0, true);
 
-     dtnet::set("graph.height", 20);
-     dtnet::set("graph.width", 15);
-     dtnet::graphtrial(dtnet::PLOT_VOLTAGE, result, 0, "temp.png");
-     
-     QImage image("png_graphics/temp.png");
-     if (image.isNull()) {
-        QMessageBox::information(this, tr("Voltage Traces"), tr("Error loading voltage traces"));
-        return;
-     }
-     voltageLabel->setPixmap(QPixmap::fromImage(image));
+    ui->statusBar->showMessage(tr("Generating Voltage Plot..."));    
+    dtnet::set("graph.height", 20);
+    dtnet::set("graph.width", 15);     
+    dtnet::graphtrial(dtnet::PLOT_VOLTAGE, *ws.result, 0, "temp.png");
+
+    ui->statusBar->showMessage(tr("Done!"));    
+    QImage image("temp.png");
+    if (image.isNull()) {
+    QMessageBox::information(this, tr("Voltage Traces"), tr("Error loading voltage traces"));
+    return;
+    }
+    voltageLabel->setPixmap(QPixmap::fromImage(image));
 }
 
 void MainWindow::on_actionQuit_triggered()

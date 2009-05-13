@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="newPrefix" >
+    <file>resources/homer_running.jpg</file>
     <file>resources/gt_dendrites.jpg</file>
     <file>resources/run-copy-icon.jpg</file>
     <file>resources/signal-Vista-icon.jpg</file>

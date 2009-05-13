@@ -34,6 +34,8 @@ class GLE
         static const int NEW_PANEL = -1;
         static const double UNDEFINED = -91348434;
 
+        std::string *buffer;
+
         std::vector<std::string> markers;
         std::string getMarker();
         std::vector<std::string>::iterator iter_marker;

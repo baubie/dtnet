@@ -3,6 +3,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
 mainwindow.cpp\
+workspace.cpp\
 propitem.cpp\
 propmodel.cpp\
 networkview.cpp\
@@ -11,6 +12,7 @@ connectionitem.cpp
 
 
 HEADERS += mainwindow.h\
+workspace.h\
 propitem.h\
 propmodel.h\
 networkview.h\

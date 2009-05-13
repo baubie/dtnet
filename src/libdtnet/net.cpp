@@ -6,7 +6,14 @@ using namespace std;
 std::vector<Net::ConstrainedNetwork>* Net::networkFactory() {
     if (this->cNetworks.empty()) this->genNetworks();
     return &(this->cNetworks);
+}
 
+Net::Net() {
+    ready = false;
+}
+
+bool Net::isReady() {
+    return ready;
 }
 
 void Net::genNetworks() {
@@ -174,6 +181,7 @@ string Net::toString() {
 bool Net::load(std::string filename, std::string &error) {
     if (parseXML(filename, error)) {
         this->filename = filename;
+        ready = true;
         return true;
     }
     return false;

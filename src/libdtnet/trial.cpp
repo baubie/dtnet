@@ -2,11 +2,22 @@
 
 using namespace std;
 
+Trial::Trial()
+{
+    ready = false;
+}
+
+bool Trial::isReady()
+{
+    return ready;
+}
+
 bool Trial::load(string filename, string &error)
 {
 	if (parseXML(filename, error))
     {
         this->filename = filename;
+        ready = true;
         return true;
     }
     return false;

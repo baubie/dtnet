@@ -256,23 +256,34 @@ bool GLE::draw(string const &filename)
     string image_name = graphics_dir + "/" + filename;
     string command;
 
-    if (filename != "_preview_")
+    if (filename != "_preview_" && filename != "STDOUT" && filename != "_nodraw_" && basename != "temp")
     {
-	bfs::create_directory(bfs::path(graphics_dir));
+        bfs::create_directory(bfs::path(graphics_dir));
         command = string("gle -d ") + type + string(" -output ") + image_name + " " + gle_script_file;
     }
-    else
+    else if (basename == "temp")
+    {
+        command = string("gle -d ") + type + string(" -output temp.") + type + " " + gle_script_file;       
+    }
+    else if (filename == "_preview_")
     {
         command = string("gle") + string(" -p ")  + gle_script_file;
     }
-
-    int r = system(command.c_str());
-	if (r != 0) {
-		cerr << "[GLE] An error occured." << endl;
-    }
-	else
+    else if (filename == "STDOUT")
     {
-	    cout << "[GLE] Saved plot to " << filename << endl;
+        command = string("gle -d ") + type + string(" -output ") + image_name + " " + gle_script_file;
+    }
+    int r = 0;
+    if (filename != "_nodraw_")
+    {
+        r = system(command.c_str());
+        if (r != 0) {
+            cerr << "[GLE] An error occured." << endl;
+        }
+        else
+        {
+            cout << "[GLE] Saved plot to " << filename << endl;
+        }
     }
 
     // Move the temporary files to folder
@@ -280,7 +291,7 @@ bool GLE::draw(string const &filename)
     vector<Plot>::iterator plot_iter;
     vector<Points>::iterator points_iter;
     vector<Plot3d>::iterator plot3d_iter;
-    if (filename != "_preview_")
+    if (filename != "_preview_" && filename !="_nodraw_" && filename != "temp")
     {
     string script_dir = "GLE_scripts";
     bfs::create_directory(bfs::path(script_dir));

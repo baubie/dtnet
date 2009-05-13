@@ -25,12 +25,15 @@ public:
     bool verbose;
     std::string name; // A name for this network
 
+    Net();
+
     void linkinput(std::vector<double> &input);
     bool load(std::string filename, std::string &error);
     int count_populations();
     std::string toString();
     void initSimulation(double T, double dt, double delay);
-
+    bool isReady();
+    
     template<class T>
     struct Connection {
         T delay;
@@ -143,6 +146,8 @@ private:
     int numPopulations();
     bool parseXML(std::string filename, std::string &error);
     void initialize();
+    
+    bool ready;
 };
 #endif
 
