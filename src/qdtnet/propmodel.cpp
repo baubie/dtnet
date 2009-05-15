@@ -1,10 +1,12 @@
 
 #include "propmodel.h"
 
-PropModel::PropModel( Net *net, QObject *parent)
+PropModel::PropModel( Population *p, QObject *parent)
 {
+    Q_UNUSED(parent) 
+
     rootItem = new PropItem("Property", "Value");    
-    if (net != NULL) setupModelData(net, rootItem);
+    if (p != NULL) setupModelData(p, rootItem);
 }
 
 PropModel::~PropModel()
@@ -12,54 +14,53 @@ PropModel::~PropModel()
     delete rootItem;
 }
 
-void PropModel::setupModelData(Net *n, PropItem *parent)
+void PropModel::setupModelData(Population *p, PropItem *parent)
 {
+    Q_UNUSED(parent)
+
     std::map<std::string,Population>::iterator i;
     std::map<std::string,Range>::iterator v;
     
-    for (i = n->populations.begin(); i != n->populations.end(); ++i )
+    PropItem *pop = rootItem; //new PropItem(QString(i->second.name.c_str()), QString(i->second.model_type.c_str()), rootItem);
+    
+    for (v = p->params.vals.begin(); v != p->params.vals.end(); ++v)
     {
-        PropItem *pop = new PropItem(QString(i->second.name.c_str()), QString(i->second.model_type.c_str()), rootItem);
-        
-        for (v = i->second.params.vals.begin(); v != i->second.params.vals.end(); ++v)
-        {
-            QString value = QString("%1").arg(v->second.front());
+        QString value = QString("%1").arg(v->second.front());
 
-            if (v->second.front() != v->second.back())
-            {
-                value += "..." + QString("%1").arg(v->second.back());
-            }
-            PropItem *prop = new PropItem(QString(v->first.c_str()), value, pop);            
-            PropItem *start = new PropItem(QString("Start"), v->second.front(), prop);
-            PropItem *end = new PropItem(QString("End"), v->second.back(), prop);
-            
-            double stepValue = 0;
-            if (v->second.size() > 1) stepValue = v->second.values[1] - v->second.values[0];
-            PropItem *step = new PropItem(QString("Step"), stepValue, prop);
-            
+        if (v->second.front() != v->second.back())
+        {
+            value += "..." + QString("%1").arg(v->second.back());
+        }
+        PropItem *prop = new PropItem(QString(v->first.c_str()), value, pop);            
+        PropItem *start = new PropItem(QString("Start"), v->second.front(), prop);
+        PropItem *end = new PropItem(QString("End"), v->second.back(), prop);
+        
+        double stepValue = 0;
+        if (v->second.size() > 1) stepValue = v->second.values[1] - v->second.values[0];
+        PropItem *step = new PropItem(QString("Step"), stepValue, prop);
+        
+        prop->appendChild(start);
+        prop->appendChild(end);
+        prop->appendChild(step);
+        pop->appendChild(prop);                            
+    }        
+    
+    // Add in default parameters
+    std::map<std::string, double> piter = dtnet::defaultModelParams(p->model_type);
+    std::map<std::string, double>::iterator v_iter;
+    for (v_iter = piter.begin(); v_iter != piter.end(); ++v_iter) {
+        if (p->params.vals.find(v_iter->first) == p->params.vals.end()) {
+            PropItem *prop = new PropItem(QString(v_iter->first.c_str()), v_iter->second, pop);                            
+            PropItem *start = new PropItem(QString("Start"), v_iter->second, prop);
+            PropItem *end = new PropItem(QString("End"), v_iter->second, prop);
+            PropItem *step = new PropItem(QString("Step"), 0, prop);
             prop->appendChild(start);
             prop->appendChild(end);
             prop->appendChild(step);
-            pop->appendChild(prop);                            
-        }        
-        
-        // Add in default parameters
-        std::map<std::string, double> p = dtnet::defaultModelParams(i->second.model_type);
-        std::map<std::string, double>::iterator v_iter;
-        for (v_iter = p.begin(); v_iter != p.end(); ++v_iter) {
-            if (i->second.params.vals.find(v_iter->first) == i->second.params.vals.end()) {
-                PropItem *prop = new PropItem(QString(v_iter->first.c_str()), v_iter->second, pop);                            
-                PropItem *start = new PropItem(QString("Start"), v_iter->second, prop);
-                PropItem *end = new PropItem(QString("End"), v_iter->second, prop);
-                PropItem *step = new PropItem(QString("Step"), 0, prop);
-                prop->appendChild(start);
-                prop->appendChild(end);
-                prop->appendChild(step);
-                pop->appendChild(prop);      
-            }
-        }                
-        rootItem->appendChild(pop);
-    }    
+            pop->appendChild(prop);      
+        }
+    }                
+//    rootItem->appendChild(pop);
 }
 
 PropItem *PropModel::getItem(const QModelIndex &index) const

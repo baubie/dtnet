@@ -16,11 +16,11 @@ public:
     Workspace();
     ~Workspace();
 
-    bool loadTrial(QString const &filename, QString &e);
-    bool loadNetwork(QString const &filename, QString &e);
-
+    bool loadTrial(QString const &filename);
+    bool loadNetwork(QString const &filename);
     bool save(QString const &filename);
     bool load(QString const &filename);
+    QString getError();
 
     QString networkFilename;
     QString trialFilename;
@@ -31,6 +31,9 @@ public:
 signals:
     void networkChanged();
     void trialChanged();
+
+private:
+    QString errorMsg;
      
 };
 

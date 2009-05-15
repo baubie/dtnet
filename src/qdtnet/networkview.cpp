@@ -23,6 +23,12 @@ void NetworkView::replaceNetwork(Net *net)
 		scene->addItem(ni);
 		ni->setPos(0, y);
 		y += 80;
+
+        /*
+        QObject::connect( ni, SIGNAL(selected()), 
+                         this, SLOT(loadNetwork())
+                        );
+                        */
     }   
     
 	scale(qreal(1), qreal(1));	
@@ -33,7 +39,8 @@ void NetworkView::replaceNetwork(Net *net)
 
 void NetworkView::drawBackground(QPainter *painter, const QRectF &rect)
 {
-	
+    Q_UNUSED(painter)	
+    Q_UNUSED(rect)	
 }
 
 /*

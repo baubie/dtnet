@@ -13,9 +13,8 @@ class PropModel : public QAbstractItemModel
     Q_OBJECT
     
 public:
-    PropModel( Net *net, QObject *parent = 0 );
+    PropModel( Population *p, QObject *parent = 0 );
     ~PropModel();
-    
     QVariant data(const QModelIndex &index, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant headerData(int selection, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -26,7 +25,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
 private:
-    void setupModelData(Net *n, PropItem *parent);
+    void setupModelData(Population *p, PropItem *parent);
     PropItem *getItem(const QModelIndex &index) const;    
     PropItem *rootItem;
     

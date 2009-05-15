@@ -50,6 +50,9 @@
     <addaction name="actionOpen_Network"/>
     <addaction name="actionOpen_Trial"/>
     <addaction name="separator"/>
+    <addaction name="actionOpen_Workspace"/>
+    <addaction name="actionSave_Workspace"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -68,8 +71,12 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionOpen_Workspace"/>
+   <addaction name="actionSave_Workspace"/>
+    <addaction name="separator"/>
    <addaction name="actionOpen_Network"/>
    <addaction name="actionOpen_Trial"/>
+    <addaction name="separator"/>
    <addaction name="actionRun_Simulation"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -94,7 +101,7 @@
      <normaloff>:/newPrefix/resources/gt_dendrites.jpg</normaloff>:/newPrefix/resources/gt_dendrites.jpg</iconset>
    </property>
    <property name="text">
-    <string>Load Network</string>
+    <string>Open Network</string>
    </property>
   </action>
   <action name="actionOpen_Trial">
@@ -103,7 +110,20 @@
      <normaloff>:/newPrefix/resources/signal-Vista-icon.jpg</normaloff>:/newPrefix/resources/signal-Vista-icon.jpg</iconset>
    </property>
    <property name="text">
-    <string>Load Trial</string>
+    <string>Open Trial</string>
+   </property>
+  </action>
+  <action name="actionOpen_Workspace">
+   <property name="icon">
+
+   </property>
+   <property name="text">
+    <string>Open Workspace</string>
+   </property>
+  </action>
+  <action name="actionSave_Workspace">
+   <property name="text">
+    <string>Save Workspace</string>
    </property>
   </action>
   <action name="actionRun_Simulation">

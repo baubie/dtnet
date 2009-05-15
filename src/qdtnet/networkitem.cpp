@@ -16,6 +16,10 @@ NetworkItem::NetworkItem(const QString &ID, const QString &name, const QString &
     setZValue(1);
 }
 
+void NetworkItem::focusInEvent( QFocusEvent *event )
+{
+}
+
  QRectF NetworkItem::boundingRect() const
  {
      return QRectF(-BOX_WIDTH/2, 
@@ -39,6 +43,7 @@ NetworkItem::NetworkItem(const QString &ID, const QString &name, const QString &
 
 void NetworkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
  {
+     /*
      painter->setPen(Qt::NoPen);
      painter->setBrush(Qt::darkGray);
      painter->drawRoundedRect(-BOX_WIDTH/2,
@@ -47,7 +52,14 @@ void NetworkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
                                BOX_HEIGHT,
                                BOX_CORNER, 
                                BOX_CORNER);
-     painter->setBrush(QColor(0,0,0,200));
+                               */
+
+     if (option->state & QStyle::State_Sunken)
+     {
+         painter->setBrush(QColor(120,120,200,240));
+     } else {
+         painter->setBrush(QColor(80,80,100,200));
+     }
      painter->setPen(QPen(Qt::black, 0));
      painter->drawRoundedRect(-BOX_WIDTH/2+SHADOW_OFFSET,
                               -BOX_HEIGHT/2+SHADOW_OFFSET,

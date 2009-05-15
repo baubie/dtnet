@@ -10,13 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->dockProperties->setObjectName("NetworkProperties");
     ui->dockProperties->setWindowTitle(tr("Network Properties"));
     
-    propertiesTree = new QTreeView();
-    propertiesTree->setAlternatingRowColors(true);
-    propertiesTree->setSelectionBehavior( QAbstractItemView::SelectRows );
-    propertiesTree->setWordWrap( false );
-    propertiesTree->setAnimated( false );
-    ui->dockProperties->setWidget(propertiesTree);
-    
+    networkToolBox = new QToolBox();
+    ui->dockProperties->setWidget(networkToolBox);
 	
 	tabWidget = new QTabWidget();
 	networkView = new NetworkView( NULL );
@@ -28,11 +23,11 @@ MainWindow::MainWindow(QWidget *parent)
 	
 	setCentralWidget(tabWidget);
 	
-    propertiesModel = new PropModel( NULL );
-    propertiesTree->setModel(propertiesModel);
-    
     // Setup Signals and Slots
     QObject::connect(&ws, SIGNAL(networkChanged()), 
+                     this, SLOT(loadNetwork())
+                    );
+    QObject::connect(&ws, SIGNAL(trialChanged()), 
                      this, SLOT(loadNetwork())
                     );
                     
@@ -43,52 +38,77 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete propertiesTree;
-    delete propertiesModel;
+    delete networkToolBox;
 }
 
 void MainWindow::loadNetwork() 
 {
-    delete propertiesModel;
     setWindowTitle("Qt-dtnet - " + ws.networkFilename);
-    propertiesModel = new PropModel( ws.net );    
-    propertiesTree->setModel(propertiesModel);
+
+    delete networkToolBox;
+    networkToolBox = new QToolBox();
+    ui->dockProperties->setWidget(networkToolBox);
+
+    QTableView *propertiesTree;
+
+    std::map<std::string,Population>::iterator i;
+    for (i = ws.net->populations.begin(); i != ws.net->populations.end(); ++i)
+    {
+        propertiesTree = new QTableView();
+        propertiesTree->setAlternatingRowColors(false);
+        propertiesTree->setSelectionBehavior( QAbstractItemView::SelectRows );
+        propertiesTree->setWordWrap( false );
+//        propertiesTree->setAnimated( false );
+        networkToolBox->addItem(propertiesTree, QString::fromStdString(i->first));
+        propertiesModel = new PropModel( &(i->second) );    
+        propertiesTree->setModel(propertiesModel);
+    }
 	
 	networkView->replaceNetwork( ws.net );
 	networkView->show();
     
+    if ( ws.trial->isReady() && ws.net->isReady() ) ui->actionRun_Simulation->setEnabled( true );   
+}
+
+void MainWindow::loadTrial()
+{
+    if ( ws.trial->isReady() && ws.net->isReady() ) ui->actionRun_Simulation->setEnabled( true );   
+}
+
+void MainWindow::on_actionOpen_Workspace_triggered()
+{
+    QString filename = QFileDialog::getOpenFileName(this, tr("Open Workspace"), "", tr("Qdtnet Workspace (*.qdtnet)"));
+    ws.load(filename);
+}
+
+void MainWindow::on_actionSave_Workspace_triggered()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save Workspace"), "", tr("Qdtnet Workspace (*.qdtnet)"));
+    ws.save(filename);
 }
 
 void MainWindow::on_actionOpen_Network_triggered()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Open Network"), "", tr("Network XML Files (*.xml)"));
 
-    QString error;
-    if (!ws.loadNetwork(filename, error))
+    if (!ws.loadNetwork(filename))
     {
         QMessageBox msgBox;    
-        msgBox.setText(error);
+        msgBox.setText(ws.getError());
         msgBox.exec();
     } 
-    else {
-        if ( ws.trial->isReady() && ws.net->isReady() ) ui->actionRun_Simulation->setEnabled( true );   
-    }
 }
 
 void MainWindow::on_actionOpen_Trial_triggered()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Open Trial"), "", tr("Trial XML Files (*.xml)"));
 
-    QString error;
-    if (!ws.loadTrial(filename, error))
+    if (!ws.loadTrial(filename))
     {
         QMessageBox msgBox;    
-        msgBox.setText(error);
+        msgBox.setText(ws.getError());
         msgBox.exec();
     } 
-    else {
-        if ( ws.trial->isReady() && ws.net->isReady() ) ui->actionRun_Simulation->setEnabled( true );   
-    }
 }
 
 void MainWindow::on_actionRun_Simulation_triggered()

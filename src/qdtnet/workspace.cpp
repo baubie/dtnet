@@ -13,12 +13,16 @@ Workspace::~Workspace() {
     delete result;
 }
 
-bool Workspace::loadNetwork(QString const &filename, QString &e) {
+QString Workspace::getError() {
+    return errorMsg;
+}
+
+bool Workspace::loadNetwork(QString const &filename) {
 
     std::string error;
     if (!net->load(filename.toStdString(), error))
     {
-        e = QString::fromStdString(error);
+        errorMsg = QString::fromStdString(error);
         return false;
     } else {
         networkFilename = filename;
@@ -28,12 +32,12 @@ bool Workspace::loadNetwork(QString const &filename, QString &e) {
 
 }
 
-bool Workspace::loadTrial(QString const &filename, QString &e) {
+bool Workspace::loadTrial(QString const &filename) {
 
     std::string error;
     if (!trial->load(filename.toStdString(), error))
     {
-        e = QString::fromStdString(error);
+        errorMsg = QString::fromStdString(error);
         return false;
     } else {
         trialFilename = filename;
@@ -86,7 +90,10 @@ bool Workspace::load(QString const &filename) {
     in >> p;
 
     // Update the workspace
-    
+    networkFilename = p.value("networkFilename", ""); 
+    trialFilename = p.value("trialFilename", "");
+    if (networkFilename != "") loadNetwork(networkFilename);
+    if (trialFilename != "") loadTrial(trialFilename);
     
     return true;
 }

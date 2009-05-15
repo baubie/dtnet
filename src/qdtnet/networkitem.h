@@ -14,6 +14,8 @@ public:
      QPainterPath shape() const;
      void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
+     virtual void focusInEvent( QFocusEvent *event );
+
 private:
     QString itemID;
     QString itemName;
