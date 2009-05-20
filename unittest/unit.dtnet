@@ -1,4 +1,0 @@
-set("T", 100)
-sim = simulation("net.xml", "input.xml")
-results = run(sim,"",1,10)
-quit()

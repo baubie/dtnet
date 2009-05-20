@@ -67,6 +67,7 @@ AC_OUTPUT(Makefile \
           src/models/Makefile \
           src/cli/Makefile \
           src/qdtnet/qdtnet.pro \
-		  src/qdtnet/MakefileAC
+		  src/qdtnet/MakefileAC \
+          src/unittest/Makefile
           )
 
