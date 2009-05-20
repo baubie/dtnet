@@ -36,7 +36,7 @@ AC_ARG_ENABLE(text-archive,
 AM_CONDITIONAL([BUILD_CLI], [test x$CLI != xno])
 AM_CONDITIONAL([BUILD_GUI], [test x$GUI != xno])
 
-CPPFLAGS="-Wall $CPPFLAGS"
+CPPFLAGS="-Wall $CPPFLAGS -O3"
 
 if test "$CLI" == "yes"; then
     READLINE_lib_check=""

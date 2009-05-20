@@ -131,6 +131,16 @@ namespace dtlang
      * Function Parser
      */
     template <typename Iter>
+    struct function_parser : grammar<Iter, space_type>
+    {
+        function_parser(): function_parser::base_type(expr)
+        {
+            expr        %= lit("(");
+        }
+        rule<Iter,space_type> expr;
+    };
+    /*
+    template <typename Iter>
     struct function_parser : grammar<Iter, function_call(), space_type>
     {
         function_parser(): function_parser::base_type(expr)
@@ -144,6 +154,7 @@ namespace dtlang
         rule<Iter, std::string(), space_type> name;
         rule<Iter, std::string(), space_type> param;
     };
+    */
 
     /**
      * Assignment Parser
