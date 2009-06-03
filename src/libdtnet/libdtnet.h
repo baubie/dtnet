@@ -36,7 +36,6 @@ namespace dtnet {
     static const int PLOT_3D = 2;
     static const int PLOT_MAP = 3;
 
-
     bool initialize();
     std::list<std::string> models();
     bool set_threads(int threads);

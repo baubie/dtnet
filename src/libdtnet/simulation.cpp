@@ -7,6 +7,7 @@ using namespace std;
 boost::mt19937 random_engine;
 
 Simulation::Simulation(Net &net, Trial &trial) : net(net), trial(trial) {
+    quiet = false;
 }
 
 bool Simulation::modify(std::string ID, Range const val) {
@@ -53,11 +54,11 @@ bool Simulation::modify(std::string ID, Range const val) {
             }
         }
     }
-    cout << "[X] " << ID << " failed to modify the network." << endl;
+    cerr << "[X] " << ID << " failed to modify the network." << endl;
     return false;
 }
 
-void Simulation::runSimulation(Results::Result *r, double T, double dt, double delay, bool voltage) {
+void Simulation::runSimulation(Results::Result *r, double T, double dt, double delay, bool voltage, bool quiet) {
 
     // Run all the results given to us in the vector
     // Each thread runs multiple results to cut down on thread management overhead
@@ -120,7 +121,7 @@ bool Simulation::simulationProgress(boost::threadpool::pool &tp, int total, boos
         return false;
     }
 
-    double percent_done = (double) (total - pending + active) / (double) total;
+    double percent_done = (double) (total - pending) / (double) total;
     boost::posix_time::time_duration dur = now - start;
     double time_left = (double) dur.total_microseconds() / percent_done;
     boost::posix_time::time_duration left = boost::posix_time::microseconds(time_left) - dur;
@@ -157,9 +158,12 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
         }
         fstr.close();
     }
-    cout << "Initializing " << total << " Simulations ";
-    if (voltage) cout << "with voltage traces." << endl;
-    if (!voltage) cout << "without voltage traces." << endl;
+    if (!quiet) 
+    {
+        cout << "Initializing " << total << " Simulations ";
+        if (voltage) cout << "with voltage traces." << endl;
+        if (!voltage) cout << "without voltage traces." << endl;
+    }
     const int progress_width = 50;
     int progress = 0;
     string progress_done;
@@ -204,37 +208,49 @@ bool Simulation::run(Results &results, string filename, double T, double dt, dou
                 results.add(r);
             }
 
+            if (!quiet)
+            {
             progress += number_of_trials;
             progress_done = string((int) (progress_width * ((float) progress / (float) total)), '*');
             progress_left = string(progress_width * (1 - ((float) progress / (float) total)), ' ');
             cout << "\r[" << progress_done << progress_left << "]" << flush;
+            }
         }
     }
+    if (!quiet)
+    {
     progress_done = string(progress_width, '*');
     cout << "\r[" << progress_done << progress_left << "]" << endl;
+    }
 
 
     /*******************
      * RUN SIMULATIONS *
      *******************/
-    cout << "Running " << networks->size() << " networks against " << inputs->size() << " inputs over " << number_of_trials << " trials." << endl;
     boost::posix_time::ptime start(boost::posix_time::microsec_clock::local_time());
-    tp.schedule(boost::threadpool::looped_task_func(boost::bind(&Simulation::simulationProgress, tp, total, start), 500));
-    cout << "Running " << results.results.size() << " Simulations ..." << endl;
+    if (!quiet) 
+    {
+        cout << "Running " << networks->size() << " networks against " << inputs->size() << " inputs over " << number_of_trials << " trials." << endl;
+        tp.schedule(boost::threadpool::looped_task_func(boost::bind(&Simulation::simulationProgress, tp, total, start), 1000));
+        cout << "Running " << results.results.size() << " Simulations ..." << endl;
+    }
     for (int r_index = 0; r_index < total; ++r_index) {
-        tp.schedule(boost::bind(&runSimulation, &results.results[r_index], T, dt, delay, voltage));
+        tp.schedule(boost::bind(&runSimulation, &results.results[r_index], T, dt, delay, voltage, quiet));
     }
 
     tp.wait();
-    boost::posix_time::ptime end(boost::posix_time::microsec_clock::local_time());
-    boost::posix_time::time_duration dur = end - start;
-    cout << "Completed in " << dur << endl;
+    if (!quiet)
+    {
+        boost::posix_time::ptime end(boost::posix_time::microsec_clock::local_time());
+        boost::posix_time::time_duration dur = end - start;
+        cout << "Completed in " << dur << endl;
+    }
 
     if (filename != "") {
-        cout << "Saving simulation..." << endl;
+        if (!quiet) cout << "Saving simulation..." << endl;
         results.save(filename);
     } else {
-        cout << "[WARNING] Simulation WAS NOT SAVED!" << endl;
+        if (!quiet) cout << "[WARNING] Simulation WAS NOT SAVED!" << endl;
     }
     return true;
 }

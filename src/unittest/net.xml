@@ -13,12 +13,12 @@
     </population>
     <population id="ON" title="Onset Evoked" type="hh">
         <param name="size">10</param>
-        <param name="T"><range start="10" end="21" step="3" /></param>
+        <param name="T">22</param>
         <param name="E_Na">70</param>
         <param name="g_Na">120</param>
         <param name="E_K">-75</param>
     </population>
-    <population id="ONDelay" title="Onset Evoked" type="aeif">
+    <population id="ONDelay" title="Onset Evoked" type="hh">
         <param name="size">10</param>
     </population>
     <population id="OFF" title="Offset Evoked" type="hh">

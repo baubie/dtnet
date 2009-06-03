@@ -1,8 +1,6 @@
 
 #include "dtlang.h"
 
-#define DEBUG cout << "DEBUG: "
-
 using namespace std;
 
 struct strCmp {
@@ -109,7 +107,6 @@ bool dtlang::parse_statement(const string &str, variable_def &var, const bool as
     dtlang::function_parser<string::const_iterator> pFunction;
     dtlang::function_call func;
     r = phrase_parse(iter, end, pFunction, func, boost::spirit::ascii::space);
-    DEBUG << "Checked if it was a function" << endl;
     if (r && iter == end) {
         if (func.first_param != "") { func.params.insert(func.params.begin(), (string)func.first_param); }
         void *ret;

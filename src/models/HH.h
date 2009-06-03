@@ -1,11 +1,9 @@
-
 #ifndef HH_H
 #define	HH_H
 
 #include "../libdtnet/neuron.h"
 
 // Derive our class based on the Neuron class
-
 class HH : public Neuron {
 public:
     // dtnet required functions

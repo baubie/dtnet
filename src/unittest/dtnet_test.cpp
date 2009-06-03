@@ -12,7 +12,13 @@
 
 int main(int argc, char* argv[]) {
 
-    int threads = 8;
+    int threads;
+    if (argc > 1) threads = atoi(argv[1]);
+    else threads = 1;
+
+    int trials;
+    if (argc > 2) trials = atoi(argv[2]);
+    else trials = 1;
 
     dtnet::initialize();
     OK("dtnet::initialize()");
@@ -37,8 +43,8 @@ int main(int argc, char* argv[]) {
     dtnet::run(*results, 
                sim, 
                "",
-               10,        // Run 10 trials
-               5,         // Add 10 ms buffer
+               trials,  
+               5,         
                true       // Save voltage
                );
     OK("dtnet::run()")

@@ -1,1 +1,1 @@
-valgrind --tool=callgrind ./dtnet_test
+valgrind --tool=callgrind .libs/dtnet_test 8 1

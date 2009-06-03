@@ -2,7 +2,6 @@
 #include "HH.h"
 
 BOOST_CLASS_EXPORT(HH)
-
         
 using namespace std;
 extern "C" Neuron* create() { return new HH; }
@@ -89,20 +88,25 @@ double V_update(double V, double& current, unsigned int& position, Neuron *n) {
 
 double n_update(double V, double& current, unsigned int& position, Neuron *n) {
 	HH* hh = static_cast<HH*>(n);
+
 	double a = hh->tf * 0.01 * (V+55) / (1-exp(-(V+55)/10));
 	double b = hh->tf * 0.125 * exp(-(V+65)/80);
+
 	return a * (1 - hh->n) - b * (hh->n);
 }
 
 double m_update(double V, double& current, unsigned int& position, Neuron *n) {
 	HH* hh = static_cast<HH*>(n);
+
 	double a = hh->tf * 0.1 * (V+40) / (1-exp(-(V+40)/10));
 	double b = hh->tf * 4 * exp(-(V+65)/18);
+
 	return a * (1 - hh->m) - b * (hh->m);
 }
 
 double h_update(double V, double& current, unsigned int& position, Neuron *n) {
 	HH* hh = static_cast<HH*>(n);
+
 	double a = hh->tf * 0.07 * exp(-(V+65)/20);
 	double b = hh->tf * 1 / (1 + exp(-(V+35)/10));
 	return a * (1 - hh->h) - b * (hh->h);
