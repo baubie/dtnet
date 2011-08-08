@@ -2,16 +2,16 @@
 # Written by Brandon Aubie 
 # Used to produce Figures
 
-set("T", 100)
+set("T", 50)
 set("graph.width", 8.5)
 set("graph.height", 16)
 sim = simulation("networks/anticoincidence.xml", "inputs/durations.xml")
-sim = modsim(sim, "population.CN.mu", 400)
-results = run(sim,"",5,5)
+results = run(sim,"",10,5)
 print(results)
 
+single = constrain(results, "population.CN.mu", 400)
 graphspikecounts(results, "DTN", "trial.main.duration", "sp_counts.eps")
-#graphspiketrains(single, "DTN", "sp400_spikes.eps")
+graphspiketrains(single, "DTN", "sp400_spikes.eps")
 
 short  = constrain(results, "trial.main.duration", 1)
 long  = constrain(results, "trial.main.duration", 8)

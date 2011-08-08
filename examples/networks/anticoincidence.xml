@@ -9,7 +9,7 @@
 
     <population id="SPONT" title="Spontaneous Activity" type="Poisson">
         <param name="size">5</param>
-		<param name="mu">0</param>
+		<param name="mu">50</param>
         <param name="spontaneous">true</param>
     </population>
 

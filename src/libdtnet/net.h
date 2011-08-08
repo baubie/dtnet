@@ -88,6 +88,7 @@ public:
             double spike;
             int step;
 
+
             for (std::list<Neuron*>::iterator n = neurons.begin(); n != neurons.end(); ++n) {
                 // Loop over the spikes from the most recent the the oldest
                 for (std::vector<double>::reverse_iterator s = (*n)->spikes.rbegin(); s != (*n)->spikes.rend(); ++s) {

@@ -30,6 +30,7 @@ public:
     Neuron(NeuronParams params);
     Neuron();
     void init(int steps, double delay);
+    void jitter();
 
     // Virtual Methods
     // REQUIRED
@@ -63,7 +64,6 @@ protected:
     double RungeKutta(double (*func)(double, double&, unsigned int&, Neuron*), double val, double &current, unsigned int &position, double &dt, Neuron* n);
 
 private:
-    void jitter();
     void completeParameters();
 
     friend class boost::serialization::access;

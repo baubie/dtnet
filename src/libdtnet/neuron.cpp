@@ -18,7 +18,7 @@ void Neuron::init(int steps, double delay) {
     this->def_params = this->params;
     this->voltage.resize(steps, 0.0);
     this->delay = delay;
-    this->jitter();
+//    this->jitter();
     this->initialize();
 }
 
@@ -37,6 +37,9 @@ void Neuron::completeParameters() {
 
 double n(double mean, double sigma) {
     if (sigma <= 0) return mean;
+
+	// Need to use "extern" here to that we use the same boost::mt19937
+	// as declared in simulation.cpp
     extern boost::mt19937 random_engine;
     boost::normal_distribution<double> norm_dist(mean, sigma);
     boost::variate_generator<boost::mt19937&, boost::normal_distribution<double> > generator(random_engine, norm_dist);
@@ -66,27 +69,4 @@ double Neuron::RungeKutta(double (*func)(double,double&,unsigned int&,Neuron*), 
     r = (k1+2*k2+2*k3+k4)/6;
     return r;
 }
-
-/*
-void Neuron::Spike(int position, double dt) {
-    static string s_VR = "VR";
-    static string s_b = "b";
-
-    switch(this->params.type) {
-        case NeuronParams::AEIF:
-            if (this->V >= 20) {
-                this->V = this->params.vals[s_VR];
-                this->w += this->params.vals[s_b];
-                voltage[position] = spikeHeight; // Artificial spike
-                spikes.push_back(position*dt - this->delay); // Save the actual spike time
-            }
-            break;
-        case NeuronParams::POISSON:
-        // We assume this is only called when a spike actually occurred.
-            this->voltage[position] = spikeHeight;
-            spikes.push_back(position*dt - this->delay);
-            break;
-    }
-}
- */
 

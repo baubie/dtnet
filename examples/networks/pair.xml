@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<network title="Short-pass Network">
+    <population id="INPUT" title="Input" type="Poisson">
+        <param name="size">1</param>
+        <param name="mu">400</param>
+        <param name="accept_input">true</param>
+    </population>
+
+    <population id="N1" title="Neuron 1" type="aEIF">
+        <param name="size">1</param>
+        <param name="C" sigma="1">220</param>
+        <param name="a" sigma="0">40</param>
+        <param name="b" sigma="0">10</param>
+        <param name="tauw" sigma="0">250</param>
+        <param name="EL" sigma="0">-65</param>
+        <param name="VR" sigma="0">-63</param>
+        <param name="VT" sigma="0">-52</param>
+    </population>
+
+	<!--
+    <population id="N2" title="Neuron 2" type="aEIF">
+        <param name="size">1</param>
+        <param name="C" sigma="5">220</param>
+        <param name="a" sigma="0">40</param>
+        <param name="b" sigma="2">10</param>
+        <param name="tauw" sigma="0">250</param>
+        <param name="EL" sigma="0">-65</param>
+        <param name="VR" sigma="0">-63</param>
+        <param name="VT" sigma="1">-52</param>
+    </population>
+	-->
+
+    <connection>
+        <param name="from">INPUT</param> 
+        <param name="to">N1</param>
+        <param name="weight">5</param>
+        <param name="delay">1</param>
+        <param name="density">1</param>
+        <param name="symmetric">false</param>
+    </connection>
+	<!--
+    <connection>
+        <param name="from">N1</param> 
+        <param name="to">N2</param>
+        <param name="weight">3</param>
+        <param name="delay">1</param>
+        <param name="density">1</param>
+        <param name="symmetric">false</param>
+    </connection>
+	-->
+</network>
+
+

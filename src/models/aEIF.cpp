@@ -24,8 +24,6 @@ map<string,double> aEIF::default_parameters() {
     p["a"] = 4;
     p["b"] = 0.0805;
     p["VR"] = -70.6;
-    p["hypTau"] = 2;
-    p["alpha_q"] = 1;
     return p;
 }
 
@@ -41,8 +39,6 @@ void aEIF::initialize() {
     this->a = this->params.getval("a");
     this->b = this->params.getval("b");
     this->VR = this->params.getval("VR");
-    this->hypTau = this->params.getval("hypTai");
-    this->alpha_q = this->params.getval("alpha_q");
 
     this->V = this->EL;
     this->w = 0;

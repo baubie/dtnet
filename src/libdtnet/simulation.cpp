@@ -71,6 +71,14 @@ void Simulation::runSimulation(Results::Result *r, double T, double dt, double d
     list<Neuron*>::const_iterator nIter;
     map<string, Net::Connection<double> >::const_iterator fromIter;
 
+
+	// Jitter the neurons
+	for (cpIter = r->cNetwork.populations.begin(); cpIter != r->cNetwork.populations.end(); ++cpIter) {
+		for (nIter = cpIter->second.neurons.begin(); nIter != cpIter->second.neurons.end(); ++nIter) { // Loop over neurons
+			(*nIter)->jitter();
+		}
+	}
+
     for (unsigned int ts = 0; ts < steps; ++ts) { // Loop over time steps
         for (cpIter = r->cNetwork.populations.begin(); cpIter != r->cNetwork.populations.end(); ++cpIter) {
 
