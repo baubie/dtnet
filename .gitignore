@@ -16,3 +16,6 @@ missing
 libtool
 *.cache
 dtnet
+eps_graphics
+GLE_scripts
+pdf_graphics
