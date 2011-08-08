@@ -1,10 +1,11 @@
 
 More information and latest version available at:
-http://dtnet.googlecode.com
+https://www.github.com/baubie/dtnet
 
 Requirements
 ============
-- Boost 1.37+
+- Boost 1.47+
+- Readline
 - GLE (For graphing)
 
 Installation
@@ -15,3 +16,14 @@ $ sudo make install
 
 Options are available for configure to specify installation location and library locations if configure is unable to find them on their own.
 Type ./configure --help for more information.
+
+Post-Installation
+=================
+Before dtnet can be used, you MUST create a file called ~/.libdtnetrc
+In this file, add the following line:
+
+models=HH aEIF Poisson
+
+This tells dtnet which neural models are available
+
+

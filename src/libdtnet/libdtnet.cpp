@@ -381,7 +381,7 @@ bool dtnet::graphspiketrains(Results &results, string const &popID, int trials, 
 bool dtnet::graphnetwork(Results &results, string const &filename) {
     char data_filename[] = "/tmp/dtnet_dot_XXXXXX";
     int pTemp = mkstemp(data_filename);
-    boost::iostreams::file_descriptor_sink sink(pTemp);
+    boost::iostreams::file_descriptor_sink sink(pTemp, boost::iostreams::close_handle);
     boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of(sink);
     if (!of) {
         cout << "[X] Unable to create temporary file." << endl;

@@ -368,7 +368,7 @@ bool GLE::data_to_file()
         { /**< Loop over each set of 3D data (probably only one, but this is general). **/
             char data_filename[] = "gle_data_XXXXXX";
             int pTemp = mkstemp(data_filename);
-            boost::iostreams::file_descriptor_sink sink( pTemp );
+            boost::iostreams::file_descriptor_sink sink( pTemp, boost::iostreams::close_handle );
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
             if (!of)
             {
@@ -398,7 +398,7 @@ bool GLE::data_to_file()
         { /**< Loop over each set of points. */
             char data_filename[] = "gle_data_XXXXXX";
             int pTemp = mkstemp(data_filename);
-            boost::iostreams::file_descriptor_sink sink( pTemp );
+            boost::iostreams::file_descriptor_sink sink( pTemp, boost::iostreams::close_handle );
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
             if (!of)
             {
@@ -449,7 +449,7 @@ bool GLE::data_to_file()
 
             char data_filename[] = "gle_data_XXXXXX";
             int pTemp = mkstemp(data_filename);
-            boost::iostreams::file_descriptor_sink sink( pTemp );
+            boost::iostreams::file_descriptor_sink sink( pTemp, boost::iostreams::close_handle );
             boost::iostreams::stream<boost::iostreams::file_descriptor_sink> of( sink );
             if (!of)
             {
@@ -481,7 +481,7 @@ string GLE::gle_script_to_file()
 
     char filename[] = "gle_script_XXXXXX";
     int pTemp = mkstemp(filename);
-    boost::iostreams::file_descriptor_sink sink( pTemp );
+    boost::iostreams::file_descriptor_sink sink( pTemp, boost::iostreams::close_handle );
     boost::iostreams::stream<boost::iostreams::file_descriptor_sink> out( sink );
 
     vector<Panel>::iterator panel_iter;

@@ -50,8 +50,10 @@ if test "$CLI" == "yes"; then
     AC_CHECK_LIB([ncurses], [main])
 fi
 
+AC_CHECK_LIB([dl], [dlopen])
 
-BOOST_REQUIRE(1.38)
+
+BOOST_REQUIRE(1.47)
 BOOST_IOSTREAMS
 BOOST_PROGRAM_OPTIONS
 BOOST_SYSTEM

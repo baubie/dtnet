@@ -50,7 +50,6 @@ namespace dtlang
     using namespace boost::spirit;
     using namespace boost::spirit::ascii;
     using namespace boost::spirit::qi;
-    using namespace boost::spirit::arg_names;
     namespace phoenix = boost::phoenix;
     namespace fusion = boost::fusion;
 
@@ -118,86 +117,86 @@ namespace dtlang
      * Comment Parser
      */
     template <typename Iter>
-    struct comment_parser : grammar<Iter, space_type>
+    struct comment_parser : grammar<Iter, boost::spirit::ascii::space_type>
     {
         comment_parser(): comment_parser::base_type(expr)
         {
-            expr        = "#" >> *(print);
+            expr        = "#" >> *(boost::spirit::qi::print);
         }
-        rule<Iter, space_type> expr;
+        rule<Iter, boost::spirit::ascii::space_type> expr;
     };
 
     /**
      * Function Parser
      */
     template <typename Iter>
-    struct function_parser : grammar<Iter, function_call(), space_type>
+    struct function_parser : grammar<Iter, function_call(), boost::spirit::ascii::space_type>
     {
         function_parser(): function_parser::base_type(expr)
         {
             expr        %= name >> "(" >> -param >> *("," > param) >> ")";
-            param       %= raw[lexeme[(lit('"') >> *(print - lit('"')) >> lit('"'))]
-                               | lexeme[+(alnum|'_'|'.'|'-')] >> -('(' >> -param >> *("," > param)  >> ')')];
-            name        %= raw[lexeme[+(alnum|'_'|'.')]];
+            param       %= raw[lexeme[(lit('"') >> *(boost::spirit::qi::print - lit('"')) >> lit('"'))]
+                               | lexeme[+(boost::spirit::qi::alnum|'_'|'.'|'-')] >> -('(' >> -param >> *("," > param)  >> ')')];
+            name        %= raw[lexeme[+(boost::spirit::qi::alnum|'_'|'.')]];
         }
-        rule<Iter, function_call(), space_type> expr;
-        rule<Iter, std::string(), space_type> name;
-        rule<Iter, std::string(), space_type> param;
+        rule<Iter, function_call(), boost::spirit::ascii::space_type> expr;
+        rule<Iter, std::string(), boost::spirit::ascii::space_type> name;
+        rule<Iter, std::string(), boost::spirit::ascii::space_type> param;
     };
 
     /**
      * Assignment Parser
      */
     template <typename Iter>
-    struct assignment_parser : grammar<Iter, variable_assign(), space_type>
+    struct assignment_parser : grammar<Iter, variable_assign(), boost::spirit::ascii::space_type>
     {
         assignment_parser(): assignment_parser::base_type(expr)
         {
             expr        %= name >> "=" >> value;
-            value       %= raw[lexeme[+(print)]];
-            name        %= raw[lexeme[+(alnum|'_')]];
+            value       %= raw[lexeme[+(boost::spirit::qi::print)]];
+            name        %= raw[lexeme[+(boost::spirit::qi::alnum|'_')]];
         }
-        rule<Iter, variable_assign(), space_type> expr;
-        rule<Iter, std::string(), space_type> name, value;
+        rule<Iter, variable_assign(), boost::spirit::ascii::space_type> expr;
+        rule<Iter, std::string(), boost::spirit::ascii::space_type> name, value;
     };
 
     /**
      * String Parser
      */
     template <typename Iter>
-    struct string_parser : grammar<Iter, std::string(), space_type>
+    struct string_parser : grammar<Iter, std::string(), boost::spirit::ascii::space_type>
     {
         string_parser(): string_parser::base_type(expr)
         {
-            expr       %= lit('"') >> raw[lexeme[*((print) - lit('"'))]] >> lit('"');
+            expr       %= lit('"') >> raw[lexeme[*((boost::spirit::qi::print) - lit('"'))]] >> lit('"');
         }
-        rule<Iter, std::string(), space_type> expr;
+        rule<Iter, std::string(), boost::spirit::ascii::space_type> expr;
     };
 
     /**
      * Double Parser
      */
     template <typename Iter>
-    struct double_parser : grammar<Iter, double(), space_type>
+    struct double_parser : grammar<Iter, double(), boost::spirit::ascii::space_type>
     {
         double_parser(): double_parser::base_type(expr)
         {
             expr       %= double_;
         }
-        rule<Iter, double(), space_type> expr;
+        rule<Iter, double(), boost::spirit::ascii::space_type> expr;
     };
 
     /**
      * Integer Parser
      */
     template <typename Iter>
-    struct integer_parser : grammar<Iter, int(), space_type>
+    struct integer_parser : grammar<Iter, int(), boost::spirit::ascii::space_type>
     {
         integer_parser(): integer_parser::base_type(expr)
         {
             expr       %= int_;
         }
-        rule<Iter, int(), space_type> expr;
+        rule<Iter, int(), boost::spirit::ascii::space_type> expr;
     };
 
 }
