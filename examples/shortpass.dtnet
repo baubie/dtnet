@@ -1,20 +1,28 @@
 # Shortpass DTN            
 # Written by Brandon Aubie 
 # Used to produce Figures
+#
+# Can produce Figures 2A, 5A, 5B, 8B, 8E
+# Some variance due to different random seeds will be present
 
-set("T", 50)
-set("graph.width", 8.5)
-set("graph.height", 16)
+set("T", 45)
 sim = simulation("networks/anticoincidence.xml", "inputs/durations.xml")
-results = run(sim,"",10,5)
+results = run(sim,"",15,10)
 print(results)
 
+set("graph.width", 5.5)
+set("graph.height", 4)
 single = constrain(results, "population.CN.mu", 400)
-graphspikecounts(results, "DTN", "trial.main.duration", "sp_counts.eps")
-graphspiketrains(single, "DTN", "sp400_spikes.eps")
+graphspikecounts(results, "DTN", "trial.main.duration", "JN_Aubie_2009_Fig8E.eps")
+graphspiketrains(single, "DTN", "JN_Aubie_2009_Fig8B.eps")
 
-short  = constrain(results, "trial.main.duration", 1)
-long  = constrain(results, "trial.main.duration", 8)
-graphtrial_voltage(short,0,"sp_1ms.eps")
-graphtrial_voltage(long,0,"sp_8ms.eps")
+single_20 = constrain(single, "trial.main.duration", 20)
+graphpsth(single_20, "CN", "JN_Aubie_2009_Fig2A.eps")
+
+set("graph.width", 8.5)
+set("graph.height", 16)
+short  = constrain(single, "trial.main.duration", 1)
+long  = constrain(single, "trial.main.duration", 8)
+graphtrial_voltage(short,0,"JN_Aubie_2009_Fig5A.eps")
+graphtrial_voltage(long,0,"JN_Aubie_2009_Fig5B.eps")
 quit()

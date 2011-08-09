@@ -62,7 +62,7 @@ void Poisson::update(double& current, unsigned int& position, double& dt) {
     // Finds mu in ms^-1 (mu is given in Hz)
     // Then multiplies by the time step to find mu in terms of per time step.
     // This gives a probability of firing in this time step.
-    // When dt = 0.05, this means that mu <= 20,000Hz, so we're good.
+    // When dt = 0.05, this means that mu is limited to <= 20,000Hz
     double p = (mu * 10 * dt) * current * currentMult; /**< Probability of firing. */
 
     if (r < p) spike(position, dt);

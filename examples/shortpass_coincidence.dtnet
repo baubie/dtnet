@@ -1,0 +1,18 @@
+# Shortpass DTN            
+# Written by Brandon Aubie 
+# Used to produce Figures
+#
+# Can produce Figures 2A, 5A, 5B, 8B, 8E
+# Some variance due to different random seeds will be present
+
+set("T", 45)
+sim = simulation("networks/coincidence_shortpass.xml", "inputs/durations.xml")
+results = run(sim,"",20,10,false)
+print(results)
+
+set("graph.width", 5.5)
+set("graph.height", 4)
+single = constrain(results, "population.CN.mu", 400)
+graphspikecounts(results, "DTN", "trial.main.duration", "JN_Aubie_2009_Fig8D.eps")
+graphspiketrains(single, "DTN", "JN_Aubie_2009_Fig8A.eps")
+quit()

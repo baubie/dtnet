@@ -7,12 +7,6 @@
         <param name="accept_input">true</param>
     </population>
 
-    <population id="SPONT" title="Spontaneous Activity" type="Poisson">
-        <param name="size">5</param>
-		<param name="mu">50</param>
-        <param name="spontaneous">true</param>
-    </population>
-
     <population id="SI" title="Sustained Inhibition" type="aEIF">
         <param name="size">10</param>
         <param name="C" sigma="5">220</param>
@@ -44,6 +38,17 @@
         <param name="EL" sigma="0">-52</param>
         <param name="VR" sigma="0">-49</param>
         <param name="VT" sigma="1">-50</param>
+    </population>
+
+    <population id="OFF" title="Offset" type="aEIF">
+        <param name="size">10</param>
+        <param name="C" sigma="5">250</param>
+        <param name="a" sigma="2">200</param>
+        <param name="b" sigma="0">1000</param>
+        <param name="tauw" sigma="0">10</param>
+        <param name="EL" sigma="0">-58</param>
+        <param name="VR" sigma="0">-62</param>
+        <param name="VT" sigma="0">-55</param>
     </population>
 
     <population id="DTN" title="Duration Tuned Neuron" type="aEIF">
@@ -98,17 +103,25 @@
         <param name="symmetric">false</param>
     </connection>
     <connection>
-        <param name="from">ONDelay</param> 
-        <param name="to">DTN</param>
-        <param name="weight">4</param>
+        <param name="from">SI</param> 
+        <param name="to">OFF</param>
+        <param name="weight">-6</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>
     </connection>
     <connection>
-        <param name="from">SPONT</param> 
+        <param name="from">OFF</param> 
         <param name="to">DTN</param>
-        <param name="weight">1</param>
+        <param name="weight">3</param>
+        <param name="delay">1</param>
+        <param name="density">1</param>
+        <param name="symmetric">false</param>
+    </connection>
+    <connection>
+        <param name="from">ONDelay</param> 
+        <param name="to">DTN</param>
+        <param name="weight">4</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>

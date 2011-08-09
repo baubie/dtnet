@@ -1,0 +1,18 @@
+# Bandpass DTN            
+# Written by Brandon Aubie 
+# Used to produce Figures
+#
+# Can produce Figures 7B, 7E
+# Some variance due to different random seeds will be present
+
+set("T", 60)
+sim = simulation("networks/anticoincidence_bandpass.xml", "inputs/durations.xml")
+results = run(sim,"",15,10)
+print(results)
+
+set("graph.width", 5.5)
+set("graph.height", 4)
+single = constrain(results, "population.CN.mu", 400)
+graphspikecounts(results, "DTN", "trial.main.duration", "JN_Aubie_2009_Fig7E.eps")
+graphspiketrains(single, "DTN", "JN_Aubie_2009_Fig7B.eps")
+quit()
