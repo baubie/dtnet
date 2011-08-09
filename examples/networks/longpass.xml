@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<network title="Bandpass Network">
+    <population id="CN" title="Cochlear Nucleus" type="Poisson">
+        <param name="size">25</param>
+        <param name="mu">500</param>
+        <param name="accept_input">true</param>
+    </population>
+    <population id="CN2" title="Steep Cochlear Nucleus" type="Poisson">
+        <param name="size">25</param>
+        <param name="mu">550</param>
+        <param name="accept_input">true</param>
+    </population>
+
+    <population id="SIAD" title="Adapting Sustained Inhibition" type="aEIF">
+        <param name="size">10</param>
+        <param name="C" sigma="10">220</param>
+        <param name="a" sigma="0">40</param>
+        <param name="b" sigma="20">300</param>
+        <param name="tauw" sigma="0">250</param>
+        <param name="EL" sigma="0">-55</param>
+        <param name="VR" sigma="0">-56</param>
+        <param name="VT" sigma="1">-52</param>
+    </population>
+
+    <population id="SE" title="Sustained Excitation" type="aEIF">
+        <param name="size">10</param>
+        <param name="C" sigma="7">280</param>
+        <param name="a" sigma="0">40</param>
+        <param name="b" sigma="0">0</param>
+        <param name="tauw" sigma="0">250</param>
+        <param name="EL" sigma="0">-55</param>
+        <param name="VR" sigma="0">-58</param>
+        <param name="VT" sigma="1">-50</param>
+    </population>
+
+    <population id="DTN" title="Duration Tuned Neuron" type="aEIF">
+        <param name="size">1</param>
+        <param name="C" sigma="0">260</param>
+        <param name="a" sigma="0">4</param>
+        <param name="b" sigma="0">4</param>
+        <param name="tauw" sigma="0">30</param>
+        <param name="EL" sigma="0">-62</param>
+        <param name="VR" sigma="0">-62</param>
+        <param name="VT" sigma="0">-52</param>
+    </population>
+
+    <connection>
+        <param name="from">CN</param> 
+        <param name="to">SE</param>
+        <param name="weight">3</param>
+        <param name="delay">1</param>
+        <param name="density">1</param>
+        <param name="symmetric">false</param>
+    </connection>
+    <connection>
+        <param name="from">CN2</param> 
+        <param name="to">SIAD</param>
+        <param name="weight">6</param>
+        <param name="delay">1</param>
+        <param name="density">1</param>
+        <param name="symmetric">false</param>
+    </connection>
+    <connection>
+        <param name="from">SE</param> 
+        <param name="to">DTN</param>
+        <param name="weight">10</param>
+        <param name="delay">1</param>
+        <param name="density">1</param>
+        <param name="symmetric">false</param>
+    </connection>
+    <connection>
+        <param name="from">SIAD</param> 
+        <param name="to">DTN</param>
+        <param name="weight">-4</param>
+        <param name="delay">1</param>
+        <param name="density">1</param>
+        <param name="symmetric">false</param>
+    </connection>
+</network>
+
+
