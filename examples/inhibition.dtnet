@@ -1,0 +1,26 @@
+# Contribution of Inhibition            
+# Written by Brandon Aubie 
+# Used to produce Figures
+#
+# Can produce Figures 10A and 10B
+# Data will nee
+# Some variance due to different random seeds will be present
+
+set("T", 80)
+set("graph.legend", 0)
+set("graph.width", 5.5)
+set("graph.height", 4)
+
+sim = simulation("networks/coincidence.xml", "inputs/durations.xml")
+sim = modsim(sim, "population.CN.mu", 400)
+sim = modsim(sim, "connection.SI:DTN.weight", -1)
+results = run(sim,"",20,5,false)
+graphspikecounts(results, "DTN", "trial.main.duration", "JN_Aubie_2009_Fig10A.eps")
+
+sim = simulation("networks/anticoincidence.xml", "inputs/durations.xml")
+sim = modsim(sim, "population.CN.mu", 400)
+sim = modsim(sim, "connection.SI:DTN.weight", -1)
+results = run(sim,"",20,5,false)
+graphspikecounts(results, "DTN", "trial.main.duration", "JN_Aubie_2009_Fig10B.eps")
+
+quit()

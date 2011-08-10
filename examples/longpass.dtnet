@@ -3,6 +3,8 @@
 # Used to produce Figures
 #
 # Can produce Figures 7B, 7E
+# In order to produce all the runs in Figure 7E, please modify
+# networks/longpass.xml with the appropriate input rates.
 # Some variance due to different random seeds will be present
 
 set("T", 60)
@@ -12,6 +14,7 @@ print(results)
 
 set("graph.width", 5.5)
 set("graph.height", 4)
-graphspikecounts(results, "DTN", "trial.main.duration", "JN_Aubie_2009_Fig9C.eps")
 graphspiketrains(results, "DTN", "JN_Aubie_2009_Fig9A.eps")
+
+graphspikecounts(results, "DTN", "trial.main.duration", "JN_Aubie_2009_Fig9C.eps")
 quit()

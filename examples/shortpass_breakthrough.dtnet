@@ -1,0 +1,21 @@
+# Shortpass with Onset Breakthrough DTN            
+# Written by Brandon Aubie 
+# Used to produce Figures
+#
+# Can produce Figures 11A
+# Some variance due to different random seeds will be present
+
+set("T", 45)
+sim = simulation("networks/anticoincidence.xml", "inputs/durations.xml")
+sim = modsim(sim, "connection.SI:DTN.weight", -4.3)
+sim = modsim(sim, "population.CN.mu", 400)
+sim = modsim(sim, "connection.SI:DTN.delay", 2.8)
+sim = modsim(sim, "connection.ONDelay:DTN.weight", 5)
+results = run(sim,"",15,5)
+print(results)
+
+set("graph.width", 5.5)
+set("graph.height", 4)
+graphspiketrains(results, "DTN", "JN_Aubie_2009_Fig11A.eps")
+
+quit()
