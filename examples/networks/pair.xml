@@ -18,7 +18,6 @@
         <param name="VT" sigma="0">-52</param>
     </population>
 
-	<!--
     <population id="N2" title="Neuron 2" type="aEIF">
         <param name="size">1</param>
         <param name="C" sigma="5">220</param>
@@ -29,7 +28,6 @@
         <param name="VR" sigma="0">-63</param>
         <param name="VT" sigma="1">-52</param>
     </population>
-	-->
 
     <connection>
         <param name="from">INPUT</param> 
@@ -39,7 +37,6 @@
         <param name="density">1</param>
         <param name="symmetric">false</param>
     </connection>
-	<!--
     <connection>
         <param name="from">N1</param> 
         <param name="to">N2</param>
@@ -48,7 +45,6 @@
         <param name="density">1</param>
         <param name="symmetric">false</param>
     </connection>
-	-->
 </network>
 
 
