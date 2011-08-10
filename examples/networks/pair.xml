@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<network title="Short-pass Network">
+<network title="Pair of Neurons">
     <population id="INPUT" title="Input" type="Poisson">
         <param name="size">1</param>
         <param name="mu">400</param>
