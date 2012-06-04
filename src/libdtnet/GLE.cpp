@@ -279,6 +279,7 @@ bool GLE::draw(string const &filename)
         r = system(command.c_str());
         if (r != 0) {
             cerr << "[GLE] An error occured." << endl;
+            cerr << "[GLE] " << command.c_str() << endl;
         }
         else
         {

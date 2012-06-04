@@ -6,11 +6,11 @@
 
 set("T", 50)
 sim = simulation("networks/coincidence.xml", "inputs/durations.xml")
-results = run(sim,"",20,10,false)
+results = run(sim,"",20,10,true)
 
 set("graph.width", 5.5)
 set("graph.height", 4)
-single = constrain(results, "population.CN.mu", 400)
+single = constrain(results, "population.CN.mu", 1000)
 graphspikecounts(results, "DTN", "trial.main.duration", "JN_Aubie_2009_Fig7D.eps")
 graphspiketrains(single, "DTN", "JN_Aubie_2009_Fig7A.eps")
 
@@ -18,6 +18,6 @@ set("graph.width", 8.5)
 set("graph.height", 16)
 short  = constrain(single, "trial.main.duration", 5)
 long  = constrain(single, "trial.main.duration", 13)
-#graphtrial_voltage(short,0,"JN_Aubie_2009_Fig4A.eps")
-#graphtrial_voltage(long,0,"JN_Aubie_2009_Fig4B.eps")
+graphtrial_voltage(short,0,"JN_Aubie_2009_Fig4A.eps")
+graphtrial_voltage(long,0,"JN_Aubie_2009_Fig4B.eps")
 quit()

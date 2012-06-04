@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <network title="Short-pass Network">
-    <population id="INPUT" title="Input" type="Poisson">
+    <population id="INPUT" title="Input" type="PhaseLock">
         <param name="size">1</param>
-        <param name="mu">400</param>
+        <param name="mu">500</param>
         <param name="accept_input">true</param>
     </population>
 
@@ -34,7 +34,7 @@
     <connection>
         <param name="from">INPUT</param> 
         <param name="to">N1</param>
-        <param name="weight">5</param>
+        <param name="weight">1</param>
         <param name="delay">1</param>
         <param name="density">1</param>
         <param name="symmetric">false</param>

@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <network title="Bandpass Network">
+
     <population id="CN" title="Cochlear Nucleus" type="Poisson">
         <param name="size">25</param>
         <param name="mu"><range start="350" end="500" step="50" /></param>
         <param name="accept_input">true</param>
     </population>
+	<!--
+    <population id="CN" title="Cochlear Nucleus" type="PhaseLock">
+        <param name="size">25</param>
+        <param name="mu"><range start="500" end="2000" step="500" /></param>
+        <param name="accept_input">true</param>
+    </population>
+	-->
 
     <population id="SI" title="Sustained Inhibition" type="aEIF">
         <param name="size">10</param>
